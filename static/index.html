@@ -1341,7 +1341,7 @@ function showApp() {
   loadChat();
   updateChatBadge();
   updateChatSidebarButton();
-  setInterval(updateChatBadge, 15000);
+  setInterval(updateChatBadge, 30000);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1759,7 +1759,7 @@ async function loadChat() {
     await loadConversations(false);
     if (activeConvId) await loadMessages(activeConvId, false);
     await updateChatBadge();
-  }, 8000);
+  }, 30000);
 }
 
 async function loadConversations(scrollReset = true) {
@@ -1901,14 +1901,23 @@ async function setConvStatus(status) {
 }
 
 async function updateChatBadge() {
+  // 1. Guardia: Si no hay token, no hagas nada y vuelve a intentarlo más tarde
+  const token = localStorage.getItem('token'); // O donde guardes tu token
+  if (!token) {
+    setTimeout(updateChatBadge, 60000); // Espera 1 minuto antes de volver a verificar
+    return;
+  }
+
   try {
-    const data = await req('GET', '/chat/unread_count');
-  } catch(e) {} 
-  finally {
+    const data = await req('GET', '/api/chat/unread_count');
+    // ... procesar el contador ...
+  } catch(e) {
+    console.error("Error al obtener contador:", e);
+  } finally {
+    // 2. Solo programa la siguiente ejecución después de terminar la actual
     setTimeout(updateChatBadge, 30000); 
   }
 }
-updateChatBadge();
 
 // ════════════════════════════════════════════════════════════════
 // FACTURAS

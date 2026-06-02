@@ -220,15 +220,18 @@ class Agent(Base):
     
     owner = relationship("User", backref="agents")
     
-# Busca tu función init_db y ajústala así:
+# En models/database.py
 async def init_db():
     async with engine.begin() as conn:
-        # Usamos run_sync con un try/except para ignorar el error si la tabla ya existe
         try:
             await conn.run_sync(Base.metadata.create_all)
-            print("✅ Tablas verificadas/creadas.")
+            print("✅ Tablas sincronizadas con la base de datos.")
         except Exception as e:
-            print(f"ℹ️ Nota sobre BD: {e}")
+            # Si el error es solo que la tabla existe, lo ignoramos y seguimos
+            if "already exists" in str(e):
+                print("ℹ️ Las tablas ya existen, omitiendo creación.")
+            else:
+                raise e # Si es otro error, sí queremos verlo
 
 
 async def get_db():

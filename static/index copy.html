@@ -310,9 +310,11 @@ tr:hover td{background:rgba(37,211,102,0.03);}
     </div>
     <nav>
       <div class="ni active" onclick="go('dashboard')"><span class="ni-ico">📊</span> Dashboard</div>
+       <div class="ni" onclick="go('chat')"><span class="ni-ico">💬</span> Chat <span id="chat-badge" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px;">0</span></div>
       <div class="ni" onclick="go('campaigns')"><span class="ni-ico">📣</span> Campañas</div>
       <div class="ni" onclick="go('contacts')"><span class="ni-ico">👥</span> Contactos</div>
-      <div class="ni" onclick="go('chat')"><span class="ni-ico">💬</span> Chat <span id="chat-badge" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px;">0</span></div>
+      <div class="ni" onclick="go('agents')"><span class="ni-ico">👤</span> Agentes</div>
+      <div class="ni" onclick="go('invoices')"><span class="ni-ico">📄</span> Facturas</div>
       <div class="ni" onclick="go('connect')"><span class="ni-ico">🔗</span> Conectar WhatsApp</div>
     </nav>
     <div class="sb-bot">
@@ -555,7 +557,7 @@ tr:hover td{background:rgba(37,211,102,0.03);}
             </div>
 
             <div class="info-box" style="margin-bottom:20px;">
-              ⚠️ <strong>Antes de continuar, asegúrate de tener:</strong><br>
+               <strong>Antes de continuar, asegúrate de tener:</strong><br>
               · El nombre legal de tu empresa registrada<br>
               · Acceso a la cuenta de Facebook de tu negocio<br>
               · El número de teléfono que deseas conectar
@@ -657,6 +659,88 @@ tr:hover td{background:rgba(37,211,102,0.03);}
 
     </div>
 
+    <!-- ── FACTURAS ── -->
+<div class="page" id="pg-invoices">
+  <div class="ph">
+    <h1>Facturas / Documentos</h1>
+    <p>Envía PDFs personalizados (facturas, recibos, cotizaciones) por WhatsApp</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h2>Nuevo Lote de Facturas</h2></div>
+    <div id="inv-alert" class="alert"></div>
+
+    <div class="fgrid" style="margin-bottom:20px;">
+      <div class="ff">
+        <label>Nombre del lote</label>
+        <input id="inv-name" placeholder="Facturas Junio 2025" value="Facturas Junio 2025">
+      </div>
+      <div class="ff">
+        <label>Caption (mensaje que acompaña el PDF)</label>
+        <textarea id="inv-caption" rows="2" placeholder="Adjuntamos tu factura correspondiente..."></textarea>
+      </div>
+    </div>
+
+    <div style="margin:20px 0 16px;">
+      <label style="display:block;margin-bottom:8px;font-size:13px;color:var(--text2);">
+        Subir PDFs (puedes subir varios a la vez)
+      </label>
+      <input type="file" id="inv-files" multiple accept="application/pdf" style="margin-bottom:8px;">
+      <div id="selected-files" style="font-size:13px;color:var(--text2);min-height:20px;"></div>
+    </div>
+
+    <button class="btn btn-g" onclick="createInvoiceBatch()">📤 Crear Lote y Subir PDFs</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <h2>Lotes enviados</h2>
+      <button class="btn btn-o" onclick="loadInvoiceBatches()" style="font-size:12px;">↻ Actualizar</button>
+    </div>
+    <div class="tbl-wrap" id="inv-table"></div>
+  </div>
+</div>
+
+<!-- ── AGENTES ── -->
+<!-- ── AGENTES ── -->
+<div class="page" id="pg-agents">
+  <div class="ph">
+    <h1>Agentes</h1>
+    <p>Gestiona quienes pueden enviar facturas y campañas</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h2>Nuevo Agente</h2></div>
+    <div id="agent-alert" class="alert"></div>
+    
+    <div class="fgrid">
+      <div class="ff"><label>Nombre del Agente</label><input id="agent-name" placeholder="Carlos López"></div>
+      <div class="ff"><label>Email</label><input id="agent-email" type="email" placeholder="carlos@empresa.com"></div>
+      <div class="ff"><label>Contraseña</label><input id="agent-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+      
+      <div class="ff">
+        <label>Rol</label>
+        <select id="agent-role">
+          <option value="sender">Usuario - Envía Facturas</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+      
+      <div class="ff">
+        <label>WhatsApp Phone ID (opcional)</label>
+        <input id="agent-phone-id" placeholder="123456789012345">
+      </div>
+    </div>
+    
+    <button class="btn btn-g" onclick="createAgent()" style="margin-top:16px;">+ Crear Agente</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h2>Lista de Agentes</h2></div>
+    <div class="tbl-wrap" id="agents-table"></div>
+  </div>
+</div>
+
   </main>
 </div>
 </div>
@@ -703,11 +787,42 @@ function showAuth() { document.getElementById('auth-screen').style.display = 'fl
 function showApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+
+  // Mostrar datos del usuario
   document.getElementById('sb-av').textContent = ME.name[0].toUpperCase();
   document.getElementById('sb-name').textContent = ME.name;
   document.getElementById('sb-email').textContent = ME.email;
+
   if (ME.has_whatsapp) document.getElementById('wa-badge').style.display = 'flex';
-  loadDashboard(); loadCampaigns(); loadContacts(); updateChatBadge(); setInterval(updateChatBadge, 15000);
+
+  // === CONTROL DE ACCESO POR ROL ===
+  const isOwner = ME.type === 'owner';
+  const isAdmin = ME.role === 'admin';
+
+  // Ocultar/mostrar opciones según rol
+  document.querySelectorAll('.ni').forEach(item => {
+    const text = item.textContent.trim();
+
+    if (text.includes('Agentes') && !isOwner) item.style.display = 'none';
+    if (text.includes('Campañas') && !isOwner) item.style.display = 'none';
+    //if (text.includes('Contactos') && !isOwner) item.style.display = 'none';
+    if (text.includes('Conectar WhatsApp') && !isOwner) item.style.display = 'none';
+    if (text.includes('Dashboard') && !isOwner) item.style.display = 'none';
+  }); 
+
+  // Cargar datos según rol
+  if (isOwner) {
+    loadDashboard();
+    loadCampaigns();
+    loadContacts();
+  } else {
+    // Agente solo ve Facturas y Chat
+    go('invoices'); // Redirigir directamente a Facturas
+  }
+
+  loadChat();
+  updateChatBadge();
+  setInterval(updateChatBadge, 15000);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -735,20 +850,39 @@ async function doLogin() {
   const btn = document.getElementById('l-btn');
   const err = document.getElementById('l-err');
   err.textContent = '';
+
   const email = document.getElementById('l-email').value.trim();
   const pass = document.getElementById('l-pass').value;
-  if (!email || !pass) { err.textContent = 'Completa email y contraseña'; return; }
+
+  if (!email || !pass) {
+    err.textContent = 'Completa email y contraseña';
+    return;
+  }
+
   btn.disabled = true;
   btn.innerHTML = '<span class="spin"></span> Entrando…';
+
   try {
     const d = await req('POST', '/auth/login', { email, password: pass });
-    TOKEN = d.token; ME = d.user;
+    
+    TOKEN = d.token;
+    ME = d.user;
     localStorage.setItem('wb_tok', TOKEN);
+
     showApp();
+
+    // Mensaje según tipo de usuario
+    if (ME.type === 'agent') {
+      console.log(`✅ Bienvenido Agente: ${ME.name} (${ME.role})`);
+    } else {
+      console.log(`✅ Bienvenido Dueño: ${ME.name}`);
+    }
+
   } catch(e) {
-    err.textContent = e.message;
+    err.textContent = e.message || 'Credenciales incorrectas';
   } finally {
-    btn.disabled = false; btn.innerHTML = 'Entrar →';
+    btn.disabled = false;
+    btn.innerHTML = 'Entrar →';
   }
 }
 
@@ -785,13 +919,37 @@ function logout() {
 // ════════════════════════════════════════════════════════════════
 // NAV
 // ════════════════════════════════════════════════════════════════
-const PAGES = ['dashboard','campaigns','contacts','chat','connect'];
+const PAGES = ['dashboard','campaigns','contacts','chat','connect','invoices','agents'];
 function go(name) {
+  const isOwner = ME && ME.type === 'owner';
+
+  // Bloquear accesos
+  if (!isOwner && ['dashboard', 'campaigns', 'connect', 'agents'].includes(name)) {
+    alert("❌ No tienes permiso para acceder a esta sección.");
+    return;
+  }
+
+  // 1. Limpiar todas las páginas y todos los botones de navegación
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach((n,i) => n.classList.toggle('active', i===PAGES.indexOf(name)));
-  document.getElementById('pg-'+name).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+
+  // 2. ACTIVAR EL BOTÓN CORRESPONDIENTE POR EL ATRIBUTO ONCLICK
+  // Buscamos el elemento que tiene el onclick específico para esa página
+  const targetNav = document.querySelector(`.ni[onclick="go('${name}')"]`);
+  if (targetNav) {
+    targetNav.classList.add('active');
+  }
+
+  // 3. Activar el contenido
+  const pageElement = document.getElementById('pg-' + name);
+  if (pageElement) {
+    pageElement.classList.add('active');
+  }
+
+  // Lógica extra
   if (name === 'chat') loadChat();
-  if (name === 'connect') loadWAStatus();
+  if (name === 'connect' && isOwner) loadWAStatus();
+  if (name === 'agents' && isOwner) loadAgents();
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -964,8 +1122,8 @@ async function delContact(id, btn) {
 // ════════════════════════════════════════════════════════════════
 
 // ⚠️ Reemplaza con tus valores de developers.facebook.com
-const META_APP_ID    = '1506937717812416';
-const META_CONFIG_ID = '4491121224509912';
+const META_APP_ID    = '1423948069499384';
+const META_CONFIG_ID = '2192998534770589';
 
 let embeddedSignupToken = null;
 let embeddedPhones      = [];   // lista de phones obtenidos del callback
@@ -979,97 +1137,32 @@ function selectMethod(method) {
 }
 
 function launchEmbeddedSignup() {
-  setAlert('signup-alert','','');
+  setAlert('signup-alert', '', '');
 
-  // ── MÉTODO A: Facebook SDK (Embedded Signup oficial) ──────────────────
-  // Requiere que el SDK de FB esté cargado y que tu app tenga
-  // Embedded Signup configurado en Meta Business Platform.
-  if (window.FB && typeof window.FB.login === 'function') {
-    document.getElementById('signup-waiting').style.display = 'block';
-    document.getElementById('fb-signup-btn').disabled = true;
+  // URL específica del flujo Embedded Signup de WhatsApp
+  const signupUrl = "https://business.facebook.com/messaging/whatsapp/onboard/?app_id=1423948069499384&config_id=2192998534770589&extras=%7B%22featureType%22%3A%22whatsapp_business_app_onboarding%22%2C%22sessionInfoVersion%22%3A%223%22%2C%22version%22%3A%22v4%22%7D";
 
-    window.FB.login(function(response) {
-      if (response.authResponse && response.authResponse.code) {
-        // Enviamos el code a nuestro backend para que obtenga el token
-        handleFBCode(response.authResponse.code);
-      } else {
-        document.getElementById('signup-waiting').style.display = 'none';
-        document.getElementById('fb-signup-btn').disabled = false;
-        setAlert('signup-alert','err','Cancelaste la autorización de Facebook.');
-      }
-    }, {
-      config_id: META_CONFIG_ID,
-      response_type: 'code',
-      override_default_response_type: true,
-      extras: {
-        setup: {},
-        featureType: 'whatsapp_business_app_onboarding',
-        sessionInfoVersion: '3',
-      }
-    });
-    return;
-  }
-
-  // ── MÉTODO B: OAuth popup sin SDK (fallback) ───────────────────────────
-  // Úsalo si el SDK de FB no carga (bloqueadores, etc.)
-  const state = Math.random().toString(36).substring(2);
-  sessionStorage.setItem('fb_oauth_state', state);
-
-  const origin = window.location.origin;
-  const redirectUri  = encodeURIComponent(`${origin}/api/auth/facebook/callback`);
-  const scope = encodeURIComponent(
-    'whatsapp_business_management,whatsapp_business_messaging,business_management');
-  const fbUrl = `https://www.facebook.com/v22.0/dialog/oauth`
-    + `?client_id=${META_APP_ID}`
-    + `&redirect_uri=${redirectUri}`
-    + `&scope=${scope}`
-    + `&state=${state}`
-    + `&response_type=code`;
-
-  const popup = window.open(fbUrl, 'fb_oauth',
-    'width=640,height=720,scrollbars=yes,resizable=yes,top=50,left=200');
-
+  // Mostrar indicador de espera
   document.getElementById('signup-waiting').style.display = 'block';
   document.getElementById('fb-signup-btn').disabled = true;
 
-  // Escuchar el postMessage que envía la página de callback
-  const handler = (ev) => {
-    if (ev.origin !== origin) return;
-    const d = ev.data;
-    if (!d || !d.type) return;
+  // Abrir ventana emergente
+  const popup = window.open(signupUrl, 'WhatsAppSignup', 'width=600,height=700,scrollbars=yes,resizable=yes,top=50,left=200');
 
-    window.removeEventListener('message', handler);
-    clearInterval(closedChecker);
-
-    document.getElementById('signup-waiting').style.display = 'none';
-
-    if (d.type === 'fb_oauth_success') {
-      embeddedSignupToken = d.token;
-      embeddedWabaId      = d.waba_id || null;
-      embeddedPhones      = d.phones  || [];
-      showPhoneSelector();  // muestra el paso 2 con los teléfonos
-    } else {
-      document.getElementById('fb-signup-btn').disabled = false;
-      setAlert('signup-alert','err','Error al conectar: ' + (d.error || 'Intenta de nuevo'));
-    }
-  };
-  window.addEventListener('message', handler);
-
-  // Detectar cierre prematuro del popup
+  // Monitorear cierre de la ventana
   const closedChecker = setInterval(() => {
     if (!popup || popup.closed) {
       clearInterval(closedChecker);
-      window.removeEventListener('message', handler);
       document.getElementById('signup-waiting').style.display = 'none';
       document.getElementById('fb-signup-btn').disabled = false;
-      if (!embeddedSignupToken) {
-        setAlert('signup-alert','err',
-          'Cerraste la ventana antes de completar. Inténtalo de nuevo.');
-      }
+      
+      // NOTA: Como la conexión se completa en el servidor mediante el callback
+      // que configuraste en tu backend (/api/auth/facebook/callback),
+      // no es necesario hacer nada más aquí. El servidor ya recibió los datos.
+      console.log("Ventana cerrada por el usuario.");
     }
   }, 800);
 }
-
 // Llamado cuando el backend ya tiene el token (vía postMessage del popup)
 function showPhoneSelector() {
   document.getElementById('signup-step-1').style.display = 'none';
@@ -1403,109 +1496,219 @@ function setAlert(id, type, msg) {
 }
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 function fmtDate(iso){ try { return new Date(iso).toLocaleDateString('es-HN',{day:'2-digit',month:'short',year:'numeric'}); } catch{return iso||'';} }
+
+// ════════════════════════════════════════════════════════════════
+// FACTURAS / INVOICES
+// ════════════════════════════════════════════════════════════════
+let selectedFiles = [];
+
+document.getElementById('inv-files').addEventListener('change', function(e) {
+  selectedFiles = Array.from(e.target.files);
+  const container = document.getElementById('selected-files');
+  if (selectedFiles.length > 0) {
+    container.innerHTML = selectedFiles.map(f => 
+      `<div style="margin:3px 0; font-size:13px;">📄 ${f.name} <small>(${(f.size/1024).toFixed(1)} KB)</small></div>`
+    ).join('');
+  } else {
+    container.innerHTML = '';
+  }
+});
+
+async function createInvoiceBatch() {
+  const name = document.getElementById('inv-name').value.trim();
+  const caption = document.getElementById('inv-caption').value.trim();
+  
+  setAlert('inv-alert', '', '');
+
+  if (!name) return setAlert('inv-alert', 'err', '⚠ Ingresa un nombre para el lote');
+  if (selectedFiles.length === 0) return setAlert('inv-alert', 'err', '⚠ Sube al menos un PDF');
+
+  const formData = new FormData();
+  formData.append('name', name);
+  if (caption) formData.append('caption', caption);
+
+  selectedFiles.forEach(file => {
+    formData.append('files', file);
+  });
+
+  try {
+    const res = await fetch(API + '/invoices/batches', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.detail || 'Error al crear lote');
+
+    setAlert('inv-alert', 'ok', `✅ Lote "${name}" creado con ${data.total} documentos.`);
+
+    // Limpiar formulario
+    selectedFiles = [];
+    document.getElementById('inv-files').value = '';
+    document.getElementById('selected-files').innerHTML = '';
+    
+    // Recargar lista de lotes
+    loadInvoiceBatches();
+  } catch (e) {
+    setAlert('inv-alert', 'err', '✕ ' + e.message);
+  }
+}
+
+async function loadInvoiceBatches() {
+  try {
+    const batches = await req('GET', '/invoices/batches');
+    const el = document.getElementById('inv-table');
+
+    if (!batches || batches.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ei">📄</div><p>Aún no tienes lotes de facturas</p></div>`;
+      return;
+    }
+
+    let html = `<table><thead><tr>
+      <th>Lote</th>
+      <th>Estado</th>
+      <th>Total</th>
+      <th>Enviados</th>
+      <th>Fallidos</th>
+      <th>Acciones</th>
+    </tr></thead><tbody>`;
+
+    for (let b of batches) {
+      const statusClass = b.status === 'completed' ? 'bdg-completed' :
+                          b.status === 'sending' ? 'bdg-sending' : 'bdg-pending';
+      
+      html += `<tr>
+        <td><strong>${esc(b.name)}</strong><br><small style="color:var(--text2)">${fmtDate(b.created_at)}</small></td>
+        <td><span class="bdg ${statusClass}">${b.status}</span></td>
+        <td>${b.total}</td>
+        <td class="c-green">${b.sent || 0}</td>
+        <td class="c-red">${b.failed || 0}</td>
+        <td>
+          ${b.status === 'pending' ? 
+            `<button class="btn btn-g" style="padding:6px 12px;font-size:12px" onclick="sendInvoiceBatch(${b.id}, this)">▶ Enviar</button>` : 
+            `<button class="btn btn-o" style="padding:6px 12px;font-size:12px" onclick="viewInvoiceStats(${b.id})">📊</button>`}
+        </td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+    el.innerHTML = html;
+  } catch (e) {
+    console.error(e);
+    document.getElementById('inv-table').innerHTML = 
+      `<div class="empty"><div class="ei">⚠️</div><p>Error al cargar lotes</p></div>`;
+  }
+}
+
+async function sendInvoiceBatch(batchId, btn) {
+  if (!confirm('¿Iniciar el envío masivo de este lote de facturas?')) return;
+  
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  
+  try {
+    await req('POST', `/invoices/batches/${batchId}/send`);
+    setAlert('inv-alert', 'ok', '🚀 Envío iniciado en segundo plano...');
+    loadInvoiceBatches();
+  } catch (e) {
+    alert('Error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '▶ Enviar';
+  }
+}
+
+async function viewInvoiceStats(batchId) {
+  alert(`📊 Estadísticas del lote ${batchId}\n\nEsta vista detallada está en desarrollo.\nPuedes revisar el estado en la lista principal.`);
+}
+
+// ════════════════════════════════════════════════════════════════
+// AGENTES
+// ════════════════════════════════════════════════════════════════
+
+async function createAgent() {
+  const name = document.getElementById('agent-name').value.trim();
+  const email = document.getElementById('agent-email').value.trim();
+  const password = document.getElementById('agent-password').value.trim();
+  const role = document.getElementById('agent-role').value;
+  const phoneId = document.getElementById('agent-phone-id').value.trim();
+
+  setAlert('agent-alert', '', '');
+
+  if (!name) return setAlert('agent-alert', 'err', '⚠ Ingresa el nombre del agente');
+  if (!email) return setAlert('agent-alert', 'err', '⚠ Ingresa un email');
+  if (!password || password.length < 6) return setAlert('agent-alert', 'err', '⚠ La contraseña debe tener mínimo 6 caracteres');
+
+  try {
+    await req('POST', '/agents', {
+      name: name,
+      email: email,
+      password: password,
+      role: role,
+      whatsapp_phone_id: phoneId || null
+    });
+    
+    setAlert('agent-alert', 'ok', `✅ Agente "${name}" creado exitosamente`);
+    
+    // Limpiar formulario
+    document.getElementById('agent-name').value = '';
+    document.getElementById('agent-email').value = '';
+    document.getElementById('agent-password').value = '';
+    document.getElementById('agent-phone-id').value = '';
+    
+    loadAgents();   // ← Ahora sí existe
+  } catch(e) {
+    console.error(e);
+    setAlert('agent-alert', 'err', '✕ ' + (e.message || 'Error desconocido'));
+  }
+}
+
+async function loadAgents() {
+  try {
+    const agents = await req('GET', '/agents');
+    const el = document.getElementById('agents-table');
+    
+    if (!agents || agents.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ei">👤</div><p>Aún no tienes agentes creados</p></div>`;
+      return;
+    }
+
+    let html = `<table><thead><tr>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Rol</th>
+      <th>WhatsApp ID</th>
+      <th>Estado</th>
+    </tr></thead><tbody>`;
+
+    for (let a of agents) {
+      html += `<tr>
+        <td><strong>${esc(a.name)}</strong></td>
+        <td>${a.email}</td>
+        <td><span class="bdg ${a.role==='admin'?'bdg-completed':'bdg-draft'}">${a.role}</span></td>
+        <td>${a.whatsapp_phone_id ? `<code style="font-size:12px">${a.whatsapp_phone_id}</code>` : '—'}</td>
+        <td><span class="bdg bdg-completed">Activo</span></td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+    el.innerHTML = html;
+  } catch(e) {
+    console.error(e);
+    document.getElementById('agents-table').innerHTML = 
+      `<div class="empty"><div class="ei">⚠️</div><p>Error al cargar agentes</p></div>`;
+  }
+}
 </script>
 <script async defer src="https://connect.facebook.net/es_LA/sdk.js"></script>
 <script>
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : '1506937717812416', // Tu App ID
+      appId      : '1423948069499384', // Tu App ID
       cookie     : true,
       xfbml      : true,
       version    : 'v22.0'
     });
   };
 </script>
-function launchEmbeddedSignup() {
-  setAlert('signup-alert','','');
-
-  // ── MÉTODO A: Facebook SDK (Embedded Signup oficial) ──────────────────
-  // Requiere que el SDK de FB esté cargado y que tu app tenga
-  // Embedded Signup configurado en Meta Business Platform.
-  if (window.FB && typeof window.FB.login === 'function') {
-    document.getElementById('signup-waiting').style.display = 'block';
-    document.getElementById('fb-signup-btn').disabled = true;
-
-    window.FB.login(function(response) {
-      if (response.authResponse && response.authResponse.code) {
-        // Enviamos el code a nuestro backend para que obtenga el token
-        handleFBCode(response.authResponse.code);
-      } else {
-        document.getElementById('signup-waiting').style.display = 'none';
-        document.getElementById('fb-signup-btn').disabled = false;
-        setAlert('signup-alert','err','Cancelaste la autorización de Facebook.');
-      }
-    }, {
-      config_id: META_CONFIG_ID,
-      response_type: 'code',
-      override_default_response_type: true,
-      extras: {
-        setup: {},
-        featureType: 'whatsapp_business_app_onboarding',
-        sessionInfoVersion: '3',
-      }
-    });
-    return;
-  }
-
-  // ── MÉTODO B: OAuth popup sin SDK (fallback) ───────────────────────────
-  // Úsalo si el SDK de FB no carga (bloqueadores, etc.)
-  const state = Math.random().toString(36).substring(2);
-  sessionStorage.setItem('fb_oauth_state', state);
-
-  const origin = window.location.origin;
-  const redirectUri  = encodeURIComponent(`${origin}/api/auth/facebook/callback`);
-  const scope = encodeURIComponent(
-    'whatsapp_business_management,whatsapp_business_messaging,business_management');
-  const fbUrl = `https://www.facebook.com/v22.0/dialog/oauth`
-    + `?client_id=${META_APP_ID}`
-    + `&redirect_uri=${redirectUri}`
-    + `&scope=${scope}`
-    + `&state=${state}`
-    + `&response_type=code`;
-
-  const popup = window.open(fbUrl, 'fb_oauth',
-    'width=640,height=720,scrollbars=yes,resizable=yes,top=50,left=200');
-
-  document.getElementById('signup-waiting').style.display = 'block';
-  document.getElementById('fb-signup-btn').disabled = true;
-
-  // Escuchar el postMessage que envía la página de callback
-  const handler = (ev) => {
-    if (ev.origin !== origin) return;
-    const d = ev.data;
-    if (!d || !d.type) return;
-
-    window.removeEventListener('message', handler);
-    clearInterval(closedChecker);
-
-    document.getElementById('signup-waiting').style.display = 'none';
-
-    if (d.type === 'fb_oauth_success') {
-      embeddedSignupToken = d.token;
-      embeddedWabaId      = d.waba_id || null;
-      embeddedPhones      = d.phones  || [];
-      showPhoneSelector();  // muestra el paso 2 con los teléfonos
-    } else {
-      document.getElementById('fb-signup-btn').disabled = false;
-      setAlert('signup-alert','err','Error al conectar: ' + (d.error || 'Intenta de nuevo'));
-    }
-  };
-  window.addEventListener('message', handler);
-
-  // Detectar cierre prematuro del popup
-  const closedChecker = setInterval(() => {
-    if (!popup || popup.closed) {
-      clearInterval(closedChecker);
-      window.removeEventListener('message', handler);
-      document.getElementById('signup-waiting').style.display = 'none';
-      document.getElementById('fb-signup-btn').disabled = false;
-      if (!embeddedSignupToken) {
-        setAlert('signup-alert','err',
-          'Cerraste la ventana antes de completar. Inténtalo de nuevo.');
-      }
-    }
-  }, 800);
-}
-
 </body>
 </html>

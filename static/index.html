@@ -1903,13 +1903,11 @@ async function setConvStatus(status) {
 async function updateChatBadge() {
   try {
     const data = await req('GET', '/chat/unread_count');
-  } catch(e) {
-    console.error("Error actualizando badge", e);
-  } finally {
-    setTimeout(updateChatBadge, 30000);
+  } catch(e) {} 
+  finally {
+    setTimeout(updateChatBadge, 30000); 
   }
 }
-
 updateChatBadge();
 
 // ════════════════════════════════════════════════════════════════

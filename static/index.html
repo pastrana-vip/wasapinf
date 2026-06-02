@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaSapinf – WhatsApp sin limitaciones</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0f0d;--bg2:#111a15;--bg3:#182220;--card:#1a2820;
+  --border:#253d30;--green:#25d366;--green2:#1aab50;
+  --green-glow:rgba(37,211,102,0.18);--text:#e8f5ee;--text2:#7fa090;
+  --red:#ff5c5c;--yellow:#f5c518;--blue:#4ab3f4;--purple:#a78bfa;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;font-size:15px;}
+
+/* ── SPLASH / AUTH ── */
+#auth-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;
+  background:radial-gradient(ellipse 80% 60% at 70% -10%,#0d2e1a,transparent),
+             radial-gradient(ellipse 40% 40% at 10% 90%,#091a10,transparent),
+             var(--bg);
+}
+.auth-wrap{display:flex;gap:64px;align-items:center;max-width:960px;width:100%;padding:0 32px;}
+.auth-hero{flex:1;display:none;}
+@media(min-width:900px){.auth-hero{display:block;}}
+.auth-hero h1{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;line-height:1.1;margin-bottom:16px;}
+.auth-hero h1 span{color:var(--green);}
+.auth-hero p{color:var(--text2);line-height:1.7;font-size:15px;max-width:380px;}
+.feat-list{margin-top:28px;display:flex;flex-direction:column;gap:12px;}
+.feat{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text2);}
+.feat-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+
+.auth-box{width:400px;flex-shrink:0;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px 36px;position:relative;overflow:hidden;}
+.auth-box::after{content:'';position:absolute;top:-80px;right:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(37,211,102,0.1),transparent 70%);pointer-events:none;}
+.logo-mark{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+.logo-mark .ico{width:38px;height:38px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-mark span{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--green);}
+
+.tabs{display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:4px;margin-bottom:24px;}
+.tab{flex:1;padding:9px;border:none;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:14px;border-radius:9px;cursor:pointer;transition:.2s;font-weight:500;}
+.tab.active{background:var(--green);color:#000;font-weight:600;}
+
+.form{display:flex;flex-direction:column;gap:14px;}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.fld input{width:100%;padding:12px 15px;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:.2s;}
+.fld input:focus{border-color:var(--green);background:rgba(37,211,102,0.04);}
+.fld input::placeholder{color:#4a6b5a;}
+.btn-main{width:100%;padding:14px;background:var(--green);border:none;border-radius:12px;color:#000;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:.2s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-main:hover{background:var(--green2);transform:translateY(-1px);}
+.btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.err-msg{min-height:20px;font-size:13px;color:var(--red);text-align:center;}
+
+/* ── APP ── */
+#app{display:none;min-height:100vh;}
+.layout{display:flex;min-height:100vh;}
+
+/* Sidebar */
+.sidebar{width:232px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;padding:0;position:fixed;top:0;left:0;z-index:10;}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+.sb-logo .ico{width:30px;height:30px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.sb-logo span{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--green);}
+.sb-badge{margin:12px 16px;background:var(--green-glow);border:1px solid rgba(37,211,102,0.3);border-radius:8px;padding:8px 12px;font-size:12px;display:flex;align-items:center;gap:6px;}
+.sb-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+nav{padding:8px 0;flex:1;}
+.ni{display:flex;align-items:center;gap:11px;padding:11px 20px;color:var(--text2);cursor:pointer;transition:.15s;font-size:14px;font-weight:500;border-left:3px solid transparent;user-select:none;}
+.ni:hover{background:var(--green-glow);color:var(--text);}
+.ni.active{background:var(--green-glow);color:var(--green);border-left-color:var(--green);}
+.ni-ico{font-size:16px;width:20px;text-align:center;}
+.sb-bot{padding:16px 20px;border-top:1px solid var(--border);}
+.user-row{display:flex;align-items:center;gap:10px;}
+.av{width:34px;height:34px;border-radius:50%;background:var(--green);color:#000;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;flex-shrink:0;}
+.user-info{flex:1;min-width:0;}
+.user-info .un{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-info .ue{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.logout{background:none;border:none;color:var(--text2);cursor:pointer;padding:4px;border-radius:6px;font-size:16px;transition:.2s;}
+.logout:hover{color:var(--red);background:rgba(255,92,92,0.1);}
+
+/* Main */
+.main{margin-left:232px;flex:1;padding:32px;max-width:calc(100vw - 232px);}
+.ph{margin-bottom:24px;}
+.ph h1{font-family:'Syne',sans-serif;font-weight:700;font-size:24px;}
+.ph p{color:var(--text2);font-size:13px;margin-top:3px;}
+
+/* Pages */
+.page{display:none;}
+.page.active{display:block;}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.card-hd h2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
+
+/* Stats */
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+@media(max-width:1100px){.stats4{grid-template-columns:repeat(2,1fr);}}
+.scard{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+.scard .slb{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.scard .sv{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;}
+.scard .ss{font-size:12px;color:var(--text2);margin-top:4px;}
+.c-green{color:var(--green);}
+.c-blue{color:var(--blue);}
+.c-yellow{color:var(--yellow);}
+.c-red{color:var(--red);}
+.c-purple{color:var(--purple);}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{color:var(--text2);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:13px 14px;border-bottom:1px solid rgba(37,63,48,.5);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(37,211,102,0.03);}
+.empty{text-align:center;padding:56px 0;color:var(--text2);}
+.empty .ei{font-size:44px;margin-bottom:12px;}
+.empty p{font-size:14px;}
+
+/* Badges */
+.bdg{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.bdg-draft{background:rgba(245,197,24,.15);color:var(--yellow);}
+.bdg-sending{background:rgba(74,179,244,.15);color:var(--blue);}
+.bdg-completed{background:rgba(37,211,102,.15);color:var(--green);}
+.bdg-failed{background:rgba(255,92,92,.15);color:var(--red);}
+.bdg-pending{background:rgba(160,160,160,.15);color:#aaa;}
+
+/* Forms */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.ff{display:flex;flex-direction:column;gap:6px;}
+.ff.full{grid-column:1/-1;}
+.ff label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;}
+.ff input,.ff textarea,.ff select{
+  padding:11px 14px;background:var(--bg3);border:1.5px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:.2s;resize:vertical;
+}
+.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--green);}
+.ff input::placeholder,.ff textarea::placeholder{color:#4a6b5a;}
+.ff textarea{min-height:96px;}
+.hint{font-size:12px;color:var(--text2);margin-top:3px;}
+.hint code{background:var(--border);padding:1px 6px;border-radius:4px;color:var(--green);font-family:monospace;}
+
+/* Buttons */
+.btn{padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.2s;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-g{background:var(--green);color:#000;}
+.btn-g:hover:not(:disabled){background:var(--green2);}
+.btn-o{background:transparent;color:var(--green);border:1.5px solid var(--green);}
+.btn-o:hover{background:var(--green-glow);}
+.btn-r{background:rgba(255,92,92,.12);color:var(--red);border:1px solid rgba(255,92,92,.25);}
+.btn-r:hover{background:rgba(255,92,92,.2);}
+.btn-b{background:rgba(74,179,244,.12);color:var(--blue);border:1px solid rgba(74,179,244,.25);}
+
+/* Alert */
+.alert{padding:11px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none;line-height:1.5;}
+.alert.show{display:block;}
+.al-ok{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:var(--green);}
+.al-err{background:rgba(255,92,92,.1);border:1px solid rgba(255,92,92,.3);color:var(--red);}
+.al-info{background:rgba(74,179,244,.1);border:1px solid rgba(74,179,244,.3);color:var(--blue);}
+
+/* Progress */
+.prog{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green2),var(--green));transition:.4s;}
+
+/* WhatsApp connect steps */
+.connect-steps{display:flex;gap:0;margin-bottom:28px;}
+.cs{flex:1;display:flex;align-items:center;gap:0;}
+.cs-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;flex-shrink:0;transition:.3s;z-index:1;}
+.cs-dot.done{background:var(--green);color:#000;}
+.cs-dot.active{background:var(--green);color:#000;box-shadow:0 0 0 4px var(--green-glow);}
+.cs-dot.pending{background:var(--bg3);color:var(--text2);border:1.5px solid var(--border);}
+.cs-line{flex:1;height:2px;background:var(--border);transition:.3s;}
+.cs-line.done{background:var(--green);}
+.cs:last-child .cs-line{display:none;}
+.cs-labels{display:flex;margin-bottom:24px;}
+.cs-label{flex:1;font-size:12px;color:var(--text2);text-align:center;}
+.cs-label.active{color:var(--green);font-weight:600;}
+
+.step-panel{display:none;}
+.step-panel.active{display:block;}
+.info-box{background:rgba(74,179,244,.08);border:1px solid rgba(74,179,244,.25);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--blue);line-height:1.6;margin-bottom:20px;}
+.info-box strong{color:var(--blue);}
+.req-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.req-item{display:flex;align-items:flex-start;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.req-num{width:24px;height:24px;border-radius:50%;background:var(--green);color:#000;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.req-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.req-desc{font-size:12px;color:var(--text2);line-height:1.5;}
+
+/* Modal */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;padding:20px;}
+.mo.open{display:flex;}
+.mo-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 32px;width:520px;max-width:100%;max-height:90vh;overflow-y:auto;}
+.mo-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.mo-hd h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
+.mo-close{background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;line-height:1;}
+.mo-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+
+/* Spinner */
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+/* Spinner (dark bg version) */
+.spin-dark{display:inline-block;width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0;}
+
+/* Method selector */
+.method-opt{background:var(--bg3);border:2px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:.2s;}
+.method-opt:hover{border-color:rgba(37,211,102,0.4);background:rgba(37,211,102,0.04);}
+.method-opt.selected{border-color:var(--green);background:rgba(37,211,102,0.06);}
+
+/* Facebook login button */
+.fb-login-btn{display:inline-flex;align-items:center;gap:10px;background:#1877f2;color:#fff;border:none;border-radius:10px;padding:13px 22px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s;}
+.fb-login-btn:hover{background:#1565d8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(24,119,242,0.4);}
+.fb-login-btn:active{transform:translateY(0);}
+
+@keyframes popIn{0%{transform:scale(.5);opacity:0;}70%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+/* ── CHAT MODULE ─────────────────────────────────────────────── */
+.chat-layout{display:flex;height:calc(100vh - 140px);gap:0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.chat-sidebar{width:300px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--bg2);}
+.chat-search-wrap{padding:12px;}
+.chat-filter-tabs{display:flex;gap:4px;padding:0 12px 10px;border-bottom:1px solid var(--border);}
+.cf-tab{flex:1;padding:6px 4px;border:none;background:transparent;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;transition:.2s;}
+.cf-tab.active{background:var(--green);color:#000;}
+.cf-tab:hover:not(.active){background:var(--bg3);}
+.conv-list{flex:1;overflow-y:auto;}
+.conv-item{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:.2s;display:flex;gap:10px;align-items:flex-start;}
+.conv-item:hover{background:rgba(37,211,102,0.05);}
+.conv-item.active{background:rgba(37,211,102,0.1);border-left:3px solid var(--green);}
+.conv-av{width:38px;height:38px;border-radius:50%;background:var(--bg3);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;color:var(--green);}
+.conv-body{flex:1;min-width:0;}
+.conv-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-preview{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.conv-meta{display:flex;align-items:center;gap:4px;margin-top:2px;}
+.conv-time{font-size:11px;color:var(--text2);}
+.conv-unread{background:var(--green);color:#000;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:auto;}
+
+.chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.chat-empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text2);}
+.chat-conv-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap;gap:8px;}
+.chat-contact-info{display:flex;align-items:center;gap:12px;}
+.chat-av{width:40px;height:40px;border-radius:50%;background:var(--green);color:#000;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.bubble{max-width:68%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;word-break:break-word;}
+.bubble-in{background:var(--bg3);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px;}
+.bubble-out{background:var(--green);color:#000;align-self:flex-end;border-bottom-right-radius:4px;}
+.bubble-time{font-size:11px;margin-top:4px;color:rgba(0,0,0,0.5);}
+.bubble-in .bubble-time{color:var(--text2);}
+.bubble-status{font-size:11px;color:rgba(0,0,0,0.4);}
+.chat-input-area{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);align-items:flex-end;background:var(--bg2);}
+.chat-input-area textarea{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;outline:none;max-height:120px;}
+.chat-input-area textarea:focus{border-color:var(--green);}
+.chat-send-btn{width:42px;height:42px;border-radius:50%;background:var(--green);border:none;color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;}
+.chat-send-btn:hover{background:var(--green2);}
+.conv-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.dot-open{background:var(--green);}
+.dot-waiting{background:var(--yellow);}
+.dot-closed{background:var(--text2);}
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH ══════════════════════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-hero">
+      <h1>Mensajería masiva<br>en <span>WhatsApp</span><br>sin bloqueos</h1>
+      <p>Conecta tu número a la API oficial de Meta y envía campañas a miles de contactos de forma segura, personalizada y medible.</p>
+      <div class="feat-list">
+        <div class="feat"><div class="feat-dot"></div>API oficial — cero riesgo de baneo</div>
+        <div class="feat"><div class="feat-dot"></div>Mensajes personalizados con variables</div>
+        <div class="feat"><div class="feat-dot"></div>Reportes de entrega y lectura en tiempo real</div>
+        <div class="feat"><div class="feat-dot"></div>Segmentación por etiquetas</div>
+      </div>
+    </div>
+    <div class="auth-box">
+      <div class="logo-mark"><div class="ico">💬</div><span>WaSapinf</span></div>
+      <div class="tabs">
+        <button class="tab active" onclick="tab('login')">Iniciar Sesión</button>
+        <button class="tab" onclick="tab('register')">Registrarse</button>
+      </div>
+
+      <div id="tf-login" class="form">
+        <div class="fld"><label>Email</label><input id="l-email" type="email" placeholder="tu@empresa.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="fld"><label>Contraseña</label><input id="l-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <p id="l-err" class="err-msg"></p>
+        <button class="btn-main" id="l-btn" onclick="doLogin()">Entrar →</button>
+      </div>
+
+      <div id="tf-register" class="form" style="display:none">
+        <div class="fld"><label>Nombre completo</label><input id="r-name" type="text" placeholder="Juan García" onkeydown="if(event.key==='Enter')doRegister()"></div>
+        <div class="fld"><label>Email</label><input id="r-email" type="email" placeholder="tu@empresa.com" onkeydown="if(event.key==='Enter')doRegister()"></div>
+        <div class="fld"><label>Contraseña</label><input id="r-pass" type="password" placeholder="Mínimo 6 caracteres" onkeydown="if(event.key==='Enter')doRegister()"></div>
+        <p id="r-err" class="err-msg"></p>
+        <button class="btn-main" id="r-btn" onclick="doRegister()">Crear cuenta gratis →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════════════════════════ -->
+<div id="app">
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-logo"><div class="ico">💬</div><span>WaSapinf</span></div>
+    <div class="sb-badge" id="wa-badge" style="display:none">
+      <div class="dot"></div><span style="font-size:12px;color:var(--green)">WhatsApp conectado</span>
+    </div>
+    <nav>
+      <div class="ni active" onclick="go('dashboard')"><span class="ni-ico">📊</span> Dashboard</div>
+       <div class="ni" onclick="go('chat')"><span class="ni-ico">💬</span> Chat <span id="chat-badge" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px;">0</span></div>
+      <div class="ni" onclick="go('campaigns')"><span class="ni-ico">📣</span> Campañas</div>
+      <div class="ni" onclick="go('contacts')"><span class="ni-ico">👥</span> Contactos</div>
+      <div class="ni" onclick="go('agents')"><span class="ni-ico">👤</span> Agentes</div>
+      <div class="ni" onclick="go('invoices')"><span class="ni-ico">📄</span> Facturas</div>
+      <div class="ni" onclick="go('connect')"><span class="ni-ico">🔗</span> Conectar WhatsApp</div>
+    </nav>
+    <div class="sb-bot">
+      <div class="user-row">
+        <div class="av" id="sb-av">U</div>
+        <div class="user-info">
+          <div class="un" id="sb-name">–</div>
+          <div class="ue" id="sb-email">–</div>
+        </div>
+        <button class="logout" onclick="logout()" title="Salir">↩</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="pg-dashboard">
+      <div class="ph"><h1>Dashboard</h1><p>Resumen de tus campañas y actividad</p></div>
+      <div class="stats4">
+        <div class="scard"><div class="slb">Campañas</div><div class="sv c-green" id="d-campaigns">–</div><div class="ss">Total creadas</div></div>
+        <div class="scard"><div class="slb">Mensajes enviados</div><div class="sv c-blue" id="d-sent">–</div><div class="ss">Todas las campañas</div></div>
+        <div class="scard"><div class="slb">Entregados</div><div class="sv c-green" id="d-delivered">–</div><div class="ss">Confirmados por Meta</div></div>
+        <div class="scard"><div class="slb">Contactos</div><div class="sv c-yellow" id="d-contacts">–</div><div class="ss">En tu lista</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h2>Campañas recientes</h2><button class="btn btn-o" onclick="go('campaigns')">Ver todas</button></div>
+        <div class="tbl-wrap" id="d-table"></div>
+      </div>
+    </div>
+
+    <!-- ── CAMPAÑAS ── -->
+    <div class="page" id="pg-campaigns">
+      <div class="ph"><h1>Campañas</h1><p>Crea y lanza mensajería masiva por WhatsApp</p></div>
+
+      <div class="card">
+        <div class="card-hd"><h2>Nueva campaña</h2></div>
+        <div id="ca-alert" class="alert"></div>
+        <div class="fgrid">
+          <div class="ff"><label>Nombre de campaña</label><input id="c-name" placeholder="Ej: Promo Julio 2025"></div>
+          <div class="ff"><label>Filtrar por etiqueta <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="c-tag" placeholder="vip, leads… vacío = todos"></div>
+          <div class="ff full">
+            <label>Mensaje</label>
+            <textarea id="c-msg" placeholder="Hola {{name}}, tenemos una oferta especial para ti esta semana. ¡No te la pierdas!"></textarea>
+            <div class="hint">Variables: <code>{{name}}</code> nombre del contacto · <code>{{phone}}</code> teléfono</div>
+          </div>
+          <div class="ff full">
+            <label>Archivo adjunto (PDF/Imagen)</label>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btn-o" onclick="document.getElementById('file-upload').click()">📎 Seleccionar archivo</button>
+              <span id="file-name" style="font-size:12px; color:var(--text2);">Ningún archivo seleccionado</span>
+            </div>
+            <input type="file" id="file-upload" style="display:none" onchange="updateFileName(this)">
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-g" onclick="createCampaign()">✓ Crear campaña</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><h2>Mis campañas</h2><button class="btn btn-o" onclick="loadCampaigns()" style="font-size:12px;">↻ Actualizar</button></div>
+        <div class="tbl-wrap" id="c-table"></div>
+      </div>
+    </div>
+
+    <!-- ── CONTACTOS ── -->
+    <div class="page" id="pg-contacts">
+      <div class="ph"><h1>Contactos</h1><p>Gestiona tu lista de destinatarios</p></div>
+
+      <div class="card">
+        <div class="card-hd"><h2>Agregar contacto</h2></div>
+        <div id="co-alert" class="alert"></div>
+        <div class="fgrid">
+          <div class="ff"><label>Nombre</label><input id="co-name" placeholder="Juan García"></div>
+          <div class="ff">
+            <label>Teléfono</label>
+            <div style="display: flex; gap: 8px;">
+              <select id="co-prefix" style="width: 100px;">
+                <option value="504">+504 (HN)</option>
+                <option value="57">+57 (CO)</option>
+                <option value="48">+48 (PL)</option>
+                </select>
+              <input id="co-phone" placeholder="99887766" style="flex: 1;">
+            </div>
+          </div>
+          <div class="ff"><label>Etiqueta <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="co-tag" placeholder="vip, clientes, leads…"></div>
+        </div>
+        <div style="margin-top:16px;"><button class="btn btn-g" onclick="addContact()">+ Agregar</button></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">
+          <h2>Lista de contactos</h2>
+          <span id="co-count" style="font-size:13px;color:var(--text2);"></span>
+        </div>
+        <div class="tbl-wrap" id="co-table"></div>
+      </div>
+    </div>
+
+    <!-- ── CHAT ── -->
+    <div class="page" id="pg-chat">
+      <div class="ph"><h1>Chat en vivo</h1><p>Atiende mensajes entrantes de tus clientes</p></div>
+      <div class="chat-layout">
+
+        <!-- Panel izquierdo: lista de conversaciones -->
+        <div class="chat-sidebar">
+          <div class="chat-search-wrap">
+            <input id="chat-search" placeholder="Buscar conversación…" oninput="filterConvs()" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
+          </div>
+          <div class="chat-filter-tabs">
+            <button class="cf-tab active" onclick="filterByStatus('',this)">Todos</button>
+            <button class="cf-tab" onclick="filterByStatus('open',this)">Abiertos</button>
+            <button class="cf-tab" onclick="filterByStatus('waiting',this)">En espera</button>
+            <button class="cf-tab" onclick="filterByStatus('closed',this)">Cerrados</button>
+          </div>
+          <div id="conv-list" class="conv-list"></div>
+        </div>
+
+        <!-- Panel derecho: mensajes de la conversación activa -->
+        <div class="chat-main" id="chat-main">
+          <div class="chat-empty-state" id="chat-empty">
+            <div style="font-size:56px;margin-bottom:12px;">💬</div>
+            <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px;">Selecciona una conversación</div>
+            <div style="color:var(--text2);font-size:14px;">Los mensajes entrantes aparecerán aquí automáticamente</div>
+          </div>
+
+          <!-- Header de la conv activa -->
+          <div class="chat-conv-header" id="chat-header" style="display:none;">
+            <div class="chat-contact-info">
+              <div class="chat-av" id="chat-av">?</div>
+              <div>
+                <div id="chat-contact-name" style="font-weight:700;font-size:15px;"></div>
+                <div id="chat-contact-phone" style="font-size:12px;color:var(--text2);"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-o" style="font-size:12px;padding:6px 12px;" onclick="setConvStatus('waiting')">⏳ En espera</button>
+              <button class="btn btn-r" style="font-size:12px;padding:6px 12px;" onclick="setConvStatus('closed')">✕ Cerrar</button>
+            </div>
+          </div>
+
+          <!-- Mensajes -->
+          <div class="chat-messages" id="chat-messages"></div>
+
+          <!-- Input de respuesta -->
+          <div class="chat-input-area" id="chat-input-area" style="display:none;">
+            <button class="btn-o" style="border-radius:50%; width:42px; height:42px; padding:0;" onclick="document.getElementById('chat-file').click()">+</button>
+            <input type="file" id="chat-file" style="display:none">
+            <textarea id="chat-reply-input" placeholder="Escribe tu respuesta…" rows="2"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendReply();}"></textarea>
+            <button class="chat-send-btn" onclick="sendReply()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONECTAR WHATSAPP ── -->
+    <div class="page" id="pg-connect">
+      <div class="ph"><h1>Conectar WhatsApp Business</h1><p>Conecta tu línea oficial de Meta en minutos, sin salir de esta pantalla</p></div>
+
+      <!-- Banner info -->
+      <div class="info-box" style="margin-bottom:20px;border-radius:14px;padding:16px 20px;">
+         <strong>Buenas noticias:</strong> Ahora puedes conectar tu WhatsApp Business existente y seguir usando el celular y WaSapinf de forma <strong>simultánea</strong>, sin perder conversaciones.
+      </div>
+
+      <!-- Estado de conexión -->
+      <div id="wa-connected-panel" style="display:none;">
+        <div class="card" style="margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div style="width:52px;height:52px;border-radius:50%;background:rgba(37,211,102,0.15);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:24px;">✓</div>
+            <div style="flex:1;">
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--green);">Línea conectada</div>
+              <div id="wa-line-info" style="font-size:13px;color:var(--text2);margin-top:2px;">–</div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-o" onclick="go('campaigns')">📣 Crear campaña</button>
+              <button class="btn btn-r" style="font-size:13px;padding:8px 14px;" onclick="disconnectWA()">Desconectar</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><h2>Estadísticas de la línea</h2></div>
+          <div id="wa-line-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px;">
+            <div class="scard"><div class="slb">Límite diario</div><div class="sv c-green" id="wa-daily-limit">–</div></div>
+            <div class="scard"><div class="slb">Calidad</div><div class="sv" id="wa-quality">–</div></div>
+            <div class="scard"><div class="slb">Estado</div><div class="sv c-green" id="wa-status">–</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel de conexión (cuando no está conectado) -->
+      <div id="wa-connect-panel">
+
+        <!-- Selector de método -->
+        <div class="card" style="margin-bottom:20px;" id="method-card">
+          <div class="card-hd"><h2>¿Cómo quieres conectar?</h2></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;">
+
+            <div class="method-opt selected" id="mopt-signup" onclick="selectMethod('signup')">
+              <div style="font-size:28px;margin-bottom:8px;">⚡</div>
+              <div style="font-weight:700;font-size:15px;margin-bottom:4px;">Conexión rápida</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Inicia sesión con Facebook y conecta tu línea en 2 minutos. Recomendado.</div>
+              <div style="margin-top:10px;"><span class="bdg bdg-completed">Recomendado</span></div>
+            </div>
+
+            <div class="method-opt" id="mopt-manual" onclick="selectMethod('manual')">
+              <div style="font-size:28px;margin-bottom:8px;">🔧</div>
+              <div style="font-weight:700;font-size:15px;margin-bottom:4px;">Conexión manual</div>
+              <div style="font-size:13px;color:var(--text2);line-height:1.5;">Ya tienes un token y Phone ID de Meta. Pégalos directamente.</div>
+              <div style="margin-top:10px;"><span class="bdg bdg-draft">Para desarrolladores</span></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── MÉTODO 1: Embedded Signup (OAuth Meta) ── -->
+        <div id="panel-signup" class="card">
+          <div class="card-hd"><h2>Conectar con Facebook</h2></div>
+
+          <div id="signup-step-1">
+            <p style="color:var(--text2);font-size:14px;line-height:1.6;margin-bottom:20px;">
+              Al hacer clic en el botón, se abrirá una ventana de Facebook donde podrás:
+            </p>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+              <div class="req-item">
+                <div class="req-num">1</div>
+                <div><div class="req-title">Elegir tu portafolio comercial</div><div class="req-desc">Selecciona el Meta Business Manager de tu empresa o crea uno nuevo en el momento.</div></div>
+              </div>
+              <div class="req-item">
+                <div class="req-num">2</div>
+                <div><div class="req-title">Seleccionar o crear tu perfil de WhatsApp Business</div><div class="req-desc">Puedes usar tu WhatsApp Business existente o crear uno nuevo. Escoge un nombre relacionado a tu negocio para evitar bloqueos.</div></div>
+              </div>
+              <div class="req-item">
+                <div class="req-num">3</div>
+                <div><div class="req-title">Verificar tu número</div><div class="req-desc">Usa tu propio número (recibirás un código SMS/llamada) o el número gratuito de Meta disponible para cuentas verificadas.</div></div>
+              </div>
+            </div>
+
+            <div class="info-box" style="margin-bottom:20px;">
+               <strong>Antes de continuar, asegúrate de tener:</strong><br>
+              · El nombre legal de tu empresa registrada<br>
+              · Acceso a la cuenta de Facebook de tu negocio<br>
+              · El número de teléfono que deseas conectar
+            </div>
+
+            <div id="signup-alert" class="alert"></div>
+
+            <!-- Botón oficial Meta Embedded Signup -->
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+              <button id="fb-signup-btn" class="fb-login-btn" onclick="launchEmbeddedSignup()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Conectar con Facebook
+              </button>
+              <span style="font-size:12px;color:var(--text2);">Redirige a una ventana segura de Meta/Facebook</span>
+            </div>
+
+            <!-- Spinner de espera después de popup -->
+            <div id="signup-waiting" style="display:none;margin-top:20px;">
+              <div style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);">
+                <div class="spin"></div>
+                <div>
+                  <div style="font-weight:600;font-size:14px;">Procesando tu conexión…</div>
+                  <div style="font-size:12px;color:var(--text2);margin-top:2px;">Completando el proceso en la ventana de Facebook</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PASO 2: Token recibido, completar conexión -->
+          <div id="signup-step-2" style="display:none;">
+            <div class="info-box" style="margin-bottom:20px;background:rgba(37,211,102,0.08);border-color:rgba(37,211,102,0.3);">
+              ✅ <strong>¡Autorización recibida de Facebook!</strong> Ahora completa los datos de tu línea para finalizar la conexión.
+            </div>
+            <div id="signup-step2-alert" class="alert"></div>
+            <div class="fgrid" style="margin-bottom:16px;">
+              <div class="ff full">
+                <label>Phone Number ID <span style="font-weight:400;text-transform:none;color:var(--text2)">(de WhatsApp Manager)</span></label>
+                <input id="s2-phone-id" placeholder="123456789012345">
+                <div class="hint">Encuéntralo en <strong>Meta Business Suite → WhatsApp → Configuración de la API</strong></div>
+              </div>
+              <div class="ff full">
+                <label>Nombre del perfil de WhatsApp</label>
+                <input id="s2-profile-name" placeholder="Mi Empresa SRL">
+                <div class="hint">El nombre que verán tus clientes al recibir mensajes</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-o" onclick="backToStep1()">← Volver</button>
+              <button class="btn btn-g" onclick="completeSignup()">Finalizar conexión →</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── MÉTODO 2: Manual ── -->
+        <div id="panel-manual" class="card" style="display:none;">
+          <div class="card-hd"><h2>Credenciales manuales</h2></div>
+          <div class="info-box" style="margin-bottom:20px;">
+            📋 Ingresa las credenciales de tu app en Meta. Las encuentras en <strong>developers.facebook.com → Tu App → WhatsApp → Configuración de la API</strong>
+          </div>
+          <div id="manual-alert" class="alert"></div>
+          <div class="fgrid" style="margin-bottom:16px;">
+            <div class="ff full">
+              <label>Access Token</label>
+              <input id="m-token" type="password" placeholder="EAAxxxxxxxxxxxxxxxxxxxxxxxx...">
+              <div class="hint">Token temporal de pruebas o token permanente de System Users</div>
+            </div>
+            <div class="ff full">
+              <label>Phone Number ID</label>
+              <input id="m-phone-id" placeholder="123456789012345">
+              <div class="hint">WhatsApp → Configuración de la API → Phone Number ID</div>
+            </div>
+            <div class="ff full">
+              <label>Nombre del perfil <span style="font-weight:400;text-transform:none;color:var(--text2)">(opcional)</span></label>
+              <input id="m-name" placeholder="Mi Empresa SRL">
+            </div>
+          </div>
+          <button class="btn btn-g" onclick="saveManualCredentials()">💾 Guardar y verificar conexión</button>
+        </div>
+
+      </div><!-- /wa-connect-panel -->
+
+      <!-- PANEL ÉXITO (común a ambos métodos) -->
+      <div id="wa-success-panel" style="display:none;margin-top:20px;">
+        <div class="card">
+          <div style="text-align:center;padding:28px 0;">
+            <div style="font-size:64px;margin-bottom:12px;animation:popIn .4s ease;">🎉</div>
+            <h2 style="font-family:'Syne',sans-serif;font-size:22px;margin-bottom:8px;">¡Línea conectada!</h2>
+            <p style="color:var(--text2);font-size:14px;max-width:400px;margin:0 auto 24px;line-height:1.6;">
+              Tu número de WhatsApp está listo para enviar campañas masivas de forma oficial. Límite inicial: <strong>50 mensajes/día</strong>, escala automáticamente con el uso.
+            </p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+              <button class="btn btn-g" onclick="go('contacts')">👥 Agregar contactos</button>
+              <button class="btn btn-o" onclick="go('campaigns')">📣 Crear primera campaña</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── FACTURAS ── -->
+<div class="page" id="pg-invoices">
+  <div class="ph">
+    <h1>Facturas / Documentos</h1>
+    <p>Envía PDFs personalizados (facturas, recibos, cotizaciones) por WhatsApp</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h2>Nuevo Lote de Facturas</h2></div>
+    <div id="inv-alert" class="alert"></div>
+
+    <div class="fgrid" style="margin-bottom:20px;">
+      <div class="ff">
+        <label>Nombre del lote</label>
+        <input id="inv-name" placeholder="Facturas Junio 2025" value="Facturas Junio 2025">
+      </div>
+      <div class="ff">
+        <label>Caption (mensaje que acompaña el PDF)</label>
+        <textarea id="inv-caption" rows="2" placeholder="Adjuntamos tu factura correspondiente..."></textarea>
+      </div>
+    </div>
+
+    <div style="margin:20px 0 16px;">
+      <label style="display:block;margin-bottom:8px;font-size:13px;color:var(--text2);">
+        Subir PDFs (puedes subir varios a la vez)
+      </label>
+      <input type="file" id="inv-files" multiple accept="application/pdf" style="margin-bottom:8px;">
+      <div id="selected-files" style="font-size:13px;color:var(--text2);min-height:20px;"></div>
+    </div>
+
+    <button class="btn btn-g" onclick="createInvoiceBatch()">📤 Crear Lote y Subir PDFs</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <h2>Lotes enviados</h2>
+      <button class="btn btn-o" onclick="loadInvoiceBatches()" style="font-size:12px;">↻ Actualizar</button>
+    </div>
+    <div class="tbl-wrap" id="inv-table"></div>
+  </div>
+</div>
+
+<!-- ── AGENTES ── -->
+<!-- ── AGENTES ── -->
+<div class="page" id="pg-agents">
+  <div class="ph">
+    <h1>Agentes</h1>
+    <p>Gestiona quienes pueden enviar facturas y campañas</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h2>Nuevo Agente</h2></div>
+    <div id="agent-alert" class="alert"></div>
+    
+    <div class="fgrid">
+      <div class="ff"><label>Nombre del Agente</label><input id="agent-name" placeholder="Carlos López"></div>
+      <div class="ff"><label>Email</label><input id="agent-email" type="email" placeholder="carlos@empresa.com"></div>
+      <div class="ff"><label>Contraseña</label><input id="agent-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+      
+      <div class="ff">
+        <label>Rol</label>
+        <select id="agent-role">
+          <option value="sender">Usuario - Envía Facturas</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+      
+      <div class="ff">
+        <label>WhatsApp Phone ID (opcional)</label>
+        <input id="agent-phone-id" placeholder="123456789012345">
+      </div>
+    </div>
+    
+    <button class="btn btn-g" onclick="createAgent()" style="margin-top:16px;">+ Crear Agente</button>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h2>Lista de Agentes</h2></div>
+    <div class="tbl-wrap" id="agents-table"></div>
+  </div>
+</div>
+
+  </main>
+</div>
+</div>
+
+<!-- ── STATS MODAL ── -->
+<div class="mo" id="mo-stats">
+  <div class="mo-box">
+    <div class="mo-hd">
+      <h3 id="mo-name">Estadísticas</h3>
+      <button class="mo-close" onclick="closeMo()">✕</button>
+    </div>
+    <div id="mo-body"></div>
+    <div class="mo-foot"><button class="btn btn-o" onclick="closeMo()">Cerrar</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════════
+const API = window.location.origin + '/api';
+let TOKEN = localStorage.getItem('wb_tok') || '';
+let ME = null;
+
+// ════════════════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════════════════
+(async () => {
+  if (TOKEN) {
+    try {
+      ME = await req('GET', '/auth/me');
+      showApp();
+    } catch {
+      TOKEN = '';
+      localStorage.removeItem('wb_tok');
+      showAuth();
+    }
+  } else {
+    showAuth();
+  }
+})();
+
+function showAuth() { document.getElementById('auth-screen').style.display = 'flex'; }
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Mostrar datos del usuario
+  document.getElementById('sb-av').textContent = ME.name[0].toUpperCase();
+  document.getElementById('sb-name').textContent = ME.name;
+  document.getElementById('sb-email').textContent = ME.email;
+
+  if (ME.has_whatsapp) document.getElementById('wa-badge').style.display = 'flex';
+
+  // === CONTROL DE ACCESO POR ROL ===
+  const isOwner = ME.type === 'owner';
+  const isAdmin = ME.role === 'admin';
+
+  // Ocultar/mostrar opciones según rol
+  document.querySelectorAll('.ni').forEach(item => {
+    const text = item.textContent.trim();
+
+    if (text.includes('Agentes') && !isOwner) item.style.display = 'none';
+    if (text.includes('Campañas') && !isOwner) item.style.display = 'none';
+    //if (text.includes('Contactos') && !isOwner) item.style.display = 'none';
+    if (text.includes('Conectar WhatsApp') && !isOwner) item.style.display = 'none';
+    if (text.includes('Dashboard') && !isOwner) item.style.display = 'none';
+  }); 
+
+  // Cargar datos según rol
+  if (isOwner) {
+    loadDashboard();
+    loadCampaigns();
+    loadContacts();
+  } else {
+    // Agente solo ve Facturas y Chat
+    go('invoices'); // Redirigir directamente a Facturas
+  }
+
+  loadChat();
+  updateChatBadge();
+  setInterval(updateChatBadge, 15000);
+}
+
+// ════════════════════════════════════════════════════════════════
+// API HELPER
+// ════════════════════════════════════════════════════════════════
+async function req(method, path, body) {
+  const h = { 'Content-Type': 'application/json' };
+  if (TOKEN) h['Authorization'] = 'Bearer ' + TOKEN;
+  const r = await fetch(API + path, { method, headers: h, body: body ? JSON.stringify(body) : undefined });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.detail || JSON.stringify(d));
+  return d;
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════════════════════
+function tab(t) {
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', i===(t==='login'?0:1)));
+  document.getElementById('tf-login').style.display = t==='login'?'flex':'none';
+  document.getElementById('tf-register').style.display = t==='register'?'flex':'none';
+}
+
+async function doLogin() {
+  const btn = document.getElementById('l-btn');
+  const err = document.getElementById('l-err');
+  err.textContent = '';
+
+  const email = document.getElementById('l-email').value.trim();
+  const pass = document.getElementById('l-pass').value;
+
+  if (!email || !pass) {
+    err.textContent = 'Completa email y contraseña';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Entrando…';
+
+  try {
+    const d = await req('POST', '/auth/login', { email, password: pass });
+    
+    TOKEN = d.token;
+    ME = d.user;
+    localStorage.setItem('wb_tok', TOKEN);
+
+    showApp();
+
+    // Mensaje según tipo de usuario
+    if (ME.type === 'agent') {
+      console.log(`✅ Bienvenido Agente: ${ME.name} (${ME.role})`);
+    } else {
+      console.log(`✅ Bienvenido Dueño: ${ME.name}`);
+    }
+
+  } catch(e) {
+    err.textContent = e.message || 'Credenciales incorrectas';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Entrar →';
+  }
+}
+
+async function doRegister() {
+  const btn = document.getElementById('r-btn');
+  const err = document.getElementById('r-err');
+  err.textContent = '';
+  const name = document.getElementById('r-name').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const pass = document.getElementById('r-pass').value;
+  if (!name) { err.textContent = 'Escribe tu nombre'; return; }
+  if (!email || !email.includes('@')) { err.textContent = 'Email inválido'; return; }
+  if (pass.length < 6) { err.textContent = 'Contraseña mínimo 6 caracteres'; return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Creando cuenta…';
+  try {
+    const d = await req('POST', '/auth/register', { name, email, password: pass });
+    TOKEN = d.token; ME = d.user;
+    localStorage.setItem('wb_tok', TOKEN);
+    showApp();
+  } catch(e) {
+    err.textContent = e.message;
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Crear cuenta gratis →';
+  }
+}
+
+function logout() {
+  TOKEN = ''; ME = null;
+  localStorage.removeItem('wb_tok');
+  location.reload();
+}
+
+// ════════════════════════════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════════════════════════════
+const PAGES = ['dashboard','campaigns','contacts','chat','connect','invoices','agents'];
+function go(name) {
+  const isOwner = ME && ME.type === 'owner';
+
+  // Bloquear accesos
+  if (!isOwner && ['dashboard', 'campaigns', 'connect', 'agents'].includes(name)) {
+    alert("❌ No tienes permiso para acceder a esta sección.");
+    return;
+  }
+
+  // 1. Limpiar todas las páginas y todos los botones de navegación
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+
+  // 2. ACTIVAR EL BOTÓN CORRESPONDIENTE POR EL ATRIBUTO ONCLICK
+  // Buscamos el elemento que tiene el onclick específico para esa página
+  const targetNav = document.querySelector(`.ni[onclick="go('${name}')"]`);
+  if (targetNav) {
+    targetNav.classList.add('active');
+  }
+
+  // 3. Activar el contenido
+  const pageElement = document.getElementById('pg-' + name);
+  if (pageElement) {
+    pageElement.classList.add('active');
+  }
+
+  // Lógica extra
+  if (name === 'chat') loadChat();
+  if (name === 'connect' && isOwner) loadWAStatus();
+  if (name === 'agents' && isOwner) loadAgents();
+}
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const [camps, cons] = await Promise.all([req('GET','/campaigns'), req('GET','/contacts')]);
+    document.getElementById('d-campaigns').textContent = camps.length;
+    document.getElementById('d-sent').textContent = camps.reduce((s,c)=>s+c.sent,0).toLocaleString();
+    document.getElementById('d-delivered').textContent = camps.reduce((s,c)=>s+c.delivered,0).toLocaleString();
+    document.getElementById('d-contacts').textContent = cons.length;
+    renderCampTable('d-table', camps.slice(0,5), true);
+  } catch(e){console.error(e);}
+}
+
+// ════════════════════════════════════════════════════════════════
+// CAMPAIGNS
+// ════════════════════════════════════════════════════════════════
+async function loadCampaigns() {
+  try { renderCampTable('c-table', await req('GET','/campaigns'), false); }
+  catch(e){console.error(e);}
+}
+
+function renderCampTable(id, rows, mini) {
+  const el = document.getElementById(id);
+  if (!rows.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">📣</div><p>Sin campañas aún</p></div>'; return;
+  }
+  const STATUS = {draft:'Borrador',sending:'Enviando',completed:'Completada',failed:'Fallida'};
+  el.innerHTML = `<table><thead><tr>
+    <th>Campaña</th><th>Estado</th><th>Contactos</th><th>Enviados</th><th>Entregados</th>
+    ${mini?'':'<th>Fallidos</th><th>Acciones</th>'}
+  </tr></thead><tbody>
+  ${rows.map(c=>`<tr>
+    <td><strong>${esc(c.name)}</strong><br><span style="font-size:11px;color:var(--text2)">${fmtDate(c.created_at)}</span></td>
+    <td><span class="bdg bdg-${c.status}">${STATUS[c.status]||c.status}</span></td>
+    <td>${c.total_contacts}</td>
+    <td class="c-blue">${c.sent}</td>
+    <td class="c-green">${c.delivered}</td>
+    ${mini?'':` <td class="c-red">${c.failed}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${c.status==='draft'?`<button class="btn btn-g" style="padding:6px 12px;font-size:12px" onclick="sendCamp(${c.id},this)">▶ Enviar</button>`:''}
+          <button class="btn btn-b" style="padding:6px 12px;font-size:12px" onclick="viewStats(${c.id})">📊</button>
+        </div>
+      </td>`}
+  </tr>`).join('')}
+  </tbody></table>`;
+}
+
+async function createCampaign() {
+  const fileInput = document.getElementById('file-upload');
+  const formData = new FormData();
+  const name = document.getElementById('c-name').value.trim();
+  const msg = document.getElementById('c-msg').value.trim();
+  const tag = document.getElementById('c-tag').value.trim();
+  setAlert('ca-alert','','');
+  if (fileInput.files.length > 0) {
+    formData.append('file', fileInput.files[0]);
+  }
+  if (!name) { setAlert('ca-alert','err','⚠ Escribe un nombre para la campaña'); return; }
+  if (!msg) { setAlert('ca-alert','err','⚠ Escribe el mensaje de la campaña'); return; }
+  try {
+    const d = await req('POST','/campaigns',{name, message_template:msg, contact_tag:tag||null});
+    setAlert('ca-alert','ok',`✅ Campaña "${d.name}" creada con ${d.total_contacts} contacto(s). Puedes enviarla desde la lista.`);
+    document.getElementById('c-name').value='';
+    document.getElementById('c-msg').value='';
+    document.getElementById('c-tag').value='';
+    loadCampaigns();
+  } catch(e){ setAlert('ca-alert','err','✕ '+e.message); }
+}
+function updateFileName(input) {
+  const name = input.files[0] ? input.files[0].name : "Ningún archivo seleccionado";
+  document.getElementById('file-name').textContent = name;
+}
+async function sendCamp(id, btn) {
+  if (!confirm('¿Iniciar el envío de esta campaña?\nSe enviará a todos los contactos asignados.')) return;
+  btn.disabled=true; btn.textContent='Enviando…';
+  try {
+    await req('POST',`/campaigns/${id}/send`);
+    setAlert('ca-alert','ok','🚀 Campaña iniciada. Los mensajes están siendo procesados.');
+    loadCampaigns(); loadDashboard();
+  } catch(e){
+    setAlert('ca-alert','err','✕ '+e.message);
+    btn.disabled=false; btn.textContent='▶ Enviar';
+  }
+}
+
+async function viewStats(id) {
+  try {
+    const d = await req('GET',`/campaigns/${id}/stats`);
+    const s = d.stats;
+    const pct = s.total>0 ? Math.round(s.delivered/s.total*100) : 0;
+    document.getElementById('mo-name').textContent = d.campaign.name;
+    document.getElementById('mo-body').innerHTML = `
+      <div class="stats4" style="grid-template-columns:repeat(2,1fr);margin-bottom:16px;">
+        <div class="scard"><div class="slb">Total</div><div class="sv">${s.total}</div></div>
+        <div class="scard"><div class="slb">Enviados</div><div class="sv c-blue">${s.sent}</div></div>
+        <div class="scard"><div class="slb">Entregados</div><div class="sv c-green">${s.delivered}</div></div>
+        <div class="scard"><div class="slb">Fallidos</div><div class="sv c-red">${s.failed}</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+        <span style="color:var(--text2)">Tasa de entrega</span><strong>${pct}%</strong>
+      </div>
+      <div class="prog"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div style="margin-top:16px;background:var(--bg3);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text2)">
+        <strong style="color:var(--text)">Plantilla:</strong><br>${esc(d.campaign.template)}
+      </div>
+      ${d.messages.length?`<div style="margin-top:16px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Últimos ${d.messages.length} mensajes</div>
+        <div style="max-height:200px;overflow-y:auto;">
+        <table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Estado</th></tr></thead>
+        <tbody>${d.messages.map(m=>`<tr>
+          <td>${esc(m.name)}</td><td style="font-size:12px;">${m.phone}</td>
+          <td><span class="bdg bdg-${m.status||'pending'}">${m.status||'pending'}</span></td>
+        </tr>`).join('')}</tbody></table></div></div>`:''}
+    `;
+    document.getElementById('mo-stats').classList.add('open');
+  } catch(e){ alert('Error: '+e.message); }
+}
+function closeMo(){ document.getElementById('mo-stats').classList.remove('open'); }
+
+// ════════════════════════════════════════════════════════════════
+// CONTACTS
+// ════════════════════════════════════════════════════════════════
+async function loadContacts() {
+  try {
+    const cons = await req('GET','/contacts');
+    document.getElementById('co-count').textContent = `${cons.length} contacto(s)`;
+    const el = document.getElementById('co-table');
+    if (!cons.length) { el.innerHTML='<div class="empty"><div class="ei">👥</div><p>Sin contactos. Agrega el primero arriba.</p></div>'; return; }
+    el.innerHTML = `<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Etiqueta</th><th></th></tr></thead>
+    <tbody>${cons.map(c=>`<tr>
+      <td><strong>${esc(c.name)}</strong></td>
+      <td><code style="color:var(--green);background:var(--bg3);padding:2px 8px;border-radius:5px;font-size:13px">${c.phone}</code></td>
+      <td>${c.tag?`<span class="bdg bdg-draft">${esc(c.tag)}</span>`:'–'}</td>
+      <td><button class="btn btn-r" style="padding:5px 10px;font-size:12px" onclick="delContact(${c.id},this)">✕</button></td>
+    </tr>`).join('')}</tbody></table>`;
+  } catch(e){console.error(e);}
+}
+
+async function addContact() {
+  const name = document.getElementById('co-name').value.trim();
+  const phone = document.getElementById('co-phone').value.trim().replace(/\s+/g,'');
+  const tag = document.getElementById('co-tag').value.trim();
+  setAlert('co-alert','','');
+  if (!name) { setAlert('co-alert','err','⚠ Escribe el nombre del contacto'); return; }
+  if (!phone) { setAlert('co-alert','err','⚠ Escribe el número de teléfono'); return; }
+  if (!/^\d{7,15}$/.test(phone)) { setAlert('co-alert','err','⚠ El teléfono debe ser solo números con código de país. Ej: 50499887766'); return; }
+  try {
+    await req('POST','/contacts',{name, phone, tag:tag||null});
+    document.getElementById('co-name').value='';
+    document.getElementById('co-phone').value='';
+    document.getElementById('co-tag').value='';
+    setAlert('co-alert','ok',`✅ Contacto "${name}" agregado`);
+    loadContacts();
+  } catch(e){ setAlert('co-alert','err','✕ '+e.message); }
+}
+
+async function delContact(id, btn) {
+  if (!confirm('¿Eliminar este contacto?')) return;
+  btn.disabled=true;
+  try { await req('DELETE',`/contacts/${id}`); loadContacts(); }
+  catch(e){ alert(e.message); btn.disabled=false; }
+}
+
+// ════════════════════════════════════════════════════════════════
+// CONNECT WHATSAPP — Embedded Signup (corregido) + Manual
+// ════════════════════════════════════════════════════════════════
+
+// ⚠️ Reemplaza con tus valores de developers.facebook.com
+const META_APP_ID    = '1423948069499384';
+const META_CONFIG_ID = '2192998534770589';
+
+let embeddedSignupToken = null;
+let embeddedPhones      = [];   // lista de phones obtenidos del callback
+let embeddedWabaId      = null;
+
+function selectMethod(method) {
+  document.getElementById('mopt-signup').classList.toggle('selected', method==='signup');
+  document.getElementById('mopt-manual').classList.toggle('selected', method==='manual');
+  document.getElementById('panel-signup').style.display = method==='signup' ? 'block' : 'none';
+  document.getElementById('panel-manual').style.display = method==='manual' ? 'block' : 'none';
+}
+
+function launchEmbeddedSignup() {
+  setAlert('signup-alert', '', '');
+
+  // URL específica del flujo Embedded Signup de WhatsApp
+  const signupUrl = "https://business.facebook.com/messaging/whatsapp/onboard/?app_id=1423948069499384&config_id=2192998534770589&extras=%7B%22featureType%22%3A%22whatsapp_business_app_onboarding%22%2C%22sessionInfoVersion%22%3A%223%22%2C%22version%22%3A%22v4%22%7D";
+
+  // Mostrar indicador de espera
+  document.getElementById('signup-waiting').style.display = 'block';
+  document.getElementById('fb-signup-btn').disabled = true;
+
+  // Abrir ventana emergente
+  const popup = window.open(signupUrl, 'WhatsAppSignup', 'width=600,height=700,scrollbars=yes,resizable=yes,top=50,left=200');
+
+  // Monitorear cierre de la ventana
+  const closedChecker = setInterval(() => {
+    if (!popup || popup.closed) {
+      clearInterval(closedChecker);
+      document.getElementById('signup-waiting').style.display = 'none';
+      document.getElementById('fb-signup-btn').disabled = false;
+      
+      // NOTA: Como la conexión se completa en el servidor mediante el callback
+      // que configuraste en tu backend (/api/auth/facebook/callback),
+      // no es necesario hacer nada más aquí. El servidor ya recibió los datos.
+      console.log("Ventana cerrada por el usuario.");
+    }
+  }, 800);
+}
+// Llamado cuando el backend ya tiene el token (vía postMessage del popup)
+function showPhoneSelector() {
+  document.getElementById('signup-step-1').style.display = 'none';
+  const step2 = document.getElementById('signup-step-2');
+  step2.style.display = 'block';
+
+  // Si el backend nos devolvió los teléfonos, mostramos un selector
+  if (embeddedPhones.length > 0) {
+    const sel = document.getElementById('s2-phone-id');
+    // Convertir el input a select si no es select ya
+    const parent = sel.parentElement;
+    parent.innerHTML = `
+      <label>Número de WhatsApp detectado</label>
+      <select id="s2-phone-id" style="padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;width:100%;outline:none;">
+        ${embeddedPhones.map(p =>
+          `<option value="${p.id}">${p.verified_name || p.display_phone_number} (${p.display_phone_number})</option>`
+        ).join('')}
+      </select>
+      <div class="hint">Selecciona el número que usarás para campañas</div>
+    `;
+    // Pre-llenar el nombre con el verified_name del primero
+    if (embeddedPhones[0].verified_name) {
+      const nameInput = document.getElementById('s2-profile-name');
+      if (nameInput) nameInput.value = embeddedPhones[0].verified_name;
+    }
+  }
+}
+
+// Llamado desde el SDK de FB (Método A)
+async function handleFBCode(code) {
+  try {
+    const resp = await fetch('/api/auth/facebook/callback?code=' + encodeURIComponent(code), {
+      method: 'GET'
+    });
+    // El callback devuelve HTML — el popup lo maneja. En modo SDK el code
+    // llega aquí directamente; hacemos el intercambio vía endpoint dedicado.
+    const r = await fetch('/api/auth/facebook/exchange', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json',
+                 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ code })
+    });
+    const data = await r.json();
+    if (data.ok) {
+      embeddedSignupToken = data.token;
+      embeddedWabaId      = data.waba_id || null;
+      embeddedPhones      = data.phones  || [];
+      document.getElementById('signup-waiting').style.display = 'none';
+      showPhoneSelector();
+    } else {
+      throw new Error(data.detail || 'Error al procesar');
+    }
+  } catch(e) {
+    document.getElementById('signup-waiting').style.display = 'none';
+    document.getElementById('fb-signup-btn').disabled = false;
+    setAlert('signup-alert','err','Error: ' + e.message);
+  }
+}
+
+function backToStep1() {
+  embeddedSignupToken = null;
+  embeddedPhones      = [];
+  document.getElementById('signup-step-1').style.display = 'block';
+  document.getElementById('signup-step-2').style.display = 'none';
+  document.getElementById('fb-signup-btn').disabled = false;
+}
+
+async function completeSignup() {
+  const phoneId     = document.getElementById('s2-phone-id').value.trim();
+  const profileName = document.getElementById('s2-profile-name').value.trim();
+  setAlert('signup-step2-alert','','');
+  if (!phoneId) { setAlert('signup-step2-alert','err','⚠ Selecciona o ingresa el Phone Number ID'); return; }
+  if (!embeddedSignupToken) { setAlert('signup-step2-alert','err','⚠ Falta el token. Vuelve al paso 1.'); return; }
+  try {
+    // Guardar vía endpoint dedicado que también acepta el token de Facebook
+    await req('POST','/auth/facebook/save', {
+      token:        embeddedSignupToken,
+      phone_id:     phoneId,
+      profile_name: profileName || null,
+      waba_id:      embeddedWabaId || null,
+    });
+    onWAConnected(profileName || 'Línea conectada', phoneId);
+  } catch(e) { setAlert('signup-step2-alert','err','✕ '+e.message); }
+}
+
+async function saveManualCredentials() {
+  const token   = document.getElementById('m-token').value.trim();
+  const phoneId = document.getElementById('m-phone-id').value.trim();
+  const name    = document.getElementById('m-name').value.trim();
+  setAlert('manual-alert','','');
+  if (!token)   { setAlert('manual-alert','err','⚠ Ingresa el Access Token'); return; }
+  if (!phoneId) { setAlert('manual-alert','err','⚠ Ingresa el Phone Number ID'); return; }
+  try {
+    await req('POST','/config/whatsapp',{
+      whatsapp_token: token, whatsapp_phone_id: phoneId,
+      profile_name: name || null
+    });
+    onWAConnected(name || 'Línea conectada', phoneId);
+  } catch(e) { setAlert('manual-alert','err','✕ '+e.message); }
+}
+
+function onWAConnected(profileName, phoneId) {
+  ME.has_whatsapp = true;
+  document.getElementById('wa-badge').style.display='flex';
+  document.getElementById('wa-connect-panel').style.display='none';
+  document.getElementById('wa-success-panel').style.display='block';
+  document.getElementById('wa-connected-panel').style.display='block';
+  document.getElementById('wa-line-info').textContent =
+    `${profileName} · ID: ${phoneId}`;
+  document.getElementById('wa-daily-limit').textContent = '50 msg/día';
+  document.getElementById('wa-quality').textContent = 'Pendiente aprobación';
+  document.getElementById('wa-status').textContent = 'Activo';
+}
+
+async function disconnectWA() {
+  if (!confirm('¿Desconectar tu línea de WhatsApp?')) return;
+  try {
+    await req('POST','/config/whatsapp',
+      {whatsapp_token:'', whatsapp_phone_id:'', profile_name:null});
+    ME.has_whatsapp = false;
+    document.getElementById('wa-badge').style.display='none';
+    document.getElementById('wa-connected-panel').style.display='none';
+    document.getElementById('wa-connect-panel').style.display='block';
+    document.getElementById('wa-success-panel').style.display='none';
+  } catch(e){ alert(e.message); }
+}
+
+async function loadWAStatus() {
+  try {
+    const me = await req('GET','/auth/me');
+    if (me.has_whatsapp) {
+      document.getElementById('wa-connected-panel').style.display='block';
+      document.getElementById('wa-connect-panel').style.display='none';
+      document.getElementById('wa-line-info').textContent =
+        me.profile_name
+          ? `${me.profile_name} · ID: ${me.whatsapp_phone_id}`
+          : `Phone ID: ${me.whatsapp_phone_id||'–'}`;
+      document.getElementById('wa-daily-limit').textContent = '50–1000 msg/día';
+      document.getElementById('wa-quality').textContent = 'Verde';
+      document.getElementById('wa-status').textContent = 'Activo';
+    }
+  } catch(e){console.error(e);}
+}
+
+// ════════════════════════════════════════════════════════════════
+// CHAT MODULE
+// ════════════════════════════════════════════════════════════════
+
+let allConvs    = [];
+let activeConvId = null;
+let chatFilter  = '';
+let chatSearch  = '';
+let chatPoller  = null;
+
+async function loadChat() {
+  await loadConversations();
+  // Poll cada 8 segundos para mensajes nuevos
+  if (chatPoller) clearInterval(chatPoller);
+  chatPoller = setInterval(async () => {
+    await loadConversations(false);
+    if (activeConvId) await loadMessages(activeConvId, false);
+    await updateChatBadge();
+  }, 8000);
+}
+
+async function loadConversations(scrollReset = true) {
+  try {
+    const url = chatFilter ? `/chat/conversations?status=${chatFilter}` : '/chat/conversations';
+    allConvs = await req('GET', url);
+    renderConvList();
+    await updateChatBadge();
+  } catch(e){ console.error(e); }
+}
+
+function filterByStatus(status, btn) {
+  chatFilter = status;
+  document.querySelectorAll('.cf-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadConversations();
+}
+
+function filterConvs() {
+  chatSearch = document.getElementById('chat-search').value.toLowerCase();
+  renderConvList();
+}
+
+function renderConvList() {
+  const el = document.getElementById('conv-list');
+  let list = allConvs;
+  if (chatSearch) {
+    list = list.filter(c =>
+      c.contact_name.toLowerCase().includes(chatSearch) ||
+      c.contact_phone.includes(chatSearch)
+    );
+  }
+  if (!list.length) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text2);font-size:13px;">Sin conversaciones</div>';
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const initials = (c.contact_name || '?')[0].toUpperCase();
+    const time = c.last_msg_at
+      ? new Date(c.last_msg_at).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}) : '';
+    const dotClass = c.status === 'open' ? 'dot-open' :
+                     c.status === 'waiting' ? 'dot-waiting' : 'dot-closed';
+    return `<div class="conv-item${c.id===activeConvId?' active':''}" onclick="openConv(${c.id})">
+      <div class="conv-av">${initials}</div>
+      <div class="conv-body">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="conv-status-dot ${dotClass}"></div>
+          <div class="conv-name">${esc(c.contact_name)}</div>
+          ${c.unread > 0 ? `<span class="conv-unread">${c.unread}</span>` : ''}
+        </div>
+        <div class="conv-preview">${esc(c.last_msg || 'Sin mensajes')}</div>
+        <div class="conv-meta"><span class="conv-time">${time}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function openConv(convId) {
+  activeConvId = convId;
+  renderConvList(); // re-render para marcar activo
+  await loadMessages(convId, true);
+
+  // Mostrar header e input
+  document.getElementById('chat-empty').style.display = 'none';
+  document.getElementById('chat-header').style.display = 'flex';
+  document.getElementById('chat-input-area').style.display = 'flex';
+}
+
+async function loadMessages(convId, scrollToBottom = true) {
+  try {
+    const data = await req('GET', `/chat/conversations/${convId}/messages`);
+    const conv = data.conversation;
+
+    document.getElementById('chat-av').textContent = (conv.contact_name||'?')[0].toUpperCase();
+    document.getElementById('chat-contact-name').textContent = conv.contact_name;
+    document.getElementById('chat-contact-phone').textContent = conv.contact_phone;
+
+    const el = document.getElementById('chat-messages');
+    el.innerHTML = data.messages.length
+      ? data.messages.map(m => renderBubble(m)).join('')
+      : '<div style="text-align:center;color:var(--text2);padding:24px;font-size:13px;">Sin mensajes aún</div>';
+
+    if (scrollToBottom) el.scrollTop = el.scrollHeight;
+
+    // Actualizar unread en la lista local
+    const c = allConvs.find(x => x.id === convId);
+    if (c) c.unread = 0;
+    renderConvList();
+    await updateChatBadge();
+  } catch(e){ console.error(e); }
+}
+
+function renderBubble(m) {
+  const isOut  = m.direction === 'out';
+  const time   = new Date(m.created_at).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  const status = isOut ? `<span class="bubble-status"> · ${
+    m.status==='read'?'✓✓ leído':m.status==='delivered'?'✓✓':m.status==='sent'?'✓':'✕'
+  }</span>` : '';
+  return `<div class="bubble ${isOut?'bubble-out':'bubble-in'}">
+    ${esc(m.body)}
+    <div class="bubble-time">${time}${status}</div>
+  </div>`;
+}
+
+async function sendReply() {
+  const input = document.getElementById('chat-reply-input');
+  const body  = input.value.trim();
+  if (!body || !activeConvId) return;
+
+  input.value = '';
+  input.disabled = true;
+
+  // Mostrar burbuja optimista inmediatamente
+  const el = document.getElementById('chat-messages');
+  const time = new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  el.innerHTML += `<div class="bubble bubble-out" id="bubble-sending">
+    ${esc(body)}<div class="bubble-time">${time} <span class="bubble-status">· enviando…</span></div>
+  </div>`;
+  el.scrollTop = el.scrollHeight;
+
+  try {
+    const resp = await req('POST', `/chat/conversations/${activeConvId}/reply`, {body});
+    // Recargar mensajes reales (reemplaza el optimista)
+    await loadMessages(activeConvId, true);
+  } catch(e) {
+    const b = document.getElementById('bubble-sending');
+    if (b) b.style.opacity = '0.5';
+    alert('Error al enviar: ' + e.message);
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+async function setConvStatus(status) {
+  if (!activeConvId) return;
+  try {
+    await req('PATCH', `/chat/conversations/${activeConvId}/status`, {status});
+    await loadConversations();
+    if (status === 'closed') {
+      // Limpiar panel derecho
+      document.getElementById('chat-empty').style.display = 'flex';
+      document.getElementById('chat-header').style.display = 'none';
+      document.getElementById('chat-input-area').style.display = 'none';
+      document.getElementById('chat-messages').innerHTML = '';
+      activeConvId = null;
+    }
+  } catch(e){ alert(e.message); }
+}
+
+async function updateChatBadge() {
+  try {
+    const data = await req('GET', '/chat/unread_count');
+    const count = data.unread_conversations || 0;
+    const badge = document.getElementById('chat-badge');
+    badge.style.display = count > 0 ? 'inline' : 'none';
+    badge.textContent = count;
+  } catch(e){}
+}
+
+// ════════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════════
+function setAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'alert'+(msg?' show':'')+(type==='ok'?' al-ok':type==='err'?' al-err':' al-info');
+  el.textContent = msg;
+}
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function fmtDate(iso){ try { return new Date(iso).toLocaleDateString('es-HN',{day:'2-digit',month:'short',year:'numeric'}); } catch{return iso||'';} }
+
+// ════════════════════════════════════════════════════════════════
+// FACTURAS / INVOICES
+// ════════════════════════════════════════════════════════════════
+let selectedFiles = [];
+
+document.getElementById('inv-files').addEventListener('change', function(e) {
+  selectedFiles = Array.from(e.target.files);
+  const container = document.getElementById('selected-files');
+  if (selectedFiles.length > 0) {
+    container.innerHTML = selectedFiles.map(f => 
+      `<div style="margin:3px 0; font-size:13px;">📄 ${f.name} <small>(${(f.size/1024).toFixed(1)} KB)</small></div>`
+    ).join('');
+  } else {
+    container.innerHTML = '';
+  }
+});
+
+async function createInvoiceBatch() {
+  const name = document.getElementById('inv-name').value.trim();
+  const caption = document.getElementById('inv-caption').value.trim();
+  
+  setAlert('inv-alert', '', '');
+
+  if (!name) return setAlert('inv-alert', 'err', '⚠ Ingresa un nombre para el lote');
+  if (selectedFiles.length === 0) return setAlert('inv-alert', 'err', '⚠ Sube al menos un PDF');
+
+  const formData = new FormData();
+  formData.append('name', name);
+  if (caption) formData.append('caption', caption);
+
+  selectedFiles.forEach(file => {
+    formData.append('files', file);
+  });
+
+  try {
+    const res = await fetch(API + '/invoices/batches', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      body: formData
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.detail || 'Error al crear lote');
+
+    setAlert('inv-alert', 'ok', `✅ Lote "${name}" creado con ${data.total} documentos.`);
+
+    // Limpiar formulario
+    selectedFiles = [];
+    document.getElementById('inv-files').value = '';
+    document.getElementById('selected-files').innerHTML = '';
+    
+    // Recargar lista de lotes
+    loadInvoiceBatches();
+  } catch (e) {
+    setAlert('inv-alert', 'err', '✕ ' + e.message);
+  }
+}
+
+async function loadInvoiceBatches() {
+  try {
+    const batches = await req('GET', '/invoices/batches');
+    const el = document.getElementById('inv-table');
+
+    if (!batches || batches.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ei">📄</div><p>Aún no tienes lotes de facturas</p></div>`;
+      return;
+    }
+
+    let html = `<table><thead><tr>
+      <th>Lote</th>
+      <th>Estado</th>
+      <th>Total</th>
+      <th>Enviados</th>
+      <th>Fallidos</th>
+      <th>Acciones</th>
+    </tr></thead><tbody>`;
+
+    for (let b of batches) {
+      const statusClass = b.status === 'completed' ? 'bdg-completed' :
+                          b.status === 'sending' ? 'bdg-sending' : 'bdg-pending';
+      
+      html += `<tr>
+        <td><strong>${esc(b.name)}</strong><br><small style="color:var(--text2)">${fmtDate(b.created_at)}</small></td>
+        <td><span class="bdg ${statusClass}">${b.status}</span></td>
+        <td>${b.total}</td>
+        <td class="c-green">${b.sent || 0}</td>
+        <td class="c-red">${b.failed || 0}</td>
+        <td>
+          ${b.status === 'pending' ? 
+            `<button class="btn btn-g" style="padding:6px 12px;font-size:12px" onclick="sendInvoiceBatch(${b.id}, this)">▶ Enviar</button>` : 
+            `<button class="btn btn-o" style="padding:6px 12px;font-size:12px" onclick="viewInvoiceStats(${b.id})">📊</button>`}
+        </td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+    el.innerHTML = html;
+  } catch (e) {
+    console.error(e);
+    document.getElementById('inv-table').innerHTML = 
+      `<div class="empty"><div class="ei">⚠️</div><p>Error al cargar lotes</p></div>`;
+  }
+}
+
+async function sendInvoiceBatch(batchId, btn) {
+  if (!confirm('¿Iniciar el envío masivo de este lote de facturas?')) return;
+  
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  
+  try {
+    await req('POST', `/invoices/batches/${batchId}/send`);
+    setAlert('inv-alert', 'ok', '🚀 Envío iniciado en segundo plano...');
+    loadInvoiceBatches();
+  } catch (e) {
+    alert('Error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '▶ Enviar';
+  }
+}
+
+async function viewInvoiceStats(batchId) {
+  alert(`📊 Estadísticas del lote ${batchId}\n\nEsta vista detallada está en desarrollo.\nPuedes revisar el estado en la lista principal.`);
+}
+
+// ════════════════════════════════════════════════════════════════
+// AGENTES
+// ════════════════════════════════════════════════════════════════
+
+async function createAgent() {
+  const name = document.getElementById('agent-name').value.trim();
+  const email = document.getElementById('agent-email').value.trim();
+  const password = document.getElementById('agent-password').value.trim();
+  const role = document.getElementById('agent-role').value;
+  const phoneId = document.getElementById('agent-phone-id').value.trim();
+
+  setAlert('agent-alert', '', '');
+
+  if (!name) return setAlert('agent-alert', 'err', '⚠ Ingresa el nombre del agente');
+  if (!email) return setAlert('agent-alert', 'err', '⚠ Ingresa un email');
+  if (!password || password.length < 6) return setAlert('agent-alert', 'err', '⚠ La contraseña debe tener mínimo 6 caracteres');
+
+  try {
+    await req('POST', '/agents', {
+      name: name,
+      email: email,
+      password: password,
+      role: role,
+      whatsapp_phone_id: phoneId || null
+    });
+    
+    setAlert('agent-alert', 'ok', `✅ Agente "${name}" creado exitosamente`);
+    
+    // Limpiar formulario
+    document.getElementById('agent-name').value = '';
+    document.getElementById('agent-email').value = '';
+    document.getElementById('agent-password').value = '';
+    document.getElementById('agent-phone-id').value = '';
+    
+    loadAgents();   // ← Ahora sí existe
+  } catch(e) {
+    console.error(e);
+    setAlert('agent-alert', 'err', '✕ ' + (e.message || 'Error desconocido'));
+  }
+}
+
+async function loadAgents() {
+  try {
+    const agents = await req('GET', '/agents');
+    const el = document.getElementById('agents-table');
+    
+    if (!agents || agents.length === 0) {
+      el.innerHTML = `<div class="empty"><div class="ei">👤</div><p>Aún no tienes agentes creados</p></div>`;
+      return;
+    }
+
+    let html = `<table><thead><tr>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Rol</th>
+      <th>WhatsApp ID</th>
+      <th>Estado</th>
+    </tr></thead><tbody>`;
+
+    for (let a of agents) {
+      html += `<tr>
+        <td><strong>${esc(a.name)}</strong></td>
+        <td>${a.email}</td>
+        <td><span class="bdg ${a.role==='admin'?'bdg-completed':'bdg-draft'}">${a.role}</span></td>
+        <td>${a.whatsapp_phone_id ? `<code style="font-size:12px">${a.whatsapp_phone_id}</code>` : '—'}</td>
+        <td><span class="bdg bdg-completed">Activo</span></td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+    el.innerHTML = html;
+  } catch(e) {
+    console.error(e);
+    document.getElementById('agents-table').innerHTML = 
+      `<div class="empty"><div class="ei">⚠️</div><p>Error al cargar agentes</p></div>`;
+  }
+}
+</script>
+<script async defer src="https://connect.facebook.net/es_LA/sdk.js"></script>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1423948069499384', // Tu App ID
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v22.0'
+    });
+  };
+</script>
+</body>
+</html>

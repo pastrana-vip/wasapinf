@@ -1903,12 +1903,14 @@ async function setConvStatus(status) {
 async function updateChatBadge() {
   try {
     const data = await req('GET', '/chat/unread_count');
-    const count = data.unread_conversations || 0;
-    const badge = document.getElementById('chat-badge');
-    badge.style.display = count > 0 ? 'inline' : 'none';
-    badge.textContent = count;
-  } catch(e){}
+  } catch(e) {
+    console.error("Error actualizando badge", e);
+  } finally {
+    setTimeout(updateChatBadge, 30000);
+  }
 }
+
+updateChatBadge();
 
 // ════════════════════════════════════════════════════════════════
 // FACTURAS

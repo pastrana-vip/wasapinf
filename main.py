@@ -13,6 +13,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response, HTMLResponse
+from fastapi import Query, HTTPException
 import uvicorn
 import os
 import mimetypes
@@ -320,6 +321,29 @@ async def startup():
 # ── IMPORTANTE: routers ANTES del mount de /static ───────────────────────────
 app.include_router(router, prefix="/api")
 app.include_router(invoices_router, prefix="/api")
+
+# Esta ruta es para que Meta verifique tu URL
+@app.get("/webhook")
+async def verify_webhook(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_verify_token: str = Query(None, alias="hub.verify_token"),
+    hub_challenge: str = Query(None, alias="hub.challenge")
+):
+    # El token debe coincidir con lo que pusiste en Meta Developer Portal
+    VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN", "wablast_webhook_secret_2025")
+    
+    if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
+        return int(hub_challenge)
+    
+    raise HTTPException(status_code=403, detail="Token de verificación inválido")
+
+# Esta ruta es para que Meta te envíe los mensajes
+@app.post("/webhook")
+async def receive_webhook(request: Request):
+    data = await request.json()
+    # Aquí deberías procesar los mensajes que llegan de WhatsApp
+    print(f"Mensaje recibido: {data}")
+    return {"status": "ok"}
 
 # ── Frontend ──────────────────────────────────────────────────────────────────
 app.mount("/static", StaticFiles(directory="static"), name="static")

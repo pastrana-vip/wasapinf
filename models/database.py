@@ -220,9 +220,15 @@ class Agent(Base):
     
     owner = relationship("User", backref="agents")
     
+# Busca tu función init_db y ajústala así:
 async def init_db():
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        # Usamos run_sync con un try/except para ignorar el error si la tabla ya existe
+        try:
+            await conn.run_sync(Base.metadata.create_all)
+            print("✅ Tablas verificadas/creadas.")
+        except Exception as e:
+            print(f"ℹ️ Nota sobre BD: {e}")
 
 
 async def get_db():

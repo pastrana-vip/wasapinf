@@ -1,10 +1,12 @@
+import os
+
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey, Enum, BigInteger
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 from datetime import datetime
 import enum
 
-DATABASE_URL = "sqlite+aiosqlite:///./wasapi.db"
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./wasapi.db")
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

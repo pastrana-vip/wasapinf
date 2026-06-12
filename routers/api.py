@@ -21,8 +21,8 @@ router = APIRouter()
 # ───────────────────────────────────────────────6─────────────────
 # CONFIGURACIÓN META  (reemplaza con tus valores reales)
 # ────────────────────────────────────────────────────────────────
-META_APP_ID      = os.getenv ("1423948069499384")          # developers.facebook.com
-META_APP_SECRET  = os.getenv ("9915995b60ef7e64f9577b78f3cd795a")
+META_APP_ID      = os.getenv ("META_APP_ID")          # developers.facebook.com
+META_APP_SECRET  = os.getenv ("META_APP_SECRET")
 WEBHOOK_VERIFY_TOKEN  = os.getenv ("WEBHOOK_VERIFY_TOKEN","wablast_webhook_secret_2025")
 
 # ── Schemas ──────────────────────────────────────────────────────
@@ -264,7 +264,96 @@ def _popup_close_html(status: str, data: dict) -> str:
   </script>
 </body></html>"""
 
+@router.post("/auth/facebook/exchange")
+async def exchange_facebook_code(
+    data: dict,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Recibe el 'code' del FB.login() (Embedded Signup) y lo intercambia
+    por un token de acceso. A diferencia del flujo OAuth clásico,
+    el Embedded Signup NO usa redirect_uri.
+    """
+    code = data.get("code")
+    if not code:
+        raise HTTPException(400, "Falta el código de autorización")
 
+    # 1. Intercambiar code → token (sin redirect_uri, propio del Embedded Signup)
+    async with httpx.AsyncClient(timeout=20) as client:
+        r = await client.get(
+            "https://graph.facebook.com/v21.0/oauth/access_token",
+            params={
+                "client_id": META_APP_ID,
+                "client_secret": META_APP_SECRET,
+                "code": code,
+            }
+        )
+        token_data = r.json()
+
+    if "access_token" not in token_data:
+        err = token_data.get("error", {}).get("message", "Error al obtener token")
+        return {"ok": False, "detail": err}
+
+    short_token = token_data["access_token"]
+
+    # 2. Convertir a token de larga duración
+    long_token = short_token
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            r2 = await client.get(
+                "https://graph.facebook.com/v21.0/oauth/access_token",
+                params={
+                    "grant_type": "fb_exchange_token",
+                    "client_id": META_APP_ID,
+                    "client_secret": META_APP_SECRET,
+                    "fb_exchange_token": short_token,
+                }
+            )
+            ld = r2.json()
+            if "access_token" in ld:
+                long_token = ld["access_token"]
+    except Exception:
+        pass
+
+    # 3. Obtener WABAs y números de teléfono asociados al negocio
+    waba_id = None
+    phone_numbers = []
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            r3 = await client.get(
+                "https://graph.facebook.com/v21.0/me/businesses",
+                headers={"Authorization": f"Bearer {long_token}"}
+            )
+            biz_data = r3.json()
+            if biz_data.get("data"):
+                for biz in biz_data["data"]:
+                    biz_id = biz["id"]
+                    r4 = await client.get(
+                        f"https://graph.facebook.com/v21.0/{biz_id}/owned_whatsapp_business_accounts",
+                        headers={"Authorization": f"Bearer {long_token}"}
+                    )
+                    waba_data = r4.json()
+                    if waba_data.get("data"):
+                        waba_id = waba_data["data"][0]["id"]
+                        r5 = await client.get(
+                            f"https://graph.facebook.com/v21.0/{waba_id}/phone_numbers",
+                            params={"fields": "id,display_phone_number,verified_name,quality_rating"},
+                            headers={"Authorization": f"Bearer {long_token}"}
+                        )
+                        phones_data = r5.json()
+                        phone_numbers = phones_data.get("data", [])
+                        if phone_numbers:
+                            break
+    except Exception as e:
+        print(f"[OAuth Exchange] Error al obtener WABA/phones: {e}")
+
+    return {
+        "ok": True,
+        "token": long_token,
+        "waba_id": waba_id or "",
+        "phones": phone_numbers,
+    }
 # Endpoint para que el frontend guarde el token/phone recibido del popup
 @router.post("/auth/facebook/save")
 async def save_facebook_connection(

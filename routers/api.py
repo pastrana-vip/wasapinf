@@ -361,47 +361,23 @@ async def save_facebook_connection(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    token = data.get("token")
-    phone_id = data.get("phone_id")          # Este es el que Meta devuelve
-    display_phone = data.get("display_phone_number")
-    profile = data.get("profile_name")
-    waba_id = data.get("waba_id")
+    """Guarda el token OAuth de Facebook + Phone ID seleccionado por el usuario."""
+    token    = data.get("token")
+    phone_id = data.get("phone_id")
+    profile  = data.get("profile_name")
+    waba_id  = data.get("waba_id")
 
     if not token or not phone_id:
         raise HTTPException(400, "Token y Phone ID son obligatorios")
 
-    # Validación adicional
-    if len(phone_id) < 10:
-        raise HTTPException(400, "Phone ID inválido")
-
-    print(f"[SAVE CONNECTION] Guardando → PhoneID: {phone_id} | Display: {display_phone} | Profile: {profile}")
-
-    user.whatsapp_token = token
+    user.whatsapp_token    = token
     user.whatsapp_phone_id = phone_id
-    user.profile_name = profile or display_phone or "WhatsApp Business"
-    user.waba_id = waba_id
+    user.profile_name      = profile or None
+    user.waba_id           = waba_id  or None
     await db.commit()
-    await db.refresh(user)
+    return {"ok": True, "message": "Línea de WhatsApp conectada exitosamente"}
 
-    return {
-        "ok": True,
-        "message": f"✅ Conectado correctamente ({display_phone or phone_id})",
-        "phone_id": phone_id,
-        "display_phone": display_phone
-    }
 
-# ── Debug ──────────────────────────────────────────────────────
-
-@router.get("/debug/whatsapp-connection")
-async def debug_whatsapp_connection(user: User = Depends(get_current_user)):
-    return {
-        "whatsapp_phone_id": user.whatsapp_phone_id,
-        "whatsapp_token": user.whatsapp_token[:80] + "..." if user.whatsapp_token else None,
-        "profile_name": user.profile_name,
-        "waba_id": user.waba_id,
-        "has_valid_config": bool(user.whatsapp_token and user.whatsapp_phone_id)
-    }
-    
 # ── Contacts ──────────────────────────────────────────────────────
 
 @router.post("/contacts")

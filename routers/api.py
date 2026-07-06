@@ -361,32 +361,33 @@ async def save_facebook_connection(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Guarda la conexión de Facebook con mejor validación y logs."""
-    token       = data.get("token")
-    phone_id    = data.get("phone_id")
-    profile     = data.get("profile_name")
-    waba_id     = data.get("waba_id")
-    phone_number= data.get("display_phone_number")   # nuevo
+    token = data.get("token")
+    phone_id = data.get("phone_id")          # Este es el que Meta devuelve
+    display_phone = data.get("display_phone_number")
+    profile = data.get("profile_name")
+    waba_id = data.get("waba_id")
 
-    print(f"[DEBUG SAVE] Recibido → phone_id: {phone_id}, token: {token[:50] if token else None}..., profile: {profile}")
+    if not token or not phone_id:
+        raise HTTPException(400, "Token y Phone ID son obligatorios")
 
-    if not token:
-        raise HTTPException(400, "Token es obligatorio")
-    if not phone_id:
-        raise HTTPException(400, "Phone ID es obligatorio. Meta no devolvió ningún número.")
+    # Validación adicional
+    if len(phone_id) < 10:
+        raise HTTPException(400, "Phone ID inválido")
 
-    user.whatsapp_token    = token
+    print(f"[SAVE CONNECTION] Guardando → PhoneID: {phone_id} | Display: {display_phone} | Profile: {profile}")
+
+    user.whatsapp_token = token
     user.whatsapp_phone_id = phone_id
-    user.profile_name      = profile or "WhatsApp Business"
-    user.waba_id           = waba_id or None
+    user.profile_name = profile or display_phone or "WhatsApp Business"
+    user.waba_id = waba_id
     await db.commit()
     await db.refresh(user)
 
     return {
-        "ok": True, 
-        "message": "✅ Línea conectada correctamente",
+        "ok": True,
+        "message": f"✅ Conectado correctamente ({display_phone or phone_id})",
         "phone_id": phone_id,
-        "profile": user.profile_name
+        "display_phone": display_phone
     }
 
 # ── Debug ──────────────────────────────────────────────────────

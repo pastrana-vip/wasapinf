@@ -361,23 +361,46 @@ async def save_facebook_connection(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Guarda el token OAuth de Facebook + Phone ID seleccionado por el usuario."""
-    token    = data.get("token")
-    phone_id = data.get("phone_id")
-    profile  = data.get("profile_name")
-    waba_id  = data.get("waba_id")
+    """Guarda la conexión de Facebook con mejor validación y logs."""
+    token       = data.get("token")
+    phone_id    = data.get("phone_id")
+    profile     = data.get("profile_name")
+    waba_id     = data.get("waba_id")
+    phone_number= data.get("display_phone_number")   # nuevo
 
-    if not token or not phone_id:
-        raise HTTPException(400, "Token y Phone ID son obligatorios")
+    print(f"[DEBUG SAVE] Recibido → phone_id: {phone_id}, token: {token[:50] if token else None}..., profile: {profile}")
+
+    if not token:
+        raise HTTPException(400, "Token es obligatorio")
+    if not phone_id:
+        raise HTTPException(400, "Phone ID es obligatorio. Meta no devolvió ningún número.")
 
     user.whatsapp_token    = token
     user.whatsapp_phone_id = phone_id
-    user.profile_name      = profile or None
-    user.waba_id           = waba_id  or None
+    user.profile_name      = profile or "WhatsApp Business"
+    user.waba_id           = waba_id or None
     await db.commit()
-    return {"ok": True, "message": "Línea de WhatsApp conectada exitosamente"}
+    await db.refresh(user)
 
+    return {
+        "ok": True, 
+        "message": "✅ Línea conectada correctamente",
+        "phone_id": phone_id,
+        "profile": user.profile_name
+    }
 
+# ── Debug ──────────────────────────────────────────────────────
+
+@router.get("/debug/whatsapp-connection")
+async def debug_whatsapp_connection(user: User = Depends(get_current_user)):
+    return {
+        "whatsapp_phone_id": user.whatsapp_phone_id,
+        "whatsapp_token": user.whatsapp_token[:80] + "..." if user.whatsapp_token else None,
+        "profile_name": user.profile_name,
+        "waba_id": user.waba_id,
+        "has_valid_config": bool(user.whatsapp_token and user.whatsapp_phone_id)
+    }
+    
 # ── Contacts ──────────────────────────────────────────────────────
 
 @router.post("/contacts")

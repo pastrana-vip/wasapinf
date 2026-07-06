@@ -1,7 +1,3 @@
-"""
-whatsapp_service.py - Versión mejorada para flujo OAuth estable
-"""
-
 import httpx
 import asyncio
 import os
@@ -182,3 +178,25 @@ async def run_campaign(campaign_id: int, db: AsyncSession, phone_id: str, token:
     campaign.failed = failed_count
     await db.commit()
     print(f"[Campaign {campaign_id}] Finalizado → Enviados: {sent_count} | Fallidos: {failed_count}")
+    
+async def recalc_campaign_counters(campaign_id: int, db: AsyncSession):
+    res = await db.execute(
+        text("""
+            SELECT
+                SUM(CASE WHEN status IN ('delivered','read') THEN 1 ELSE 0 END) as delivered,
+                SUM(CASE WHEN status = 'read' THEN 1 ELSE 0 END) as read_count,
+                SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_count,
+                SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) as sent_count
+            FROM messages WHERE campaign_id = :cid
+        """),
+        {"cid": campaign_id}
+    )
+    row = res.fetchone()
+    if row:
+        await db.execute(
+            text("""UPDATE campaigns SET
+                        delivered = :d, read = :r, failed = :f, sent = :s
+                    WHERE id = :cid"""),
+            {"d": row[0] or 0, "r": row[1] or 0, "f": row[2] or 0, "s": row[3] or 0, "cid": campaign_id}
+        )
+        await db.commit()

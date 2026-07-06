@@ -1688,9 +1688,18 @@ async function handleFBCode(code) {
 
       // Si el evento postMessage ya nos dio el phone_number_id, lo priorizamos
       if (window._waEmbeddedData && window._waEmbeddedData.phone_number_id) {
-        embeddedPhones = [{ id: window._waEmbeddedData.phone_number_id, display_phone_number: '', verified_name: '' }];
+        embeddedPhones = [{
+          id: window._waEmbeddedData.phone_number_id,
+          display_phone_number: '',
+          verified_name: ''
+        }];
       } else {
         embeddedPhones = data.phones || [];
+      }
+
+      if (embeddedPhones.length > 0) {
+        completeSignup(embeddedPhones[0].id);
+        return;
       }
 
       document.getElementById('signup-waiting').style.display = 'none';
@@ -1710,16 +1719,32 @@ function backToStep1() {
   document.getElementById('fb-signup-btn').disabled = false;
 }
 
-async function completeSignup() {
-  const phoneId     = document.getElementById('s2-phone-id').value.trim();
+async function completeSignup(phoneIdOverride = null) {
+  const phoneId = (phoneIdOverride || document.getElementById('s2-phone-id')?.value || '').trim();
   const profileName = document.getElementById('s2-profile-name').value.trim();
-  setAlert('signup-step2-alert','','');
-  if (!phoneId) { setAlert('signup-step2-alert','err','⚠ Selecciona o ingresa el Phone Number ID'); return; }
-  if (!embeddedSignupToken) { setAlert('signup-step2-alert','err','⚠ Falta el token. Vuelve al paso 1.'); return; }
+
+  setAlert('signup-step2-alert', '', '');
+  if (!phoneId) {
+    setAlert('signup-step2-alert', 'err', '⚠ No se pudo obtener el Phone Number ID automáticamente.');
+    return;
+  }
+
+  if (!embeddedSignupToken) {
+    setAlert('signup-step2-alert', 'err', '⚠ Falta el token. Vuelve al paso 1.');
+    return;
+  }
+
   try {
-    await req('POST','/auth/facebook/save', { token: embeddedSignupToken, phone_id: phoneId, profile_name: profileName || null, waba_id: embeddedWabaId || null });
+    await req('POST', '/auth/facebook/save', {
+      token: embeddedSignupToken,
+      phone_id: phoneId,
+      profile_name: profileName || null,
+      waba_id: embeddedWabaId || null
+    });
     onWAConnected(profileName || 'Línea conectada', phoneId);
-  } catch(e) { setAlert('signup-step2-alert','err','✕ '+e.message); }
+  } catch (e) {
+    setAlert('signup-step2-alert', 'err', '✕ ' + e.message);
+  }
 }
 
 async function saveManualCredentials() {

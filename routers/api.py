@@ -319,6 +319,9 @@ async def exchange_facebook_code(
     # 3. Obtener WABAs y números de teléfono asociados al negocio
     waba_id = None
     phone_numbers = []
+    primary_phone_id = None
+    if phone_numbers:
+        primary_phone_id = phone_numbers[0].get("id")
     try:
         async with httpx.AsyncClient(timeout=20) as client:
             r3 = await client.get(
@@ -353,6 +356,7 @@ async def exchange_facebook_code(
         "token": long_token,
         "waba_id": waba_id or "",
         "phones": phone_numbers,
+        "phone_id": primary_phone_id,
     }
 # Endpoint para que el frontend guarde el token/phone recibido del popup
 @router.post("/auth/facebook/save")
@@ -370,13 +374,13 @@ async def save_facebook_connection(
     if not token or not phone_id:
         raise HTTPException(400, "Token y Phone ID son obligatorios")
 
-    user.whatsapp_token = data.get("token") or None
-    user.whatsapp_phone_id = data.get("phone_id") or None
-    user.profile_name = data.get("profile_name") or None
-    user.waba_id = data.get("waba_id") or None
+    user.whatsapp_token = token
+    user.whatsapp_phone_id = phone_id
+    user.profile_name = profile or None
+    user.waba_id = waba_id or None
     await db.commit()
     await db.refresh(user)
-    return {"ok": True, "phone_id": user.whatsapp_phone_id, "profile_name": user.profile_name}
+    return {"ok": True, "message": "Línea de WhatsApp conectada exitosamente", "phone_id": user.whatsapp_phone_id}
 
 
 # ── Contacts ──────────────────────────────────────────────────────

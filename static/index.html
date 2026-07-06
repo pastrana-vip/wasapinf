@@ -1110,6 +1110,17 @@ tr:hover td{background:rgba(34,211,160,.025);}
                 · Acceso a tu cuenta de Facebook de negocio<br>
                 · El número de teléfono que deseas conectar no debe estar asociado a ninguna cuenta actual de WhatsApp (personal o Business)
               </div>
+              <div class="info-box" style="margin-bottom:18px;">
+                <strong>¿Este cliente ya tiene un número activo en la app normal de WhatsApp Business?</strong>
+                <div style="display:flex;gap:16px;margin-top:8px;font-size:13px;">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="radio" name="signup-mode" value="new" checked onchange="signupMode='new'"> Número nuevo (crear desde cero)
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                    <input type="radio" name="signup-mode" value="migrate" onchange="signupMode='migrate'"> Migrar número existente
+                  </label>
+                </div>
+              </div>
               <div id="signup-alert" class="alert"></div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                 <button id="fb-signup-btn" class="fb-login-btn" onclick="launchEmbeddedSignup()">
@@ -1606,6 +1617,7 @@ const META_CONFIG_ID = '2192998534770589';
 let embeddedSignupToken = null;
 let embeddedPhones      = [];
 let embeddedWabaId      = null;
+let signupMode          = 'new'; // 'new' = crear WABA/número desde cero | 'migrate' = migrar número existente de la app de WhatsApp Business
 
 function selectMethod(method) {
   document.getElementById('mopt-signup').classList.toggle('selected', method==='signup');
@@ -1634,7 +1646,12 @@ function launchEmbeddedSignup() {
     response_type: 'code',
     override_default_response_type: true,
     extras: {
-      featureType: 'whatsapp_business_app_onboarding',
+      // '' (vacío) = crear WABA + número nuevos desde cero.
+      // 'whatsapp_business_app_onboarding' = SOLO cuando el cliente ya
+      // tiene un número corriendo en la app normal de WhatsApp Business
+      // y lo va a migrar a Cloud API. Usar el valor equivocado aquí es
+      // la causa más común de que Meta no devuelva phone_number_id.
+      featureType: signupMode === 'migrate' ? 'whatsapp_business_app_onboarding' : '',
       sessionInfoVersion: '3',
       version: 'v4'
     }
@@ -1650,12 +1667,23 @@ window.addEventListener('message', (event) => {
   if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
   try {
     const data = JSON.parse(event.data);
-    if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
-      window._waEmbeddedData = data.data; // { phone_number_id, waba_id }
-      window._waEmbeddedDataResolvers.forEach(resolve => resolve(data.data));
-      window._waEmbeddedDataResolvers = [];
+    // Log de diagnóstico: deja ver en la consola EXACTAMENTE qué evento
+    // manda Meta (FINISH, CANCEL, cualquier error) y con qué datos.
+    console.log('[WA_EMBEDDED_SIGNUP raw event]', data);
+    if (data.type === 'WA_EMBEDDED_SIGNUP') {
+      if (data.event === 'FINISH' || data.event === 'FINISH_ONLY_WABA') {
+        window._waEmbeddedData = data.data; // { phone_number_id, waba_id }
+        window._waEmbeddedDataResolvers.forEach(resolve => resolve(data.data));
+        window._waEmbeddedDataResolvers = [];
+      } else if (data.event === 'CANCEL') {
+        console.warn('[WA_EMBEDDED_SIGNUP] Usuario canceló en paso:', data.data?.current_step);
+      } else if (data.event === 'ERROR') {
+        console.error('[WA_EMBEDDED_SIGNUP] Error de Meta:', data.data);
+      }
     }
-  } catch(e) {}
+  } catch(e) {
+    console.warn('[WA_EMBEDDED_SIGNUP] mensaje no-JSON recibido (ignorado):', event.data);
+  }
 });
 
 function waitForEmbeddedData(timeoutMs = 4000) {

@@ -25,9 +25,32 @@ META_APP_ID          = os.getenv("META_APP_ID")          # developers.facebook.c
 META_APP_SECRET      = os.getenv("META_APP_SECRET")
 WEBHOOK_VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN", "wablast_webhook_secret_2025")
 
+# ── Token del System User de TU Business Manager (portafolio "WaSapinf") ──
+# Este token es TUYO, no el del cliente. Como Tech Provider, en cuanto un
+# cliente comparte/crea su WABA contigo, tu System User tiene acceso
+# inmediato y estable a esa WABA — a diferencia del token efímero que
+# devuelve el OAuth del cliente, que a veces tarda en propagar permisos.
+# Se usa como preferencia para las llamadas de "lectura/gestión" del lado
+# del proveedor (listar teléfonos, registrar número, suscribir webhooks).
+SYSTEM_USER_TOKEN = os.getenv("SYSTEM_USER_TOKEN")
+
+# ID de TU Business Manager (el portafolio que ves en Meta Business Suite,
+# ej. "WaSapinf"). Se usa como fallback para ubicar WABAs de clientes que
+# aún no llegan por el evento postMessage del Embedded Signup.
+TECH_PROVIDER_BUSINESS_ID = os.getenv("TECH_PROVIDER_BUSINESS_ID")
+
 # Usa SIEMPRE la misma versión de Graph API en todo el archivo.
 GRAPH_VERSION = "v21.0"
 GRAPH_BASE    = f"https://graph.facebook.com/{GRAPH_VERSION}"
+
+
+def provider_token(client_token: str) -> str:
+    """
+    Devuelve el mejor token disponible para operar sobre la WABA de un
+    cliente: prioriza el SYSTEM_USER_TOKEN (tuyo, estable) y solo si no
+    está configurado cae al token efímero obtenido del OAuth del cliente.
+    """
+    return SYSTEM_USER_TOKEN or client_token
 
 # ── Schemas ──────────────────────────────────────────────────────
 
@@ -181,6 +204,23 @@ async def fetch_client_wabas(long_token: str) -> list:
             owned_data = r_owned.json()
             wabas.extend(owned_data.get("data", []))
 
+        # 3) FALLBACK con TU propio Business Manager + SYSTEM_USER_TOKEN.
+        #    El token del cliente (long_token) a veces no tiene permisos
+        #    propagados justo después del signup. Tu System User, como
+        #    Tech Provider, ve la WABA del cliente de forma inmediata y
+        #    estable en cuanto se completó el Embedded Signup.
+        if not wabas and SYSTEM_USER_TOKEN and TECH_PROVIDER_BUSINESS_ID:
+            try:
+                r_fallback = await client.get(
+                    f"{GRAPH_BASE}/{TECH_PROVIDER_BUSINESS_ID}/client_whatsapp_business_accounts",
+                    headers={"Authorization": f"Bearer {SYSTEM_USER_TOKEN}"}
+                )
+                fallback_data = r_fallback.json()
+                wabas.extend(fallback_data.get("data", []))
+                print(f"[fetch_client_wabas] Fallback con SYSTEM_USER_TOKEN devolvió {len(wabas)} WABA(s)")
+            except Exception as e:
+                print(f"[fetch_client_wabas] Fallback con SYSTEM_USER_TOKEN falló: {e}")
+
     # Deduplicar por id
     seen = set()
     unique = []
@@ -293,7 +333,9 @@ async def facebook_callback(
         wabas = await fetch_client_wabas(long_token)
         if wabas:
             waba_id = wabas[0]["id"]
-            phone_numbers = await fetch_phone_numbers(waba_id, long_token)
+            # Preferimos SYSTEM_USER_TOKEN (tuyo, estable) para leer los
+            # números; si no está configurado, caemos al token del cliente.
+            phone_numbers = await fetch_phone_numbers(waba_id, provider_token(long_token))
     except Exception as e:
         print(f"[OAuth] Error al obtener WABA/phones: {e}")
 
@@ -381,7 +423,7 @@ async def exchange_facebook_code(
         wabas = await fetch_client_wabas(long_token)
         if wabas:
             waba_id = wabas[0]["id"]
-            phone_numbers = await fetch_phone_numbers(waba_id, long_token)
+            phone_numbers = await fetch_phone_numbers(waba_id, provider_token(long_token))
     except Exception as e:
         print(f"[OAuth Exchange] Error al obtener WABA/phones: {e}")
 
@@ -417,9 +459,14 @@ async def save_facebook_connection(
     if not token or not phone_id:
         raise HTTPException(400, "Token y Phone ID son obligatorios")
 
+    # Usamos SYSTEM_USER_TOKEN (tuyo) cuando esté disponible: el token del
+    # cliente recién emitido a veces todavía no tiene los permisos de
+    # negocio propagados y estas dos llamadas fallan intermitentemente.
+    op_token = provider_token(token)
+
     # 1. Registrar el número en Cloud API (idempotente: si ya está
     #    registrado, Meta devuelve error y simplemente lo ignoramos).
-    reg_result = await register_phone_number(phone_id, token)
+    reg_result = await register_phone_number(phone_id, op_token)
     if "error" in reg_result:
         print(f"[Register] Aviso (puede ya estar registrado): {reg_result['error']}")
 
@@ -427,7 +474,7 @@ async def save_facebook_connection(
     #    recibir estados de entrega/lectura y mensajes entrantes).
     sub_result = {}
     if waba_id:
-        sub_result = await subscribe_app_to_waba(waba_id, token)
+        sub_result = await subscribe_app_to_waba(waba_id, op_token)
         if "error" in sub_result:
             print(f"[Subscribe] Error al suscribir app al WABA: {sub_result['error']}")
 

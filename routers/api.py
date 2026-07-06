@@ -18,12 +18,16 @@ from whatsapp_service import run_campaign, recalc_campaign_counters, send_whatsa
 
 router = APIRouter()
 
-# ───────────────────────────────────────────────6─────────────────
+# ────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN META  (reemplaza con tus valores reales)
 # ────────────────────────────────────────────────────────────────
-META_APP_ID      = os.getenv ("META_APP_ID")          # developers.facebook.com
-META_APP_SECRET  = os.getenv ("META_APP_SECRET")
-WEBHOOK_VERIFY_TOKEN  = os.getenv ("WEBHOOK_VERIFY_TOKEN","wablast_webhook_secret_2025")
+META_APP_ID          = os.getenv("META_APP_ID")          # developers.facebook.com
+META_APP_SECRET      = os.getenv("META_APP_SECRET")
+WEBHOOK_VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN", "wablast_webhook_secret_2025")
+
+# Usa SIEMPRE la misma versión de Graph API en todo el archivo.
+GRAPH_VERSION = "v21.0"
+GRAPH_BASE    = f"https://graph.facebook.com/{GRAPH_VERSION}"
 
 # ── Schemas ──────────────────────────────────────────────────────
 
@@ -87,7 +91,7 @@ async def login(data: LoginIn, db: AsyncSession = Depends(get_db)):
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
-                "type": "owner",           # ← Tipo principal
+                "type": "owner",
                 "role": "admin"
             }
         }
@@ -105,7 +109,7 @@ async def login(data: LoginIn, db: AsyncSession = Depends(get_db)):
                 "id": agent.id,
                 "name": agent.name,
                 "email": agent.email,
-                "type": "agent",                    # ← Tipo agente
+                "type": "agent",
                 "role": agent.role.value,
                 "owner_id": agent.owner_id,
                 "whatsapp_phone_id": agent.whatsapp_phone_id
@@ -139,6 +143,94 @@ async def save_whatsapp_config(
     await db.commit()
     return {"ok": True}
 
+# ── Helpers Meta / Cloud API ──────────────────────────────────────
+
+async def fetch_client_wabas(long_token: str) -> list:
+    """
+    Devuelve las WABA visibles para este token, ya sea que el negocio
+    las posea directamente o que se las hayan compartido (caso Tech Provider,
+    que es tu caso según tu app "Ya eres un proveedor de tecnología").
+
+    Consulta primero client_whatsapp_business_accounts (WABAs de CLIENTES
+    compartidas contigo) y, si no hay resultados, cae a
+    owned_whatsapp_business_accounts (WABAs que tú mismo posees).
+    """
+    wabas = []
+    async with httpx.AsyncClient(timeout=20) as client:
+        r_biz = await client.get(
+            f"{GRAPH_BASE}/me/businesses",
+            headers={"Authorization": f"Bearer {long_token}"}
+        )
+        biz_data = r_biz.json()
+        for biz in biz_data.get("data", []):
+            biz_id = biz["id"]
+
+            # 1) WABAs de CLIENTES compartidas contigo (rol de Tech Provider)
+            r_client = await client.get(
+                f"{GRAPH_BASE}/{biz_id}/client_whatsapp_business_accounts",
+                headers={"Authorization": f"Bearer {long_token}"}
+            )
+            client_data = r_client.json()
+            wabas.extend(client_data.get("data", []))
+
+            # 2) WABAs propias (por si el negocio también tiene una directa)
+            r_owned = await client.get(
+                f"{GRAPH_BASE}/{biz_id}/owned_whatsapp_business_accounts",
+                headers={"Authorization": f"Bearer {long_token}"}
+            )
+            owned_data = r_owned.json()
+            wabas.extend(owned_data.get("data", []))
+
+    # Deduplicar por id
+    seen = set()
+    unique = []
+    for w in wabas:
+        if w["id"] not in seen:
+            seen.add(w["id"])
+            unique.append(w)
+    return unique
+
+
+async def fetch_phone_numbers(waba_id: str, long_token: str) -> list:
+    async with httpx.AsyncClient(timeout=20) as client:
+        r = await client.get(
+            f"{GRAPH_BASE}/{waba_id}/phone_numbers",
+            params={"fields": "id,display_phone_number,verified_name,quality_rating"},
+            headers={"Authorization": f"Bearer {long_token}"}
+        )
+        return r.json().get("data", [])
+
+
+async def register_phone_number(phone_id: str, token: str, pin: str = "000000") -> dict:
+    """
+    Registra el número para poder enviar/recibir por Cloud API.
+    Si el número ya está registrado, Meta devuelve un error que ignoramos
+    (no es crítico, significa que ya estaba listo).
+    """
+    async with httpx.AsyncClient(timeout=20) as client:
+        r = await client.post(
+            f"{GRAPH_BASE}/{phone_id}/register",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"messaging_product": "whatsapp", "pin": pin},
+        )
+        data = r.json()
+        return data
+
+
+async def subscribe_app_to_waba(waba_id: str, token: str) -> dict:
+    """
+    Suscribe TU app a los webhooks de la WABA del cliente.
+    Sin este paso, tu backend no recibirá notificaciones de entrega/lectura
+    ni mensajes entrantes de esa línea, aunque el envío en sí pueda funcionar.
+    """
+    async with httpx.AsyncClient(timeout=20) as client:
+        r = await client.post(
+            f"{GRAPH_BASE}/{waba_id}/subscribed_apps",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        return r.json()
+
+
 # ── Meta Embedded Signup OAuth ────────────────────────────────────
 # Flujo: Frontend abre popup → facebook.com/dialog/oauth
 #        Meta redirige a  /api/auth/facebook/callback?code=XXX
@@ -153,21 +245,15 @@ async def facebook_callback(
     error: Optional[str] = None,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Meta redirige aquí después de que el usuario autoriza en Facebook.
-    Intercambiamos el code por un token de larga duración y enviamos
-    los datos al popup padre via postMessage.
-    """
     if error:
         return HTMLResponse(_popup_close_html("error", {"error": error}))
 
     if not code:
         return HTMLResponse(_popup_close_html("error", {"error": "No se recibió código de autorización"}))
 
-    # 1. Intercambiar code → short-lived token
     redirect_uri = str(request.url_for("facebook_callback"))
     token_url = (
-        f"https://graph.facebook.com/v{19}.0/oauth/access_token"
+        f"{GRAPH_BASE}/oauth/access_token"
         f"?client_id={META_APP_ID}"
         f"&redirect_uri={redirect_uri}"
         f"&client_secret={META_APP_SECRET}"
@@ -183,67 +269,43 @@ async def facebook_callback(
         return HTMLResponse(_popup_close_html("error", {"error": err}))
 
     short_token = token_data["access_token"]
-
-    # 2. Convertir a token de larga duración (60 días)
-    long_token = short_token  # fallback
+    long_token = short_token
     try:
         async with httpx.AsyncClient(timeout=20) as client:
             r2 = await client.get(
-                f"https://graph.facebook.com/v19.0/oauth/access_token"
-                f"?grant_type=fb_exchange_token"
-                f"&client_id={META_APP_ID}"
-                f"&client_secret={META_APP_SECRET}"
-                f"&fb_exchange_token={short_token}"
+                f"{GRAPH_BASE}/oauth/access_token",
+                params={
+                    "grant_type": "fb_exchange_token",
+                    "client_id": META_APP_ID,
+                    "client_secret": META_APP_SECRET,
+                    "fb_exchange_token": short_token,
+                }
             )
             ld = r2.json()
             if "access_token" in ld:
                 long_token = ld["access_token"]
     except Exception:
-        pass  # Usamos el short token si falla
+        pass
 
-    # 3. Obtener WhatsApp Business Accounts del usuario
     waba_id = None
     phone_numbers = []
     try:
-        async with httpx.AsyncClient(timeout=20) as client:
-            # Obtener WABAs vinculadas
-            r3 = await client.get(
-                "https://graph.facebook.com/v19.0/me/businesses",
-                headers={"Authorization": f"Bearer {long_token}"}
-            )
-            biz_data = r3.json()
-            if biz_data.get("data"):
-                biz_id = biz_data["data"][0]["id"]
-                # Obtener WABAs de este negocio
-                r4 = await client.get(
-                    f"https://graph.facebook.com/v19.0/{biz_id}/owned_whatsapp_business_accounts",
-                    headers={"Authorization": f"Bearer {long_token}"}
-                )
-                waba_data = r4.json()
-                if waba_data.get("data"):
-                    waba_id = waba_data["data"][0]["id"]
-                    # Obtener números de teléfono de esta WABA
-                    r5 = await client.get(
-                        f"https://graph.facebook.com/v19.0/{waba_id}/phone_numbers"
-                        f"?fields=id,display_phone_number,verified_name,quality_rating",
-                        headers={"Authorization": f"Bearer {long_token}"}
-                    )
-                    phones_data = r5.json()
-                    phone_numbers = phones_data.get("data", [])
+        wabas = await fetch_client_wabas(long_token)
+        if wabas:
+            waba_id = wabas[0]["id"]
+            phone_numbers = await fetch_phone_numbers(waba_id, long_token)
     except Exception as e:
         print(f"[OAuth] Error al obtener WABA/phones: {e}")
 
-    # 4. Enviar todo al popup padre via postMessage (el JS del frontend lo escucha)
     payload = {
         "token":    long_token,
         "waba_id":  waba_id or "",
-        "phones":   phone_numbers,  # lista de {id, display_phone_number, verified_name}
+        "phones":   phone_numbers,
     }
     return HTMLResponse(_popup_close_html("success", payload))
 
 
 def _popup_close_html(status: str, data: dict) -> str:
-    """Genera HTML que envía postMessage al padre y cierra el popup."""
     import json
     msg_type = "fb_oauth_success" if status == "success" else "fb_oauth_error"
     payload_js = json.dumps({**data, "type": msg_type})
@@ -264,6 +326,7 @@ def _popup_close_html(status: str, data: dict) -> str:
   </script>
 </body></html>"""
 
+
 @router.post("/auth/facebook/exchange")
 async def exchange_facebook_code(
     data: dict,
@@ -272,17 +335,15 @@ async def exchange_facebook_code(
 ):
     """
     Recibe el 'code' del FB.login() (Embedded Signup) y lo intercambia
-    por un token de acceso. A diferencia del flujo OAuth clásico,
-    el Embedded Signup NO usa redirect_uri.
+    por un token de acceso. El Embedded Signup NO usa redirect_uri.
     """
     code = data.get("code")
     if not code:
         raise HTTPException(400, "Falta el código de autorización")
 
-    # 1. Intercambiar code → token (sin redirect_uri, propio del Embedded Signup)
     async with httpx.AsyncClient(timeout=20) as client:
         r = await client.get(
-            "https://graph.facebook.com/v21.0/oauth/access_token",
+            f"{GRAPH_BASE}/oauth/access_token",
             params={
                 "client_id": META_APP_ID,
                 "client_secret": META_APP_SECRET,
@@ -296,13 +357,11 @@ async def exchange_facebook_code(
         return {"ok": False, "detail": err}
 
     short_token = token_data["access_token"]
-
-    # 2. Convertir a token de larga duración
     long_token = short_token
     try:
         async with httpx.AsyncClient(timeout=20) as client:
             r2 = await client.get(
-                "https://graph.facebook.com/v21.0/oauth/access_token",
+                f"{GRAPH_BASE}/oauth/access_token",
                 params={
                     "grant_type": "fb_exchange_token",
                     "client_id": META_APP_ID,
@@ -316,40 +375,19 @@ async def exchange_facebook_code(
     except Exception:
         pass
 
-    # 3. Obtener WABAs y números de teléfono asociados al negocio
     waba_id = None
     phone_numbers = []
-    primary_phone_id = None
-    if phone_numbers:
-        primary_phone_id = phone_numbers[0].get("id")
     try:
-        async with httpx.AsyncClient(timeout=20) as client:
-            r3 = await client.get(
-                "https://graph.facebook.com/v21.0/me/businesses",
-                headers={"Authorization": f"Bearer {long_token}"}
-            )
-            biz_data = r3.json()
-            if biz_data.get("data"):
-                for biz in biz_data["data"]:
-                    biz_id = biz["id"]
-                    r4 = await client.get(
-                        f"https://graph.facebook.com/v21.0/{biz_id}/owned_whatsapp_business_accounts",
-                        headers={"Authorization": f"Bearer {long_token}"}
-                    )
-                    waba_data = r4.json()
-                    if waba_data.get("data"):
-                        waba_id = waba_data["data"][0]["id"]
-                        r5 = await client.get(
-                            f"https://graph.facebook.com/v21.0/{waba_id}/phone_numbers",
-                            params={"fields": "id,display_phone_number,verified_name,quality_rating"},
-                            headers={"Authorization": f"Bearer {long_token}"}
-                        )
-                        phones_data = r5.json()
-                        phone_numbers = phones_data.get("data", [])
-                        if phone_numbers:
-                            break
+        wabas = await fetch_client_wabas(long_token)
+        if wabas:
+            waba_id = wabas[0]["id"]
+            phone_numbers = await fetch_phone_numbers(waba_id, long_token)
     except Exception as e:
         print(f"[OAuth Exchange] Error al obtener WABA/phones: {e}")
+
+    # Bug corregido: antes se evaluaba esto ANTES de tener phone_numbers,
+    # así que primary_phone_id siempre quedaba en None.
+    primary_phone_id = phone_numbers[0].get("id") if phone_numbers else None
 
     return {
         "ok": True,
@@ -358,14 +396,19 @@ async def exchange_facebook_code(
         "phones": phone_numbers,
         "phone_id": primary_phone_id,
     }
-# Endpoint para que el frontend guarde el token/phone recibido del popup
+
+
 @router.post("/auth/facebook/save")
 async def save_facebook_connection(
     data: dict,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Guarda el token OAuth de Facebook + Phone ID seleccionado por el usuario."""
+    """
+    Guarda el token OAuth de Facebook + Phone ID seleccionado por el usuario,
+    y completa los dos pasos que Meta exige antes de poder enviar/recibir
+    mensajes por Cloud API: registrar el número y suscribir la app al WABA.
+    """
     token    = data.get("token")
     phone_id = data.get("phone_id")
     profile  = data.get("profile_name")
@@ -374,13 +417,34 @@ async def save_facebook_connection(
     if not token or not phone_id:
         raise HTTPException(400, "Token y Phone ID son obligatorios")
 
+    # 1. Registrar el número en Cloud API (idempotente: si ya está
+    #    registrado, Meta devuelve error y simplemente lo ignoramos).
+    reg_result = await register_phone_number(phone_id, token)
+    if "error" in reg_result:
+        print(f"[Register] Aviso (puede ya estar registrado): {reg_result['error']}")
+
+    # 2. Suscribir tu app a los webhooks de esa WABA (necesario para
+    #    recibir estados de entrega/lectura y mensajes entrantes).
+    sub_result = {}
+    if waba_id:
+        sub_result = await subscribe_app_to_waba(waba_id, token)
+        if "error" in sub_result:
+            print(f"[Subscribe] Error al suscribir app al WABA: {sub_result['error']}")
+
     user.whatsapp_token = token
     user.whatsapp_phone_id = phone_id
     user.profile_name = profile or None
     user.waba_id = waba_id or None
     await db.commit()
     await db.refresh(user)
-    return {"ok": True, "message": "Línea de WhatsApp conectada exitosamente", "phone_id": user.whatsapp_phone_id}
+
+    return {
+        "ok": True,
+        "message": "Línea de WhatsApp conectada exitosamente",
+        "phone_id": user.whatsapp_phone_id,
+        "register_status": "error" if "error" in reg_result else "ok",
+        "subscribe_status": "error" if "error" in sub_result else "ok",
+    }
 
 
 # ── Contacts ──────────────────────────────────────────────────────
@@ -450,8 +514,8 @@ async def send_campaign(campaign_id: int,
                         background_tasks: BackgroundTasks,
                         user: User = Depends(get_current_user),
                         db: AsyncSession = Depends(get_db)):
-    if not user.whatsapp_token:
-        raise HTTPException(400, "Configura tu WhatsApp API Token primero.")
+    if not user.whatsapp_token or not user.whatsapp_phone_id:
+        raise HTTPException(400, "Configura tu WhatsApp API Token y Phone ID primero.")
     res = await db.execute(
         select(Campaign).where(Campaign.id == campaign_id, Campaign.owner_id == user.id))
     camp = res.scalar_one_or_none()
@@ -489,7 +553,6 @@ async def campaign_stats(campaign_id: int,
     c = res.scalar_one_or_none()
     if not c:
         raise HTTPException(404)
-    # Recalcular contadores frescos desde los mensajes reales
     await recalc_campaign_counters(campaign_id, db)
     await db.refresh(c)
     msgs = (await db.execute(
@@ -519,11 +582,6 @@ async def webhook_verify(hub_mode: str = None,
 
 @router.post("/webhook")
 async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
-    """
-    Recibe notificaciones de Meta:
-    - Actualizaciones de estado de mensajes de campaña (sent/delivered/read/failed)
-    - Mensajes entrantes de clientes (para el módulo de chat)
-    """
     try:
         data = await request.json()
     except Exception:
@@ -535,24 +593,20 @@ async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
                 value = change.get("value", {})
                 phone_id = value.get("metadata", {}).get("phone_number_id", "")
 
-                # 1. Actualizaciones de estado (delivered, read, failed)
                 for st in value.get("statuses", []):
                     wamid      = st.get("id")
-                    new_status = st.get("status")   # sent/delivered/read/failed
+                    new_status = st.get("status")
                     if not (wamid and new_status):
                         continue
 
-                    # Intentar actualizar mensaje de campaña
                     res = await db.execute(
                         select(Message).where(Message.wamid == wamid))
                     camp_msg = res.scalar_one_or_none()
                     if camp_msg and camp_msg.status != new_status:
                         camp_msg.status = new_status
-                        # Recalcular contadores de campaña al terminar (evita dobles)
                         await db.commit()
                         await recalc_campaign_counters(camp_msg.campaign_id, db)
 
-                    # También actualizar mensajes de chat salientes
                     res2 = await db.execute(
                         select(ChatMessage).where(ChatMessage.wamid == wamid))
                     chat_msg = res2.scalar_one_or_none()
@@ -560,13 +614,11 @@ async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
                         chat_msg.status = new_status
                         await db.commit()
 
-                # 2. Mensajes ENTRANTES (clientes escribiendo)
                 for inc in value.get("messages", []):
                     from_phone = inc.get("from")
                     msg_type   = inc.get("type", "text")
                     wamid_in   = inc.get("id")
 
-                    # Extraer cuerpo del mensaje
                     body = ""
                     if msg_type == "text":
                         body = inc.get("text", {}).get("body", "")
@@ -581,19 +633,16 @@ async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
                     else:
                         body = f"[Mensaje tipo: {msg_type}]"
 
-                    # Nombre del contacto (si Meta lo provee)
                     contacts_info = value.get("contacts", [{}])
                     contact_name  = (contacts_info[0].get("profile", {})
                                      .get("name", from_phone) if contacts_info else from_phone)
 
-                    # Encontrar dueño por phone_id (la empresa que recibe el mensaje)
                     owner_res = await db.execute(
                         select(User).where(User.whatsapp_phone_id == phone_id))
                     owner = owner_res.scalar_one_or_none()
                     if not owner:
                         continue
 
-                    # Buscar conversación existente
                     conv_res = await db.execute(
                         select(Conversation).where(
                             Conversation.owner_id == owner.id,
@@ -611,7 +660,6 @@ async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
                         db.add(conv)
                         await db.flush()
 
-                    # Guardar mensaje entrante
                     chat_msg = ChatMessage(
                         conversation_id=conv.id,
                         direction="in",
@@ -622,7 +670,6 @@ async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
                     )
                     db.add(chat_msg)
 
-                    # Actualizar conversación
                     conv.last_msg    = body
                     conv.last_msg_at = datetime.utcnow()
                     conv.unread      = (conv.unread or 0) + 1
@@ -660,7 +707,6 @@ async def list_conversations(status: Optional[str] = None,
 async def get_conv_messages(conv_id: int,
                             user: User = Depends(get_current_user),
                             db: AsyncSession = Depends(get_db)):
-    # Verificar que pertenece al usuario
     res = await db.execute(
         select(Conversation).where(Conversation.id == conv_id,
                                    Conversation.owner_id == user.id))
@@ -668,7 +714,6 @@ async def get_conv_messages(conv_id: int,
     if not conv:
         raise HTTPException(404, "Conversación no encontrada")
 
-    # Marcar como leída
     conv.unread = 0
     await db.commit()
 
@@ -705,7 +750,6 @@ async def reply_to_conversation(conv_id: int,
     if not conv:
         raise HTTPException(404)
 
-    # Enviar via API de Meta
     resp = await send_whatsapp_text(
         user.whatsapp_phone_id, user.whatsapp_token,
         conv.contact_phone, data.body
@@ -718,7 +762,6 @@ async def reply_to_conversation(conv_id: int,
     else:
         status = "failed"
 
-    # Guardar mensaje saliente
     msg = ChatMessage(
         conversation_id=conv.id,
         direction="out",

@@ -83,7 +83,9 @@ def resolve_public_url() -> str:
 
 
 PUBLIC_BASE_URL = resolve_public_url()
-os.environ["PUBLIC_BASE_URL"] = os.getenv("PUBLIC_BASE_URL", "https://wasapinf.onrender.com")
+os.environ["PUBLIC_BASE_URL"] = PUBLIC_BASE_URL
+print(f"[Config] PUBLIC_BASE_URL en uso: {PUBLIC_BASE_URL}")
+
 # ── Crear carpetas ────────────────────────────────────────────────────────────
 UPLOADS_DIR = os.path.abspath("uploads")
 os.makedirs(f"{UPLOADS_DIR}/invoices", exist_ok=True)

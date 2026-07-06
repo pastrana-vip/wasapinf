@@ -1642,16 +1642,35 @@ function launchEmbeddedSignup() {
 }
 
 // Listener para capturar el evento WA_EMBEDDED_SIGNUP (phone_number_id, waba_id)
+// Listener para capturar el evento WA_EMBEDDED_SIGNUP (phone_number_id, waba_id)
+window._waEmbeddedData = null;
+window._waEmbeddedDataResolvers = [];
+
 window.addEventListener('message', (event) => {
   if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
   try {
     const data = JSON.parse(event.data);
     if (data.type === 'WA_EMBEDDED_SIGNUP' && data.event === 'FINISH') {
-      // Guardamos waba_id y phone_number_id que llegan directo del signup
       window._waEmbeddedData = data.data; // { phone_number_id, waba_id }
+      window._waEmbeddedDataResolvers.forEach(resolve => resolve(data.data));
+      window._waEmbeddedDataResolvers = [];
     }
   } catch(e) {}
 });
+
+function waitForEmbeddedData(timeoutMs = 4000) {
+  return new Promise((resolve) => {
+    if (window._waEmbeddedData) {
+      resolve(window._waEmbeddedData);
+      return;
+    }
+    const timer = setTimeout(() => resolve(null), timeoutMs);
+    window._waEmbeddedDataResolvers.push((data) => {
+      clearTimeout(timer);
+      resolve(data);
+    });
+  });
+}
 
 function showPhoneSelector() {
   document.getElementById('signup-step-1').style.display = 'none';
@@ -1676,35 +1695,41 @@ function showPhoneSelector() {
 
 async function handleFBCode(code) {
   try {
-    const r = await fetch('/api/auth/facebook/exchange', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json','Authorization': 'Bearer ' + TOKEN },
-      body: JSON.stringify({ code })
-    });
-    const data = await r.json();
-    if (data.ok) {
-      embeddedSignupToken = data.token;
-      embeddedWabaId      = data.waba_id || (window._waEmbeddedData && window._waEmbeddedData.waba_id) || null;
+    const [exchangeResp, embeddedData] = await Promise.all([
+      fetch('/api/auth/facebook/exchange', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json','Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({ code })
+      }).then(r => r.json()),
+      waitForEmbeddedData(4000)
+    ]);
 
-      // Si el evento postMessage ya nos dio el phone_number_id, lo priorizamos
-      if (window._waEmbeddedData && window._waEmbeddedData.phone_number_id) {
-        embeddedPhones = [{
-          id: window._waEmbeddedData.phone_number_id,
-          display_phone_number: '',
-          verified_name: ''
-        }];
-      } else {
-        embeddedPhones = data.phones || [];
-      }
+    if (!exchangeResp.ok) {
+      throw new Error(exchangeResp.detail || 'Error al procesar');
+    }
 
-      if (embeddedPhones.length > 0) {
-        completeSignup(embeddedPhones[0].id);
-        return;
-      }
+    embeddedSignupToken = exchangeResp.token;
+    embeddedWabaId = exchangeResp.waba_id || (embeddedData && embeddedData.waba_id) || null;
 
-      document.getElementById('signup-waiting').style.display = 'none';
-      showPhoneSelector();
-    } else { throw new Error(data.detail || 'Error al procesar'); }
+    if (embeddedData && embeddedData.phone_number_id) {
+      embeddedPhones = [{
+        id: embeddedData.phone_number_id,
+        display_phone_number: embeddedData.display_phone_number || '',
+        verified_name: embeddedData.verified_name || ''
+      }];
+    } else {
+      embeddedPhones = exchangeResp.phones || [];
+    }
+
+    if (embeddedPhones.length > 0) {
+      await completeSignup(embeddedPhones[0].id);
+      return;
+    }
+
+    document.getElementById('signup-waiting').style.display = 'none';
+    showPhoneSelector();
+    setAlert('signup-alert', 'err',
+      'No pudimos detectar el número automáticamente. Pégalo manualmente abajo (lo encuentras en Meta Business Suite → WhatsApp → Números de teléfono).');
   } catch(e) {
     document.getElementById('signup-waiting').style.display = 'none';
     document.getElementById('fb-signup-btn').disabled = false;

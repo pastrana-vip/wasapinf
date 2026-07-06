@@ -83,8 +83,7 @@ def resolve_public_url() -> str:
 
 
 PUBLIC_BASE_URL = resolve_public_url()
-os.environ["PUBLIC_BASE_URL"] = PUBLIC_BASE_URL  # Para que whatsapp_service lo lea
-
+os.environ["PUBLIC_BASE_URL"] = os.getenv("PUBLIC_BASE_URL", "https://wasapinf.onrender.com")
 # ── Crear carpetas ────────────────────────────────────────────────────────────
 UPLOADS_DIR = os.path.abspath("uploads")
 os.makedirs(f"{UPLOADS_DIR}/invoices", exist_ok=True)

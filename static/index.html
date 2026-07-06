@@ -1737,6 +1737,9 @@ async function saveManualCredentials() {
 
 function onWAConnected(profileName, phoneId) {
   ME.has_whatsapp = true;
+  ME.whatsapp_phone_id = phoneId;
+  ME.profile_name = profileName || null;
+  loadWAStatus();
   document.getElementById('wa-badge').style.display='flex';
   document.getElementById('wa-connect-panel').style.display='none';
   document.getElementById('wa-success-panel').style.display='block';

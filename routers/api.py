@@ -370,12 +370,13 @@ async def save_facebook_connection(
     if not token or not phone_id:
         raise HTTPException(400, "Token y Phone ID son obligatorios")
 
-    user.whatsapp_token    = token
-    user.whatsapp_phone_id = phone_id
-    user.profile_name      = profile or None
-    user.waba_id           = waba_id  or None
+    user.whatsapp_token = data.get("token") or None
+    user.whatsapp_phone_id = data.get("phone_id") or None
+    user.profile_name = data.get("profile_name") or None
+    user.waba_id = data.get("waba_id") or None
     await db.commit()
-    return {"ok": True, "message": "Línea de WhatsApp conectada exitosamente"}
+    await db.refresh(user)
+    return {"ok": True, "phone_id": user.whatsapp_phone_id, "profile_name": user.profile_name}
 
 
 # ── Contacts ──────────────────────────────────────────────────────

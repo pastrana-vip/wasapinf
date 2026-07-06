@@ -216,7 +216,22 @@ async def fetch_client_wabas(long_token: str) -> list:
                     headers={"Authorization": f"Bearer {SYSTEM_USER_TOKEN}"}
                 )
                 fallback_data = r_fallback.json()
+                if "error" in fallback_data:
+                    print(f"[fetch_client_wabas] client_whatsapp_business_accounts error: {fallback_data['error']}")
                 wabas.extend(fallback_data.get("data", []))
+
+                # También cuentas que TÚ posees directamente (no solo
+                # compartidas por clientes) — cubre el caso donde la WABA
+                # aparece en tu propio portafolio en vez de como "cliente".
+                r_fallback_owned = await client.get(
+                    f"{GRAPH_BASE}/{TECH_PROVIDER_BUSINESS_ID}/owned_whatsapp_business_accounts",
+                    headers={"Authorization": f"Bearer {SYSTEM_USER_TOKEN}"}
+                )
+                fallback_owned_data = r_fallback_owned.json()
+                if "error" in fallback_owned_data:
+                    print(f"[fetch_client_wabas] owned_whatsapp_business_accounts error: {fallback_owned_data['error']}")
+                wabas.extend(fallback_owned_data.get("data", []))
+
                 print(f"[fetch_client_wabas] Fallback con SYSTEM_USER_TOKEN devolvió {len(wabas)} WABA(s)")
             except Exception as e:
                 print(f"[fetch_client_wabas] Fallback con SYSTEM_USER_TOKEN falló: {e}")

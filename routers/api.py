@@ -168,10 +168,16 @@ async def save_whatsapp_config(
         reg_result = await register_phone_number(phone_id, op_token)
         if "error" in reg_result:
             print(f"[Register] Aviso (puede ya estar registrado): {reg_result['error']}")
+        else:
+            print(f"[Register] ✅ OK para phone_id={phone_id}")
         if waba_id:
             sub_result = await subscribe_app_to_waba(waba_id, op_token)
             if "error" in sub_result:
-                print(f"[Subscribe] Error al suscribir app al WABA: {sub_result['error']}")
+                print(f"[Subscribe] Error al suscribir app al WABA {waba_id}: {sub_result['error']}")
+            else:
+                print(f"[Subscribe] ✅ App suscrita al WABA {waba_id}: {sub_result}")
+        else:
+            print(f"[Subscribe] ⚠ SALTADO — no se ingresó waba_id, no se pudo suscribir el webhook para phone_id={phone_id}")
 
     user.whatsapp_token    = token
     user.whatsapp_phone_id = phone_id
@@ -498,6 +504,8 @@ async def save_facebook_connection(
     reg_result = await register_phone_number(phone_id, op_token)
     if "error" in reg_result:
         print(f"[Register] Aviso (puede ya estar registrado): {reg_result['error']}")
+    else:
+        print(f"[Register] ✅ OK para phone_id={phone_id}")
 
     # 2. Suscribir tu app a los webhooks de esa WABA (necesario para
     #    recibir estados de entrega/lectura y mensajes entrantes).
@@ -505,7 +513,11 @@ async def save_facebook_connection(
     if waba_id:
         sub_result = await subscribe_app_to_waba(waba_id, op_token)
         if "error" in sub_result:
-            print(f"[Subscribe] Error al suscribir app al WABA: {sub_result['error']}")
+            print(f"[Subscribe] Error al suscribir app al WABA {waba_id}: {sub_result['error']}")
+        else:
+            print(f"[Subscribe] ✅ App suscrita al WABA {waba_id}: {sub_result}")
+    else:
+        print(f"[Subscribe] ⚠ SALTADO — no se recibió waba_id, no se pudo suscribir el webhook para phone_id={phone_id}")
 
     user.whatsapp_token = token
     user.whatsapp_phone_id = phone_id

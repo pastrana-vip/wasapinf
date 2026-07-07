@@ -1148,6 +1148,11 @@ tr:hover td{background:rgba(34,211,160,.025);}
                   <div class="hint">En <strong>Meta Business Suite → WhatsApp → Configuración de la API</strong></div>
                 </div>
                 <div class="ff full">
+                  <label>WABA ID <span style="font-weight:400;text-transform:none">(opcional pero recomendado)</span></label>
+                  <input id="s2-waba-id" placeholder="1022537010165188">
+                  <div class="hint">El "Identificador" que aparece arriba de la cuenta en Meta Business Suite → Cuentas de WhatsApp. Sin esto no podemos suscribir tu app a los webhooks de esa línea.</div>
+                </div>
+                <div class="ff full">
                   <label>Nombre del perfil</label>
                   <input id="s2-profile-name" placeholder="Mi Empresa SRL">
                 </div>
@@ -1168,6 +1173,7 @@ tr:hover td{background:rgba(34,211,160,.025);}
             <div class="fgrid" style="margin-bottom:14px;">
               <div class="ff full"><label>Access Token</label><input id="m-token" type="password" placeholder="EAAxxxxxxxxxxxxxxxx..."><div class="hint">Token permanente de System Users (no expira)</div></div>
               <div class="ff full"><label>Phone Number ID</label><input id="m-phone-id" placeholder="123456789012345"></div>
+              <div class="ff full"><label>WABA ID <span style="font-weight:400;text-transform:none">(opcional pero recomendado)</span></label><input id="m-waba-id" placeholder="1022537010165188"><div class="hint">Sin esto no podemos suscribir tu app a los webhooks de esa línea (estados de entrega/lectura y mensajes entrantes).</div></div>
               <div class="ff full"><label>Nombre del perfil <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="m-name" placeholder="Mi Empresa SRL"></div>
             </div>
             <button class="btn btn-g" onclick="saveManualCredentials()">💾 Guardar y verificar</button>
@@ -1775,6 +1781,7 @@ function backToStep1() {
 async function completeSignup(phoneIdOverride = null) {
   const phoneId = (phoneIdOverride || document.getElementById('s2-phone-id')?.value || '').trim();
   const profileName = document.getElementById('s2-profile-name').value.trim();
+  const wabaIdManual = (document.getElementById('s2-waba-id')?.value || '').trim();
 
   setAlert('signup-step2-alert', '', '');
   if (!phoneId) {
@@ -1792,7 +1799,7 @@ async function completeSignup(phoneIdOverride = null) {
       token: embeddedSignupToken,
       phone_id: phoneId,
       profile_name: profileName || null,
-      waba_id: embeddedWabaId || null
+      waba_id: embeddedWabaId || wabaIdManual || null
     });
     onWAConnected(profileName || 'Línea conectada', phoneId);
   } catch (e) {
@@ -1803,12 +1810,13 @@ async function completeSignup(phoneIdOverride = null) {
 async function saveManualCredentials() {
   const token   = document.getElementById('m-token').value.trim();
   const phoneId = document.getElementById('m-phone-id').value.trim();
+  const wabaId  = (document.getElementById('m-waba-id')?.value || '').trim();
   const name    = document.getElementById('m-name').value.trim();
   setAlert('manual-alert','','');
   if (!token)   { setAlert('manual-alert','err','⚠ Ingresa el Access Token'); return; }
   if (!phoneId) { setAlert('manual-alert','err','⚠ Ingresa el Phone Number ID'); return; }
   try {
-    await req('POST','/config/whatsapp',{ whatsapp_token: token, whatsapp_phone_id: phoneId, profile_name: name || null });
+    await req('POST','/config/whatsapp',{ whatsapp_token: token, whatsapp_phone_id: phoneId, waba_id: wabaId || null, profile_name: name || null });
     onWAConnected(name || 'Línea conectada', phoneId);
   } catch(e) { setAlert('manual-alert','err','✕ '+e.message); }
 }

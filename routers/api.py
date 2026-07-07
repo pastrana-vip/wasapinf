@@ -159,10 +159,24 @@ async def save_whatsapp_config(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    user.whatsapp_token    = data.whatsapp_token    or None
-    user.whatsapp_phone_id = data.whatsapp_phone_id or None
-    user.profile_name      = data.profile_name      or None
-    user.waba_id           = data.waba_id           or None
+    token    = data.whatsapp_token or None
+    phone_id = data.whatsapp_phone_id or None
+    waba_id  = data.waba_id or None
+
+    if token and phone_id:
+        op_token = provider_token(token)
+        reg_result = await register_phone_number(phone_id, op_token)
+        if "error" in reg_result:
+            print(f"[Register] Aviso (puede ya estar registrado): {reg_result['error']}")
+        if waba_id:
+            sub_result = await subscribe_app_to_waba(waba_id, op_token)
+            if "error" in sub_result:
+                print(f"[Subscribe] Error al suscribir app al WABA: {sub_result['error']}")
+
+    user.whatsapp_token    = token
+    user.whatsapp_phone_id = phone_id
+    user.profile_name      = data.profile_name or None
+    user.waba_id           = waba_id
     await db.commit()
     return {"ok": True}
 
@@ -660,6 +674,11 @@ async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
                     new_status = st.get("status")
                     if not (wamid and new_status):
                         continue
+
+                    # Log visible en Render: aquí verás "delivered", "read",
+                    # o "failed" (con el motivo) para cada wamid enviado.
+                    err_info = st.get("errors")
+                    print(f"[Webhook status] wamid={wamid} status={new_status}" + (f" errors={err_info}" if err_info else ""))
 
                     res = await db.execute(
                         select(Message).where(Message.wamid == wamid))

@@ -28,8 +28,14 @@ except ImportError:
 
 from models.database import init_db
 from routers.api import router
-from routers.invoices import router as invoices_router
+from routers.invoices import router as documents_router
 from routers.agents import router as agents_router
+from routers.roles import router as roles_router
+from routers.admin import router as admin_router
+from routers.external_api import router as external_api_router
+import asyncio
+from whatsapp_service import run_recurring_campaigns
+from models.database import AsyncSessionLocal
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -50,7 +56,14 @@ def resolve_public_url() -> str:
         print(f"[STARTUP] ✅ URL pública desde .env: {env_url}")
         return env_url
 
-    # Prioridad 2: auto-detectar ngrok via su API local
+    # Prioridad 2: Render la expone sola en RENDER_EXTERNAL_URL — así no
+    # hay que configurar nada a mano al desplegar ahí.
+    render_url = os.getenv("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
+    if render_url:
+        print(f"[STARTUP] ✅ URL pública detectada de Render: {render_url}")
+        return render_url
+
+    # Prioridad 3: auto-detectar ngrok via su API local
     try:
         import urllib.request
         req = urllib.request.Request(
@@ -74,7 +87,7 @@ def resolve_public_url() -> str:
     except Exception as e:
         print(f"[STARTUP] ℹ️  ngrok no detectado en 127.0.0.1:4040: {e}")
 
-    # Prioridad 3: fallback a localhost (PDFs no accesibles por Meta)
+    # Prioridad 4: fallback a localhost (PDFs no accesibles por Meta)
     print("[STARTUP] ⚠️  PUBLIC_BASE_URL no configurada.")
     print("[STARTUP]    Los PDFs no llegarán a WhatsApp hasta que configures la URL.")
     print("[STARTUP]    → Crea un archivo .env con: PUBLIC_BASE_URL=https://tu-ngrok.ngrok-free.app")
@@ -91,8 +104,20 @@ UPLOADS_DIR = os.path.abspath("uploads")
 os.makedirs(f"{UPLOADS_DIR}/invoices", exist_ok=True)
 
 # ── App ───────────────────────────────────────────────────────────────────────
-app = FastAPI(title="WaSapinf - WhatsApp unlimited", version="1.0.0")
+app = FastAPI(
+    title="WaSapinf API",
+    description=(
+        "API para integrar WaSapinf con tus propios sistemas (ERP, sitio web, "
+        "planillas...). Los endpoints bajo /api/v1 se autentican con tu API Key "
+        "(Authorization: Bearer <api_key>) — créala desde Integraciones dentro "
+        "de la app. El resto de endpoints bajo /api son internos de la interfaz "
+        "web y requieren sesión de usuario."
+    ),
+    version="1.0.0",
+)
 app.include_router(agents_router, prefix="/api")
+app.include_router(roles_router, prefix="/api")
+app.include_router(admin_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,
@@ -302,6 +327,31 @@ async def debug_config():
 # STARTUP Y ROUTERS
 # ══════════════════════════════════════════════════════════════════════════════
 
+RECURRING_CHECK_INTERVAL_SECONDS = int(os.getenv("RECURRING_CHECK_INTERVAL_SECONDS", str(6 * 3600)))
+
+
+async def _recurring_campaigns_loop():
+    """
+    Corre en segundo plano mientras el server esté vivo: cada
+    RECURRING_CHECK_INTERVAL_SECONDS (6h por defecto) revisa si algún
+    RecurringCampaign tiene contactos cuya fecha ya se cumplió, y les
+    manda el recordatorio solo — sin que nadie tenga que entrar a
+    dispararlo a mano. También se puede forzar una corrida inmediata
+    desde el Panel Admin (POST /api/admin/recurring/run-now).
+    """
+    # Pequeña espera inicial para no competir con el arranque del server.
+    await asyncio.sleep(30)
+    while True:
+        try:
+            async with AsyncSessionLocal() as db:
+                summary = await run_recurring_campaigns(db)
+                if summary:
+                    print(f"[Recurring] Corrida automática: {summary}")
+        except Exception as e:
+            print(f"[Recurring] Error en la corrida automática: {e}")
+        await asyncio.sleep(RECURRING_CHECK_INTERVAL_SECONDS)
+
+
 @app.on_event("startup")
 async def startup():
     await init_db()
@@ -317,11 +367,13 @@ async def startup():
     print(f"  Debug:       {PUBLIC_BASE_URL}/debug/uploads")
     print(f"  Setup:       http://localhost:8000/setup")
     print(f"{'='*60}\n")
+    asyncio.create_task(_recurring_campaigns_loop())
 
 
 # ── IMPORTANTE: routers ANTES del mount de /static ───────────────────────────
 app.include_router(router, prefix="/api")
-app.include_router(invoices_router, prefix="/api")
+app.include_router(documents_router, prefix="/api")
+app.include_router(external_api_router, prefix="/api")
 
 # Esta ruta es para que Meta verifique tu URL
 @app.get("/webhook")

@@ -1,0 +1,60 @@
+# render.yaml — Blueprint de Render: levanta el web service + la base de
+# datos Postgres JUNTOS con un solo push, sin configurar nada a mano en
+# el dashboard (excepto conectar el repo la primera vez).
+#
+# Cómo usarlo:
+#   1. Sube este archivo a la raíz de tu repo (junto a main.py) y haz push.
+#   2. En Render: New + → Blueprint → conecta este repo → Apply.
+#   3. Render crea el web service y la base de datos, y conecta
+#      DATABASE_URL automáticamente entre ambos (ver `fromDatabase` abajo).
+#   4. Cuando termine el primer deploy, entra a tu app y regístrate con
+#      tu email — luego corre el script de promoción a superadmin desde
+#      tu máquina apuntando a la "External Database URL" que te muestra
+#      la base de datos en el dashboard:
+#
+#      DATABASE_URL="postgresql+asyncpg://usuario:pass@host-externo/db" \
+#        python scripts/migrate_v2.py tu_email@wasapinf.com
+#
+# Nota: el plan "free" de Postgres en Render expira en 30 días (con 14
+# días de gracia después). Para producción real con clientes, cambia
+# `plan: free` por `starter` (o el que prefieras) en la sección de la
+# base de datos.
+
+databases:
+  - name: wasapinf-db
+    plan: free
+    databaseName: wasapinf
+    user: wasapinf
+
+services:
+  - type: web
+    name: wasapinf
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      # Render conecta esto solo con la base de datos de arriba —
+      # OJO: Render entrega la URL como "postgresql://...", y tu app
+      # necesita el driver async (postgresql+asyncpg://). Como
+      # SQLAlchemy no lo resuelve solo, models/database.py ya lo
+      # normaliza automáticamente al arrancar (ver más abajo).
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wasapinf-db
+          property: connectionString
+      # Clave para firmar los tokens de sesión (JWT) — Render genera un
+      # valor aleatorio seguro solo, no tienes que inventarte nada.
+      - key: SECRET_KEY
+        generateValue: true
+      # Render ya expone esta variable sola con la URL pública real del
+      # servicio (https://wasapinf.onrender.com o tu dominio propio) —
+      # tu app la detecta automáticamente, no hace falta tocarla.
+      - key: RENDER_EXTERNAL_URL
+        sync: false
+      # App ID de tu app de Meta para WhatsApp Embedded Signup — pon el
+      # tuyo aquí o en el dashboard después del primer deploy.
+      - key: META_APP_ID
+        sync: false
+      - key: PYTHON_VERSION
+        value: "3.12.0"

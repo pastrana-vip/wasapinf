@@ -7,51 +7,55 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════════════
-   DESIGN TOKENS
+   DESIGN TOKENS - MEJORADOS PARA MÁXIMO CONTRASTE
 ══════════════════════════════════════════════════ */
 :root{
-  --bg:       #0b1117;
-  --bg2:      #111920;
-  --bg3:      #161f28;
-  --card:     #192330;
-  --card2:    #1e2a38;
-  --border:   #243040;
-  --border2:  #2d3f52;
+  color-scheme: dark;
+  --bg:       #0b1929;
+  --bg2:      #0f1d2e;
+  --bg3:      #162a3d;
+  --bg4:      #1c3347;
+  --card:     #132433;
+  --card2:    #1a2e40;
+  --card3:    #1f364b;
+  --border:   #1e3a4f;
+  --border2:  #2a4a62;
 
-  --green:    #22d3a0;
-  --green2:   #16b88a;
-  --green3:   #0e8f6c;
-  --green-bg: rgba(34,211,160,.10);
-  --green-glow: rgba(34,211,160,.18);
+  --green:    #00e676;
+  --green2:   #00c853;
+  --green3:   #009624;
+  --green-bg: rgba(0,230,118,.12);
+  --green-glow: rgba(0,230,118,.20);
 
-  --blue:     #4ab3f4;
-  --blue-bg:  rgba(74,179,244,.10);
-  --yellow:   #f5c518;
-  --yellow-bg:rgba(245,197,24,.10);
-  --red:      #f43f5e;
-  --red-bg:   rgba(244,63,94,.10);
-  --purple:   #a78bfa;
+  --blue:     #4fc3f7;
+  --blue-bg:  rgba(79,195,247,.10);
+  --yellow:   #ffd54f;
+  --yellow-bg:rgba(255,213,79,.10);
+  --red:      #ef5350;
+  --red-bg:   rgba(239,83,80,.10);
+  --purple:   #b39ddb;
 
-  --text:     #e2eaf2;
-  --text2:    #7a9ab5;
-  --text3:    #4e6a82;
+  --text:     #f0f4f8;
+  --text2:    #b0c8d8;
+  --text3:    #7a9bb0;
 
   --font-ui:  'Plus Jakarta Sans', sans-serif;
   --font-hd:  'Space Grotesk', sans-serif;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
-  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,.5);
+  --shadow-sm: 0 2px 4px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 20px rgba(0,0,0,.5);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.6);
+  --shadow-glow: 0 0 30px rgba(0,230,118,.08);
 
-  --sidebar-w: 240px;
-  --topbar-h:  60px;
-  --transition: .18s cubic-bezier(.4,0,.2,1);
+  --sidebar-w: 250px;
+  --topbar-h:  64px;
+  --transition: .2s cubic-bezier(.4,0,.2,1);
 }
 
 /* ══════════════════════════════════════════════════
@@ -72,9 +76,11 @@ body{
 a{color:inherit;text-decoration:none;}
 button{font-family:var(--font-ui);cursor:pointer;}
 input,textarea,select{font-family:var(--font-ui);}
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3);}
 
 /* ══════════════════════════════════════════════════
@@ -85,44 +91,44 @@ input,textarea,select{font-family:var(--font-ui);}
   align-items:center;
   justify-content:center;
   min-height:100vh;
-  padding:20px;
+  padding:24px;
   background:
-    radial-gradient(ellipse 70% 50% at 80% -5%, rgba(34,211,160,.12), transparent),
-    radial-gradient(ellipse 50% 40% at 5% 95%, rgba(34,211,160,.07), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(0,230,118,.10), transparent),
+    radial-gradient(ellipse 50% 30% at 5% 90%, rgba(79,195,247,.06), transparent),
     var(--bg);
 }
 .auth-wrap{
   display:flex;
-  gap:64px;
+  gap:60px;
   align-items:center;
-  max-width:960px;
+  max-width:1000px;
   width:100%;
 }
 .auth-hero{flex:1;display:none;}
 @media(min-width:860px){.auth-hero{display:block;}}
 .auth-hero h1{
   font-family:var(--font-hd);
-  font-size:clamp(32px,4vw,48px);
+  font-size:clamp(34px,4.5vw,52px);
   font-weight:700;
-  line-height:1.15;
-  margin-bottom:16px;
+  line-height:1.1;
+  margin-bottom:18px;
   letter-spacing:-.02em;
 }
-.auth-hero h1 em{color:var(--green);font-style:normal;}
+.auth-hero h1 em{color:var(--green);font-style:normal;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .auth-hero p{
   color:var(--text2);
   font-size:15px;
   line-height:1.7;
-  max-width:380px;
+  max-width:400px;
   margin-bottom:28px;
 }
-.feat-list{display:flex;flex-direction:column;gap:10px;}
+.feat-list{display:flex;flex-direction:column;gap:12px;}
 .feat{
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;gap:12px;
   font-size:13px;color:var(--text2);
 }
 .feat-dot{
-  width:18px;height:18px;border-radius:50%;
+  width:20px;height:20px;border-radius:50%;
   background:var(--green-bg);
   border:1.5px solid var(--green);
   display:flex;align-items:center;justify-content:center;
@@ -130,34 +136,37 @@ input,textarea,select{font-family:var(--font-ui);}
   font-size:10px;color:var(--green);
 }
 
-/* Auth box */
+/* Auth box - Glassmorphism */
 .auth-box{
   width:100%;max-width:420px;flex-shrink:0;
-  background:var(--card);
-  border:1px solid var(--border);
+  background:rgba(19,36,51,.8);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(30,58,79,.5);
   border-radius:var(--radius-xl);
-  padding:36px 32px;
-  box-shadow:var(--shadow-lg);
+  padding:40px 36px;
+  box-shadow:var(--shadow-lg), var(--shadow-glow);
   position:relative;overflow:hidden;
 }
 .auth-box::before{
   content:'';position:absolute;
-  top:-100px;right:-100px;
-  width:260px;height:260px;border-radius:50%;
-  background:radial-gradient(circle,rgba(34,211,160,.08),transparent 70%);
+  top:-120px;right:-120px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,230,118,.06),transparent 70%);
   pointer-events:none;
 }
 @media(max-width:480px){.auth-box{padding:28px 20px;}}
 
-.logo-mark{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+.logo-mark{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
 .logo-mark .ico{
-  width:38px;height:38px;border-radius:10px;
-  background:linear-gradient(135deg,var(--green),var(--green3));
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,var(--green),var(--green2));
   display:flex;align-items:center;justify-content:center;
-  font-size:18px;box-shadow:0 4px 12px rgba(34,211,160,.3);
+  font-size:20px;box-shadow:0 4px 16px rgba(0,230,118,.3);
 }
 .logo-mark span{
   font-family:var(--font-hd);font-weight:700;font-size:22px;color:var(--text);
+  letter-spacing:-.01em;
 }
 
 /* Auth tabs */
@@ -165,45 +174,53 @@ input,textarea,select{font-family:var(--font-ui);}
   display:flex;background:var(--bg3);
   border:1px solid var(--border);
   border-radius:var(--radius-md);
-  padding:3px;gap:3px;margin-bottom:22px;
+  padding:4px;gap:4px;margin-bottom:24px;
 }
 .tab{
-  flex:1;padding:9px;border:none;background:transparent;
+  flex:1;padding:10px;border:none;background:transparent;
   color:var(--text2);font-size:13px;font-weight:600;
   border-radius:var(--radius-sm);transition:var(--transition);
 }
-.tab.active{background:var(--green);color:#071410;font-weight:700;}
+.tab.active{
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  color:#071410;font-weight:700;
+  box-shadow:0 4px 12px rgba(0,230,118,.3);
+}
 .tab:not(.active):hover{color:var(--text);background:var(--card2);}
 
 /* Form elements */
-.form{display:flex;flex-direction:column;gap:14px;}
+.form{display:flex;flex-direction:column;gap:16px;}
 .fld label{
   display:block;font-size:11px;font-weight:700;
   color:var(--text3);text-transform:uppercase;
-  letter-spacing:.06em;margin-bottom:5px;
+  letter-spacing:.06em;margin-bottom:6px;
 }
 .fld input{
-  width:100%;padding:11px 14px;
+  width:100%;padding:12px 16px;
   background:var(--bg3);border:1.5px solid var(--border);
   border-radius:var(--radius-md);
   color:var(--text);font-size:14px;outline:none;
-  transition:border-color var(--transition),background var(--transition);
+  transition:border-color var(--transition),box-shadow var(--transition);
 }
-.fld input:focus{border-color:var(--green);background:rgba(34,211,160,.04);}
+.fld input:focus{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(0,230,118,.15);
+}
 .fld input::placeholder{color:var(--text3);}
+
 .btn-main{
-  width:100%;padding:13px;
+  width:100%;padding:14px;
   background:linear-gradient(135deg,var(--green),var(--green2));
   border:none;border-radius:var(--radius-md);
   color:#071410;font-family:var(--font-hd);
   font-weight:700;font-size:15px;
-  cursor:pointer;transition:var(--transition);margin-top:4px;
+  cursor:pointer;transition:var(--transition);margin-top:6px;
   display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 4px 16px rgba(34,211,160,.3);
+  box-shadow:0 4px 20px rgba(0,230,118,.3);
 }
-.btn-main:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(34,211,160,.4);}
-.btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-.err-msg{min-height:18px;font-size:12px;color:var(--red);text-align:center;}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,230,118,.4);}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.err-msg{min-height:20px;font-size:12px;color:var(--red);text-align:center;}
 
 /* ══════════════════════════════════════════════════
    APP SHELL
@@ -212,13 +229,15 @@ input,textarea,select{font-family:var(--font-ui);}
 .layout{display:flex;min-height:100vh;}
 
 /* ══════════════════════════════════════════════════
-   SIDEBAR
+   SIDEBAR - Glassmorphism mejorado
 ══════════════════════════════════════════════════ */
 .sidebar{
   width:var(--sidebar-w);
   min-height:100vh;
-  background:var(--bg2);
-  border-right:1px solid var(--border);
+  background:rgba(15,29,46,.92);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-right:1px solid rgba(30,58,79,.5);
   display:flex;flex-direction:column;
   position:fixed;top:0;left:0;
   z-index:200;
@@ -229,7 +248,7 @@ input,textarea,select{font-family:var(--font-ui);}
   position:fixed;inset:0;
   background:rgba(0,0,0,.6);
   z-index:199;
-  backdrop-filter:blur(2px);
+  backdrop-filter:blur(4px);
 }
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);}
@@ -241,19 +260,20 @@ input,textarea,select{font-family:var(--font-ui);}
 /* Sidebar header */
 .sb-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:18px 16px 14px;
+  padding:20px 18px 16px;
   border-bottom:1px solid var(--border);
 }
-.sb-logo{display:flex;align-items:center;gap:9px;}
+.sb-logo{display:flex;align-items:center;gap:10px;}
 .sb-logo .ico{
-  width:32px;height:32px;border-radius:8px;
-  background:linear-gradient(135deg,var(--green),var(--green3));
-  display:flex;align-items:center;justify-content:center;font-size:16px;
+  width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  box-shadow:0 2px 12px rgba(0,230,118,.25);
 }
-.sb-logo span{font-family:var(--font-hd);font-weight:700;font-size:17px;}
+.sb-logo span{font-family:var(--font-hd);font-weight:700;font-size:17px;letter-spacing:-.01em;}
 .sb-close{
   display:none;background:none;border:none;
-  color:var(--text2);padding:4px;border-radius:6px;font-size:18px;
+  color:var(--text2);padding:4px 8px;border-radius:6px;font-size:18px;
   transition:var(--transition);
 }
 .sb-close:hover{color:var(--text);background:var(--card2);}
@@ -261,32 +281,37 @@ input,textarea,select{font-family:var(--font-ui);}
 
 /* WA badge */
 .sb-badge{
-  margin:10px 12px;
+  margin:12px 14px;
   background:var(--green-bg);
-  border:1px solid rgba(34,211,160,.3);
+  border:1px solid rgba(0,230,118,.25);
   border-radius:var(--radius-md);
-  padding:7px 12px;
-  display:flex;align-items:center;gap:7px;
+  padding:8px 14px;
+  display:flex;align-items:center;gap:8px;
   font-size:12px;font-weight:600;color:var(--green);
 }
 .sb-badge .dot{
-  width:7px;height:7px;border-radius:50%;
+  width:8px;height:8px;border-radius:50%;
   background:var(--green);
-  box-shadow:0 0 6px var(--green);
+  box-shadow:0 0 8px var(--green);
   animation:pulse 2s infinite;
 }
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 
-/* Nav */
-nav{padding:6px 0;flex:1;overflow-y:auto;}
+/* Nav - con scroll */
+nav{
+  padding:8px 0;
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+}
 .nav-section{
-  padding:12px 16px 4px;
+  padding:14px 18px 6px;
   font-size:10px;font-weight:700;
   color:var(--text3);text-transform:uppercase;letter-spacing:.08em;
 }
 .ni{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 16px;
+  display:flex;align-items:center;gap:12px;
+  padding:10px 18px;
   color:var(--text2);cursor:pointer;
   transition:var(--transition);
   font-size:13px;font-weight:500;
@@ -295,7 +320,11 @@ nav{padding:6px 0;flex:1;overflow-y:auto;}
   border-radius:0;margin:1px 0;
 }
 .ni:hover{background:var(--green-bg);color:var(--text);}
-.ni.active{background:var(--green-bg);color:var(--green);border-left-color:var(--green);}
+.ni.active{
+  background:var(--green-bg);
+  color:var(--green);
+  border-left-color:var(--green);
+}
 .ni-ico{
   width:32px;height:32px;border-radius:var(--radius-sm);
   display:flex;align-items:center;justify-content:center;
@@ -303,34 +332,49 @@ nav{padding:6px 0;flex:1;overflow-y:auto;}
   background:var(--bg3);border:1px solid var(--border);
   transition:var(--transition);
 }
-.ni.active .ni-ico{background:var(--green-bg);border-color:rgba(34,211,160,.3);}
+.ni.active .ni-ico{background:var(--green-bg);border-color:rgba(0,230,118,.3);}
 .ni:hover .ni-ico{background:var(--card2);}
-.ni-label{flex:1;}
+
+/* Nav - grupos colapsables */
+.ni-chevron{
+  margin-left:auto;font-size:10px;color:var(--text3);
+  transition:transform var(--transition);
+}
+.ni-group.open > .ni .ni-chevron{transform:rotate(180deg);}
+.ni-sub{
+  max-height:0;overflow:hidden;
+  transition:max-height var(--transition);
+}
+.ni-group.open .ni-sub{max-height:120px;}
+.ni-child{
+  padding-left:54px;font-size:12.5px;
+}
+.ni-child.active{background:var(--green-bg);color:var(--green);border-left-color:var(--green);}
 
 /* Sidebar footer */
 .sb-bot{
-  padding:12px 14px;
+  padding:14px 16px;
   border-top:1px solid var(--border);
 }
 .user-row{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;
   border-radius:var(--radius-md);
   background:var(--bg3);
   border:1px solid var(--border);
 }
 .av{
-  width:34px;height:34px;border-radius:50%;
-  background:linear-gradient(135deg,var(--green),var(--green3));
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--green2));
   color:#071410;display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-hd);font-weight:700;font-size:13px;flex-shrink:0;
+  font-family:var(--font-hd);font-weight:700;font-size:14px;flex-shrink:0;
 }
 .user-info{flex:1;min-width:0;}
 .user-info .un{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .user-info .ue{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .logout{
   background:none;border:none;color:var(--text3);
-  padding:5px;border-radius:6px;font-size:15px;
+  padding:5px;border-radius:6px;font-size:16px;
   transition:var(--transition);
 }
 .logout:hover{color:var(--red);background:var(--red-bg);}
@@ -342,23 +386,25 @@ nav{padding:6px 0;flex:1;overflow-y:auto;}
   display:none;
   position:fixed;top:0;left:0;right:0;
   height:var(--topbar-h);z-index:198;
-  background:var(--bg2);
+  background:rgba(15,29,46,.92);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
   align-items:center;justify-content:space-between;
-  padding:0 16px;
+  padding:0 18px;
 }
 @media(max-width:768px){.topbar{display:flex;}}
-.topbar-logo{display:flex;align-items:center;gap:8px;}
+.topbar-logo{display:flex;align-items:center;gap:10px;}
 .topbar-logo .ico{
-  width:28px;height:28px;border-radius:7px;
-  background:linear-gradient(135deg,var(--green),var(--green3));
-  display:flex;align-items:center;justify-content:center;font-size:14px;
+  width:30px;height:30px;border-radius:7px;
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  display:flex;align-items:center;justify-content:center;font-size:15px;
 }
-.topbar-logo span{font-family:var(--font-hd);font-weight:700;font-size:16px;}
+.topbar-logo span{font-family:var(--font-hd);font-weight:700;font-size:16px;letter-spacing:-.01em;}
 .menu-btn{
   background:var(--card2);border:1px solid var(--border);
-  color:var(--text);padding:6px 10px;border-radius:var(--radius-sm);
-  font-size:16px;transition:var(--transition);
+  color:var(--text);padding:7px 12px;border-radius:var(--radius-sm);
+  font-size:18px;transition:var(--transition);
 }
 .menu-btn:hover{border-color:var(--green);color:var(--green);}
 
@@ -368,46 +414,76 @@ nav{padding:6px 0;flex:1;overflow-y:auto;}
 .main{
   margin-left:var(--sidebar-w);
   flex:1;
-  padding:28px 28px 40px;
+  padding:32px 32px 48px;
   max-width:calc(100vw - var(--sidebar-w));
+  background:var(--bg);
 }
 @media(max-width:768px){
   .main{
     margin-left:0;max-width:100vw;
-    padding:calc(var(--topbar-h) + 20px) 16px 32px;
+    padding:calc(var(--topbar-h) + 24px) 16px 32px;
   }
 }
 @media(max-width:480px){.main{padding:calc(var(--topbar-h)+16px) 12px 28px;}}
 
 /* Page header */
-.ph{margin-bottom:22px;}
+.ph{margin-bottom:24px;}
 .ph h1{
   font-family:var(--font-hd);font-weight:700;
-  font-size:clamp(18px,3vw,24px);letter-spacing:-.01em;
+  font-size:clamp(20px,3vw,28px);letter-spacing:-.02em;
+  display:flex;align-items:center;gap:10px;
 }
-.ph p{color:var(--text2);font-size:13px;margin-top:3px;}
+.ph p{color:var(--text2);font-size:13px;margin-top:4px;}
 
 /* Pages */
-.page{display:none;}
+.page{display:none;animation:fadeIn .3s ease;}
 .page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
 /* ══════════════════════════════════════════════════
-   CARDS
+   CARDS - Glassmorphism
 ══════════════════════════════════════════════════ */
 .card{
-  background:var(--card);
+  background:rgba(19,36,51,.6);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
-  padding:22px;margin-bottom:18px;
+  padding:24px;
+  margin-bottom:20px;
+  transition:border-color var(--transition),box-shadow var(--transition);
 }
+.card:hover{border-color:var(--border2);box-shadow:var(--shadow-sm),var(--shadow-glow);}
 .card:last-child{margin-bottom:0;}
 .card-hd{
   display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:18px;flex-wrap:wrap;gap:8px;
+  margin-bottom:20px;flex-wrap:wrap;gap:10px;
 }
 .card-hd h2{
   font-family:var(--font-hd);font-size:15px;font-weight:700;
+  display:flex;align-items:center;gap:8px;
 }
+
+/* ══════════════════════════════════════════════════
+   ADMIN SUB-TABS
+══════════════════════════════════════════════════ */
+.admin-tabs{
+  display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;
+  background:var(--bg3);padding:4px;border-radius:var(--radius-md);
+  border:1px solid var(--border);
+}
+.admin-tab{
+  background:transparent;border:none;
+  color:var(--text2);font-family:var(--font-hd);font-weight:700;font-size:12px;
+  padding:10px 18px;cursor:pointer;transition:var(--transition);
+  border-radius:var(--radius-sm);
+}
+.admin-tab:hover{color:var(--text);background:var(--card2);}
+.admin-tab.active{
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  color:#071410;box-shadow:0 2px 12px rgba(0,230,118,.25);
+}
+.admin-subtab{animation:fadeIn .25s ease;}
 
 /* ══════════════════════════════════════════════════
    STATS GRID
@@ -415,20 +491,22 @@ nav{padding:6px 0;flex:1;overflow-y:auto;}
 .stats4{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:12px;margin-bottom:18px;
+  gap:14px;margin-bottom:20px;
 }
 @media(max-width:1100px){.stats4{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px){.stats4{grid-template-columns:repeat(2,1fr);gap:8px;}}
+@media(max-width:480px){.stats4{grid-template-columns:1fr 1fr;gap:10px;}}
 .scard{
   background:var(--card2);
   border:1px solid var(--border);
   border-radius:var(--radius-md);
-  padding:16px 18px;
+  padding:18px 20px;
   position:relative;overflow:hidden;
+  transition:var(--transition);
 }
+.scard:hover{border-color:var(--border2);}
 .scard::after{
-  content:'';position:absolute;top:-20px;right:-20px;
-  width:60px;height:60px;border-radius:50%;
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:80px;height:80px;border-radius:50%;
   background:var(--green-bg);pointer-events:none;
 }
 .scard .slb{
@@ -436,9 +514,9 @@ nav{padding:6px 0;flex:1;overflow-y:auto;}
   color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;
 }
 .scard .sv{
-  font-family:var(--font-hd);font-size:clamp(22px,3vw,28px);font-weight:700;
+  font-family:var(--font-hd);font-size:clamp(24px,3vw,30px);font-weight:700;
 }
-.scard .ss{font-size:11px;color:var(--text2);margin-top:3px;}
+.scard .ss{font-size:11px;color:var(--text2);margin-top:4px;}
 
 /* ══════════════════════════════════════════════════
    COLORS
@@ -457,19 +535,19 @@ table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px;}
 th{
   color:var(--text3);font-size:10px;font-weight:700;
   text-transform:uppercase;letter-spacing:.05em;
-  padding:9px 14px;text-align:left;
+  padding:10px 14px;text-align:left;
   border-bottom:1px solid var(--border);
   white-space:nowrap;
 }
 td{
   padding:12px 14px;
-  border-bottom:1px solid rgba(36,48,64,.6);
+  border-bottom:1px solid rgba(30,58,79,.4);
   vertical-align:middle;
 }
 tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(34,211,160,.025);}
+tr:hover td{background:rgba(0,230,118,.03);}
 .empty{text-align:center;padding:48px 0;color:var(--text2);}
-.empty .ei{font-size:40px;margin-bottom:10px;opacity:.6;}
+.empty .ei{font-size:40px;margin-bottom:12px;opacity:.5;}
 .empty p{font-size:13px;}
 
 /* ══════════════════════════════════════════════════
@@ -477,19 +555,19 @@ tr:hover td{background:rgba(34,211,160,.025);}
 ══════════════════════════════════════════════════ */
 .bdg{
   display:inline-flex;align-items:center;
-  padding:3px 9px;border-radius:var(--radius-full);
+  padding:3px 10px;border-radius:var(--radius-full);
   font-size:11px;font-weight:700;white-space:nowrap;
 }
 .bdg-draft{background:var(--yellow-bg);color:var(--yellow);}
 .bdg-sending{background:var(--blue-bg);color:var(--blue);}
 .bdg-completed{background:var(--green-bg);color:var(--green);}
 .bdg-failed{background:var(--red-bg);color:var(--red);}
-.bdg-pending{background:rgba(120,120,140,.12);color:#8a9ab5;}
+.bdg-pending{background:rgba(120,120,140,.15);color:#8a9ab5;}
 
 /* ══════════════════════════════════════════════════
-   FORMS
+   FORMS - Mejorados para legibilidad
 ══════════════════════════════════════════════════ */
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 @media(max-width:600px){.fgrid{grid-template-columns:1fr;}}
 .ff{display:flex;flex-direction:column;gap:5px;}
 .ff.full{grid-column:1/-1;}
@@ -498,24 +576,154 @@ tr:hover td{background:rgba(34,211,160,.025);}
   text-transform:uppercase;letter-spacing:.05em;
 }
 .ff input,.ff textarea,.ff select{
-  padding:10px 13px;
+  padding:11px 14px;
   background:var(--bg3);
   border:1.5px solid var(--border);
   border-radius:var(--radius-md);
-  color:var(--text);font-size:14px;
-  outline:none;transition:border-color var(--transition),background var(--transition);
+  color:var(--text);
+  font-size:14px;
+  outline:none;
+  transition:var(--transition);
   resize:vertical;
   -webkit-appearance:none;
 }
 .ff input:focus,.ff textarea:focus,.ff select:focus{
-  border-color:var(--green);background:rgba(34,211,160,.03);
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(0,230,118,.12);
 }
 .ff input::placeholder,.ff textarea::placeholder{color:var(--text3);}
 .ff textarea{min-height:90px;line-height:1.5;}
 .ff select{cursor:pointer;}
-.hint{font-size:11px;color:var(--text2);line-height:1.5;}
+
+/* Dark mode para selects y options - forzado */
+select, .ff select { color-scheme: dark; }
+select option, .ff select option {
+  background: var(--bg3) !important;
+  color: var(--text) !important;
+}
+
+/* CHECKBOXES Y RADIOS - TAMAÑO GRANDE Y VISIBLE */
+input[type="checkbox"], input[type="radio"] {
+  accent-color: var(--green);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  background-color: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  transition: var(--transition);
+}
+input[type="checkbox"]:checked, input[type="radio"]:checked {
+  background-color: var(--green);
+  border-color: var(--green);
+}
+input[type="radio"] { border-radius: 50%; }
+input[type="checkbox"]:hover, input[type="radio"]:hover {
+  border-color: var(--green2);
+}
+/* Para labels que contienen checkboxes, asegurar área de clic */
+.ff label:has(input[type="checkbox"]),
+.ff label:has(input[type="radio"]) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 400;
+  text-transform: none;
+  color: var(--text2);
+  padding: 4px 0;
+}
+.ff label:has(input[type="checkbox"]):hover,
+.ff label:has(input[type="radio"]):hover {
+  color: var(--text);
+}
+
+.hint{font-size:11px;color:var(--text2);line-height:1.5;margin-top:4px;}
+
+/* ══════════════════════════════════════════════════
+   VISTA PREVIA DE PLANTILLA - CONTRASTE MEJORADO
+══════════════════════════════════════════════════ */
+.tpl-editor-grid{
+  display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start;
+}
+@media (max-width:760px){ .tpl-editor-grid{grid-template-columns:1fr;} }
+.tpl-preview-col{position:sticky;top:12px;}
+.tpl-preview-label{
+  font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:10px;
+}
+.phone-mock{
+  background:#0b141a;border:6px solid #1a1a1a;border-radius:24px;
+  overflow:hidden;box-shadow:var(--shadow-lg);max-width:280px;margin:0 auto;
+}
+.phone-mock-bar{
+  height:14px;background:#1a1a1a;position:relative;
+}
+.phone-mock-bar::after{
+  content:"";position:absolute;top:4px;left:50%;transform:translateX(-50%);
+  width:50px;height:6px;border-radius:4px;background:#000;
+}
+.phone-mock-screen{
+  min-height:180px;padding:16px 12px;
+  background-image:radial-gradient(circle at 20% 10%, rgba(255,255,255,.03) 0, transparent 40%);
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+.chat-bubble-preview{
+  background:linear-gradient(145deg, #0a4b3a, #006b54);
+  color:#ffffff;
+  border-radius:10px 10px 2px 10px;
+  padding:8px 10px 20px;
+  font-size:13px;line-height:1.45;
+  max-width:88%;margin-left:auto;
+  position:relative;word-wrap:break-word;white-space:pre-wrap;
+  box-shadow:0 1px 2px rgba(0,0,0,.3);
+}
+.chat-bubble-preview-time{
+  position:absolute;right:10px;bottom:5px;
+  font-size:10px;color:rgba(255,255,255,.5);
+  display:flex;align-items:center;gap:2px;white-space:nowrap;
+}
+.chat-bubble-preview mark{
+  background:rgba(255,255,255,.15);
+  color:#ffffff;
+  border-radius:3px;padding:0 3px;
+}
+/* Texto de ejemplo en vista previa */
+#tpl-preview-text, #c-template-preview {
+  color: #ffffff !important;
+}
+#tpl-preview-text span, #c-template-preview span {
+  color: #ffffff !important;
+}
+
+/* ══════════════════════════════════════════════════
+   INFO TOOLTIP
+══════════════════════════════════════════════════ */
+.info-tip{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--bg3);color:var(--text2);
+  font-size:11px;font-weight:700;cursor:help;
+  margin-left:6px;vertical-align:middle;
+  transition:var(--transition);
+}
+.info-tip:hover{background:var(--green-bg);color:var(--green);}
+.info-tip .tip-bubble{
+  display:none;position:absolute;z-index:50;
+  top:calc(100% + 10px);left:0;
+  width:280px;max-width:60vw;
+  background:var(--card2);border:1px solid var(--border2);
+  border-radius:var(--radius-md);box-shadow:var(--shadow-md);
+  padding:12px 14px;font-size:12px;font-weight:400;line-height:1.6;
+  color:var(--text2);cursor:default;text-transform:none;letter-spacing:normal;
+}
+.info-tip:hover .tip-bubble{display:block;}
+@media (max-width:640px){
+  .info-tip .tip-bubble{left:auto;right:0;width:240px;}
+}
 .hint code{
-  background:var(--border);padding:1px 5px;
+  background:var(--border);padding:1px 6px;
   border-radius:4px;color:var(--green);font-family:monospace;font-size:11px;
 }
 
@@ -523,46 +731,66 @@ tr:hover td{background:rgba(34,211,160,.025);}
    BUTTONS
 ══════════════════════════════════════════════════ */
 .btn{
-  padding:8px 16px;border-radius:var(--radius-md);
+  padding:9px 18px;border-radius:var(--radius-md);
   font-size:12px;font-weight:700;cursor:pointer;border:none;
   transition:var(--transition);font-family:var(--font-ui);
-  display:inline-flex;align-items:center;gap:5px;
+  display:inline-flex;align-items:center;gap:6px;
   white-space:nowrap;
 }
-.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn-g{
   background:linear-gradient(135deg,var(--green),var(--green2));
   color:#071410;
-  box-shadow:0 2px 8px rgba(34,211,160,.25);
+  box-shadow:0 2px 12px rgba(0,230,118,.25);
 }
-.btn-g:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 12px rgba(34,211,160,.35);}
+.btn-g:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,230,118,.35);}
 .btn-o{
   background:transparent;color:var(--green);
-  border:1.5px solid rgba(34,211,160,.4);
+  border:1.5px solid rgba(0,230,118,.3);
 }
 .btn-o:hover{background:var(--green-bg);border-color:var(--green);}
 .btn-r{
   background:var(--red-bg);color:var(--red);
-  border:1px solid rgba(244,63,94,.25);
+  border:1px solid rgba(239,83,80,.25);
 }
-.btn-r:hover{background:rgba(244,63,94,.18);}
-.btn-b{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(74,179,244,.25);}
+.btn-r:hover{background:rgba(239,83,80,.18);}
+.btn-b{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,195,247,.25);}
 
 /* ══════════════════════════════════════════════════
    ALERTS
 ══════════════════════════════════════════════════ */
 .alert{
-  padding:10px 14px;border-radius:var(--radius-md);
-  font-size:13px;margin-bottom:14px;display:none;line-height:1.5;
+  padding:12px 16px;border-radius:var(--radius-md);
+  font-size:13px;margin-bottom:16px;display:none;line-height:1.5;
 }
 .alert.show{display:block;}
-.al-ok{background:var(--green-bg);border:1px solid rgba(34,211,160,.3);color:var(--green);}
-.al-err{background:var(--red-bg);border:1px solid rgba(244,63,94,.3);color:var(--red);}
-.al-info{background:var(--blue-bg);border:1px solid rgba(74,179,244,.3);color:var(--blue);}
+.al-ok{background:var(--green-bg);border:1px solid rgba(0,230,118,.25);color:var(--green);}
+.al-err{background:var(--red-bg);border:1px solid rgba(239,83,80,.25);color:var(--red);}
+.al-info{background:var(--blue-bg);border:1px solid rgba(79,195,247,.25);color:var(--blue);}
 
 /* Progress */
 .prog{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
 .prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green2),var(--green));transition:.4s;}
+
+/* ══════════════════════════════════════════════════
+   INTEGRACIONES — tarjetas
+══════════════════════════════════════════════════ */
+.int-cards-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:16px;margin-bottom:20px;
+}
+.int-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:22px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;
+  transition:var(--transition);
+}
+.int-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.int-card-ico{
+  width:48px;height:48px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.int-card-title{font-family:var(--font-hd);font-weight:700;font-size:15px;}
+.int-card-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:4px;}
 
 /* ══════════════════════════════════════════════════
    CONNECT WA STEPS
@@ -586,18 +814,18 @@ tr:hover td{background:rgba(34,211,160,.025);}
 .step-panel{display:none;}
 .step-panel.active{display:block;}
 .info-box{
-  background:var(--blue-bg);border:1px solid rgba(74,179,244,.25);
-  border-radius:var(--radius-md);padding:14px 16px;
+  background:var(--blue-bg);border:1px solid rgba(79,195,247,.2);
+  border-radius:var(--radius-md);padding:14px 18px;
   font-size:13px;color:var(--blue);line-height:1.6;margin-bottom:18px;
 }
 .req-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
 .req-item{
   display:flex;align-items:flex-start;gap:12px;
   background:var(--bg3);border:1px solid var(--border);
-  border-radius:var(--radius-md);padding:13px 15px;
+  border-radius:var(--radius-md);padding:14px 16px;
 }
 .req-num{
-  width:22px;height:22px;border-radius:50%;
+  width:24px;height:24px;border-radius:50%;
   background:var(--green);color:#071410;
   font-weight:700;font-size:11px;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
@@ -607,21 +835,21 @@ tr:hover td{background:rgba(34,211,160,.025);}
 
 .method-opt{
   background:var(--bg3);border:2px solid var(--border);
-  border-radius:var(--radius-lg);padding:18px;cursor:pointer;transition:.2s;
+  border-radius:var(--radius-lg);padding:20px;cursor:pointer;transition:.2s;
 }
-.method-opt:hover{border-color:rgba(34,211,160,.4);background:rgba(34,211,160,.04);}
-.method-opt.selected{border-color:var(--green);background:rgba(34,211,160,.06);}
+.method-opt:hover{border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.04);}
+.method-opt.selected{border-color:var(--green);background:rgba(0,230,118,.06);box-shadow:var(--shadow-glow);}
 
 /* Facebook button */
 .fb-login-btn{
   display:inline-flex;align-items:center;gap:10px;
   background:#1877f2;color:#fff;border:none;
-  border-radius:var(--radius-md);padding:12px 20px;
+  border-radius:var(--radius-md);padding:12px 22px;
   font-size:14px;font-weight:700;cursor:pointer;
   font-family:var(--font-ui);transition:var(--transition);
 }
-.fb-login-btn:hover{background:#1565d8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(24,119,242,.4);}
-@keyframes popIn{0%{transform:scale(.5);opacity:0;}70%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+.fb-login-btn:hover{background:#1565d8;transform:translateY(-2px);box-shadow:0 4px 20px rgba(24,119,242,.4);}
+@keyframes popIn{0%{transform:scale(.5);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
 
 /* ══════════════════════════════════════════════════
    CHAT MODULE
@@ -629,7 +857,7 @@ tr:hover td{background:rgba(34,211,160,.025);}
 .chat-layout{
   display:flex;
   height:calc(100vh - var(--topbar-h) - 140px);
-  min-height:400px;
+  min-height:420px;
   background:var(--card);
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
@@ -654,18 +882,20 @@ tr:hover td{background:rgba(34,211,160,.025);}
   .chat-sidebar.show{transform:translateX(0);}
   .chat-layout{position:relative;}
 }
-.chat-search-wrap{padding:10px 12px;}
+.chat-search-wrap{padding:12px 14px;}
 .chat-search-wrap input{
-  width:100%;padding:9px 13px;
+  width:100%;padding:10px 14px;
   background:var(--bg3);border:1px solid var(--border);
   border-radius:var(--radius-md);color:var(--text);font-size:13px;outline:none;
+  transition:var(--transition);
 }
+.chat-search-wrap input:focus{border-color:var(--green);}
 .chat-filter-tabs{
-  display:flex;gap:3px;padding:0 10px 10px;
+  display:flex;gap:4px;padding:0 12px 12px;
   border-bottom:1px solid var(--border);
 }
 .cf-tab{
-  flex:1;padding:6px 4px;border:none;background:transparent;
+  flex:1;padding:7px 4px;border:none;background:transparent;
   color:var(--text2);font-size:11px;font-weight:700;
   cursor:pointer;border-radius:var(--radius-sm);transition:.2s;
 }
@@ -673,15 +903,15 @@ tr:hover td{background:rgba(34,211,160,.025);}
 .cf-tab:hover:not(.active){background:var(--card2);}
 .conv-list{flex:1;overflow-y:auto;}
 .conv-item{
-  padding:11px 13px;
-  border-bottom:1px solid rgba(36,48,64,.5);
+  padding:12px 14px;
+  border-bottom:1px solid rgba(30,58,79,.4);
   cursor:pointer;transition:.15s;
   display:flex;gap:10px;align-items:flex-start;
 }
-.conv-item:hover{background:rgba(34,211,160,.05);}
+.conv-item:hover{background:rgba(0,230,118,.04);}
 .conv-item.active{background:var(--green-bg);border-left:3px solid var(--green);}
 .conv-av{
-  width:36px;height:36px;border-radius:50%;
+  width:38px;height:38px;border-radius:50%;
   background:var(--card2);border:1.5px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   font-weight:700;font-size:13px;flex-shrink:0;color:var(--green);
@@ -689,12 +919,12 @@ tr:hover td{background:rgba(34,211,160,.025);}
 .conv-body{flex:1;min-width:0;}
 .conv-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .conv-preview{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
-.conv-meta{display:flex;align-items:center;gap:4px;margin-top:2px;}
+.conv-meta{display:flex;align-items:center;gap:4px;margin-top:3px;}
 .conv-time{font-size:10px;color:var(--text3);}
 .conv-unread{
   background:var(--green);color:#071410;
   font-size:9px;font-weight:700;border-radius:var(--radius-full);
-  padding:1px 5px;margin-left:auto;
+  padding:1px 6px;margin-left:auto;
 }
 .chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
 .chat-empty-state{
@@ -704,22 +934,22 @@ tr:hover td{background:rgba(34,211,160,.025);}
 }
 .chat-conv-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:11px 15px;border-bottom:1px solid var(--border);
+  padding:12px 16px;border-bottom:1px solid var(--border);
   background:var(--bg2);flex-wrap:wrap;gap:8px;
 }
 .chat-contact-info{display:flex;align-items:center;gap:10px;}
 .chat-av{
-  width:38px;height:38px;border-radius:50%;
-  background:linear-gradient(135deg,var(--green),var(--green3));
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--green2));
   color:#071410;font-weight:700;font-size:15px;
   display:flex;align-items:center;justify-content:center;
 }
 .chat-messages{
-  flex:1;overflow-y:auto;padding:14px;
+  flex:1;overflow-y:auto;padding:16px;
   display:flex;flex-direction:column;gap:8px;
 }
 .bubble{
-  max-width:72%;padding:9px 13px;
+  max-width:72%;padding:10px 14px;
   border-radius:14px;font-size:13px;line-height:1.55;word-break:break-word;
 }
 .bubble-in{
@@ -730,29 +960,30 @@ tr:hover td{background:rgba(34,211,160,.025);}
   background:linear-gradient(135deg,var(--green),var(--green2));
   color:#071410;align-self:flex-end;border-bottom-right-radius:3px;
 }
-.bubble-time{font-size:10px;margin-top:4px;color:rgba(0,0,0,0.45);}
+.bubble-time{font-size:10px;margin-top:4px;color:rgba(0,0,0,0.4);}
 .bubble-in .bubble-time{color:var(--text3);}
-.bubble-status{font-size:10px;color:rgba(0,0,0,0.4);}
+.bubble-status{font-size:10px;color:rgba(0,0,0,0.35);}
 .chat-input-area{
-  display:flex;gap:8px;padding:11px 14px;
+  display:flex;gap:8px;padding:12px 16px;
   border-top:1px solid var(--border);
   align-items:flex-end;background:var(--bg2);
 }
 .chat-input-area textarea{
   flex:1;background:var(--bg3);border:1px solid var(--border);
-  border-radius:var(--radius-md);padding:9px 13px;
+  border-radius:var(--radius-md);padding:10px 14px;
   color:var(--text);font-family:var(--font-ui);font-size:13px;
   resize:none;outline:none;max-height:120px;line-height:1.5;
+  transition:var(--transition);
 }
 .chat-input-area textarea:focus{border-color:var(--green);}
 .chat-send-btn{
-  width:40px;height:40px;border-radius:50%;
+  width:42px;height:42px;border-radius:50%;
   background:linear-gradient(135deg,var(--green),var(--green2));
   border:none;color:#071410;cursor:pointer;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:var(--transition);box-shadow:0 2px 8px rgba(34,211,160,.3);
+  transition:var(--transition);box-shadow:0 2px 12px rgba(0,230,118,.3);
 }
-.chat-send-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(34,211,160,.4);}
+.chat-send-btn:hover{transform:scale(1.06);box-shadow:0 4px 16px rgba(0,230,118,.4);}
 .conv-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
 .dot-open{background:var(--green);}
 .dot-waiting{background:var(--yellow);}
@@ -764,23 +995,23 @@ tr:hover td{background:rgba(34,211,160,.025);}
 .mo{
   display:none;position:fixed;inset:0;
   background:rgba(0,0,0,.7);z-index:500;
-  align-items:center;justify-content:center;padding:20px;
+  align-items:center;justify-content:center;padding:24px;
   backdrop-filter:blur(4px);
 }
 .mo.open{display:flex;}
 .mo-box{
   background:var(--card);border:1px solid var(--border);
-  border-radius:var(--radius-xl);padding:26px 28px;
-  width:520px;max-width:100%;max-height:90vh;overflow-y:auto;
+  border-radius:var(--radius-xl);padding:28px 32px;
+  width:540px;max-width:100%;max-height:90vh;overflow-y:auto;
   box-shadow:var(--shadow-lg);
 }
 .mo-hd{
   display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
 }
-.mo-hd h3{font-family:var(--font-hd);font-size:16px;font-weight:700;}
+.mo-hd h3{font-family:var(--font-hd);font-size:17px;font-weight:700;}
 .mo-close{
   background:var(--bg3);border:1px solid var(--border);
-  color:var(--text2);cursor:pointer;padding:5px 10px;
+  color:var(--text2);cursor:pointer;padding:6px 12px;
   border-radius:var(--radius-sm);font-size:14px;transition:var(--transition);
 }
 .mo-close:hover{color:var(--red);border-color:var(--red);}
@@ -794,7 +1025,7 @@ tr:hover td{background:rgba(34,211,160,.025);}
 ══════════════════════════════════════════════════ */
 .spin{
   display:inline-block;width:14px;height:14px;
-  border:2px solid rgba(7,20,16,.3);border-top-color:rgba(7,20,16,.9);
+  border:2px solid rgba(7,20,16,.2);border-top-color:rgba(7,20,16,.9);
   border-radius:50%;animation:sp .6s linear infinite;
 }
 .spin-dark{
@@ -810,14 +1041,12 @@ tr:hover td{background:rgba(34,211,160,.025);}
 @media(max-width:480px){
   .card{padding:16px;}
   .mo-box{padding:20px 16px;}
-  .btn{padding:7px 13px;font-size:11px;}
+  .btn{padding:7px 14px;font-size:11px;}
   table{font-size:12px;}
   th,td{padding:8px 10px;}
 }
-
-/* Section dividers */
 .section-divider{
-  height:1px;background:var(--border);margin:20px 0;
+  height:1px;background:var(--border);margin:22px 0;
 }
 </style>
 </head>
@@ -889,11 +1118,23 @@ tr:hover td{background:rgba(34,211,160,.025);}
         <div class="ni" onclick="go('chat')"><div class="ni-ico">💬</div><span class="ni-label">Chat en vivo</span><span id="chat-badge" style="display:none;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:var(--radius-full);padding:1px 6px;margin-left:auto;">0</span></div>
         <div class="nav-section">Herramientas</div>
         <div class="ni" onclick="go('campaigns')"><div class="ni-ico">📣</div><span class="ni-label">Campañas</span></div>
-        <div class="ni" onclick="go('contacts')"><div class="ni-ico">👥</div><span class="ni-label">Contactos</span></div>
-        <div class="ni" onclick="go('invoices')"><div class="ni-ico">📄</div><span class="ni-label">Facturas</span></div>
+
+        <div class="ni-group" id="ni-group-contacts">
+          <div class="ni" onclick="toggleNavGroup(this)">
+            <div class="ni-ico">👥</div><span class="ni-label">Contactos</span><span class="ni-chevron">▾</span>
+          </div>
+          <div class="ni-sub">
+            <div class="ni ni-child" onclick="go('contacts')"><span class="ni-label">Administrar</span></div>
+            <div class="ni ni-child" onclick="go('tags')"><span class="ni-label">Etiquetas</span></div>
+          </div>
+        </div>
+
+        <div class="ni" onclick="go('invoices')"><div class="ni-ico">📄</div><span class="ni-label">Documentos</span></div>
+        <div class="ni" onclick="go('integrations')"><div class="ni-ico">🔌</div><span class="ni-label">Integraciones</span></div>
         <div class="nav-section">Administración</div>
         <div class="ni" onclick="go('agents')"><div class="ni-ico">👤</div><span class="ni-label">Agentes</span></div>
-        <div class="ni" onclick="go('connect')"><div class="ni-ico">🔗</div><span class="ni-label">Conectar WhatsApp</span></div>
+        <div class="ni" id="ni-connect" onclick="clearConnectTarget();go('connect')"><div class="ni-ico">🔗</div><span class="ni-label">Conectar WhatsApp</span></div>
+        <div class="ni" id="ni-admin" onclick="go('admin')" style="display:none"><div class="ni-ico">🛡️</div><span class="ni-label">Panel Admin</span></div>
       </nav>
 
       <div class="sb-bot">
@@ -914,6 +1155,14 @@ tr:hover td{background:rgba(34,211,160,.025);}
       <!-- ── DASHBOARD ── -->
       <div class="page active" id="pg-dashboard">
         <div class="ph"><h1>Dashboard</h1><p>Resumen de tus campañas y actividad</p></div>
+        <div class="card" id="company-profile-card" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <div style="width:52px;height:52px;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-family:var(--font-hd);font-weight:700;font-size:20px;color:#071410;flex-shrink:0;" id="cp-avatar">–</div>
+          <div style="flex:1;min-width:200px;">
+            <div style="font-family:var(--font-hd);font-weight:700;font-size:16px;" id="cp-name">–</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;" id="cp-industry">–</div>
+          </div>
+          <div id="cp-wa-status"></div>
+        </div>
         <div class="stats4">
           <div class="scard"><div class="slb">Campañas</div><div class="sv c-green" id="d-campaigns">–</div><div class="ss">Total creadas</div></div>
           <div class="scard"><div class="slb">Mensajes enviados</div><div class="sv c-blue" id="d-sent">–</div><div class="ss">Todas las campañas</div></div>
@@ -930,23 +1179,33 @@ tr:hover td{background:rgba(34,211,160,.025);}
       <div class="page" id="pg-campaigns">
         <div class="ph"><h1>Campañas</h1><p>Crea y lanza mensajería masiva por WhatsApp</p></div>
         <div class="card">
-          <div class="card-hd"><h2>Nueva campaña</h2></div>
+          <div class="card-hd"><h2>Nueva campaña<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Las campañas ya no llevan archivo adjunto — si un contacto pide un documento puntual, envíaselo desde Chat en vivo. Enviamos por la API oficial de WhatsApp con pausas automáticas entre mensajes para proteger la calidad de tu número.</span></span></h2></div>
           <div id="ca-alert" class="alert"></div>
-          <div class="fgrid">
-            <div class="ff"><label>Nombre de campaña</label><input id="c-name" placeholder="Ej: Promo Julio 2025"></div>
-            <div class="ff"><label>Filtrar por etiqueta <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="c-tag" placeholder="vip, leads… vacío = todos"></div>
-            <div class="ff full">
-              <label>Mensaje</label>
-              <textarea id="c-msg" placeholder="Hola {{name}}, tenemos una oferta especial para ti esta semana."></textarea>
-              <div class="hint">Variables: <code>{{name}}</code> nombre · <code>{{phone}}</code> teléfono</div>
-            </div>
-            <div class="ff full">
-              <label>Archivo adjunto (PDF/Imagen)</label>
-              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                <button class="btn btn-o" onclick="document.getElementById('file-upload').click()">📎 Seleccionar archivo</button>
-                <span id="file-name" style="font-size:12px;color:var(--text2);">Ningún archivo seleccionado</span>
+          <div class="tpl-editor-grid">
+            <div class="fgrid" style="margin-bottom:0;">
+              <div class="ff"><label>Nombre de campaña</label><input id="c-name" placeholder="Ej: Promo Julio 2025"></div>
+              <div class="ff"><label>Filtrar por etiqueta <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="c-tag" placeholder="vip, leads… vacío = todos"></div>
+              <div class="ff full" id="c-template-wrap">
+                <label>Plantilla asignada</label>
+                <select id="c-template" onchange="onCampaignTemplateChange()"><option value="">— Elige una plantilla —</option></select>
               </div>
-              <input type="file" id="file-upload" style="display:none" onchange="updateFileName(this)">
+              <div class="ff full" id="c-msg-wrap" style="display:none;">
+                <label>Mensaje <span style="font-weight:400;text-transform:none">(solo administrador — texto libre)</span></label>
+                <textarea id="c-msg" placeholder="Hola {{name}}, tenemos una oferta especial para ti esta semana." oninput="onCampaignTemplateChange()"></textarea>
+                <div class="hint">Variables: <code>{{name}}</code>, <code>{{phone}}</code>, o un campo personalizado</div>
+              </div>
+            </div>
+            <div class="tpl-preview-col">
+              <div class="tpl-preview-label">Así se ve en el chat</div>
+              <div class="phone-mock">
+                <div class="phone-mock-bar"></div>
+                <div class="phone-mock-screen">
+                  <div class="chat-bubble-preview" id="c-preview-bubble">
+                    <span id="c-template-preview" style="color:#ffffff;">Elige una plantilla para ver la vista previa…</span>
+                    <div class="chat-bubble-preview-time">12:34 ✓✓</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -980,9 +1239,21 @@ tr:hover td{background:rgba(34,211,160,.025);}
                 <input id="co-phone" placeholder="99887766" style="flex:1;">
               </div>
             </div>
-            <div class="ff"><label>Etiqueta <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="co-tag" placeholder="vip, clientes, leads…"></div>
+            <div class="ff"><label>Etiqueta <span style="font-weight:400;text-transform:none">(opcional)</span></label>
+              <input id="co-tag" list="contact-tags-datalist" placeholder="Elige o escribe una etiqueta">
+              <datalist id="contact-tags-datalist"></datalist>
+            </div>
+            <div id="co-custom-fields-box" class="ff full" style="display:none;">
+              <div style="display:flex;flex-direction:column;gap:10px;" id="co-custom-fields-inner"></div>
+            </div>
           </div>
-          <div style="margin-top:16px;"><button class="btn btn-g" onclick="addContact()">+ Agregar</button></div>
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-g" onclick="addContact()">+ Agregar</button>
+            <button class="btn btn-o" onclick="document.getElementById('co-csv-file').click()">📥 Importar CSV</button>
+            <input type="file" id="co-csv-file" accept=".csv" style="display:none" onchange="importContactsCsv(this)">
+            <button class="btn btn-o" onclick="exportContacts()">📤 Exportar a Excel</button>
+          </div>
+          <div class="hint" style="margin-top:8px;">El CSV debe tener columnas <code>name</code>, <code>phone</code>, <code>tag</code> (opcional) — y opcionalmente una columna por cada campo personalizado de tu empresa.</div>
         </div>
         <div class="card">
           <div class="card-hd">
@@ -1035,8 +1306,8 @@ tr:hover td{background:rgba(34,211,160,.025);}
             </div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-input-area" id="chat-input-area" style="display:none;">
-              <button class="btn-o" style="border-radius:50%;width:38px;height:38px;padding:0;border:1.5px solid rgba(34,211,160,.4);color:var(--green);flex-shrink:0;" onclick="document.getElementById('chat-file').click()">+</button>
-              <input type="file" id="chat-file" style="display:none">
+              <button class="btn-o" style="border-radius:50%;width:38px;height:38px;padding:0;border:1.5px solid rgba(0,230,118,.3);color:var(--green);flex-shrink:0;" title="Enviar un documento (PDF/imagen) puntual" onclick="document.getElementById('chat-file').click()">📎</button>
+              <input type="file" id="chat-file" accept="application/pdf,image/jpeg,image/png" style="display:none" onchange="sendChatFile(this)">
               <textarea id="chat-reply-input" placeholder="Escribe tu respuesta…" rows="1"
                 onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendReply();}"></textarea>
               <button class="chat-send-btn" onclick="sendReply()">
@@ -1050,6 +1321,10 @@ tr:hover td{background:rgba(34,211,160,.025);}
       <!-- ── CONECTAR WA ── -->
       <div class="page" id="pg-connect">
         <div class="ph"><h1>Conectar WhatsApp Business</h1><p>Conecta tu línea oficial de Meta en minutos</p></div>
+        <div id="connect-target-banner" style="display:none;margin-bottom:14px;padding:12px 16px;background:var(--green-bg);border:1px solid rgba(0,230,118,.25);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div style="font-size:13px;">Conectando WhatsApp para: <strong id="connect-target-name" style="color:var(--green)">–</strong></div>
+          <button class="btn btn-o" style="font-size:11px;padding:5px 10px;" onclick="clearConnectTarget()">Cambiar de empresa</button>
+        </div>
         <div class="info-box" style="margin-bottom:18px;">
           <strong>Buenas noticias:</strong> Puedes usar tu WhatsApp Business existente y WaSapinf de forma <strong>simultánea</strong>, sin perder conversaciones.
         </div>
@@ -1137,7 +1412,7 @@ tr:hover td{background:rgba(34,211,160,.025);}
               </div>
             </div>
             <div id="signup-step-2" style="display:none;">
-              <div class="info-box" style="margin-bottom:18px;background:var(--green-bg);border-color:rgba(34,211,160,.3);">
+              <div class="info-box" style="margin-bottom:18px;background:var(--green-bg);border-color:rgba(0,230,118,.25);">
                 ✅ <strong>¡Autorización recibida!</strong> Completa los datos de tu línea para finalizar.
               </div>
               <div id="signup-step2-alert" class="alert"></div>
@@ -1197,22 +1472,51 @@ tr:hover td{background:rgba(34,211,160,.025);}
         </div>
       </div>
 
-      <!-- ── FACTURAS ── -->
-      <div class="page" id="pg-invoices">
-        <div class="ph"><h1>Facturas / Documentos</h1><p>Envía PDFs personalizados por WhatsApp</p></div>
+      <!-- ── ETIQUETAS ── -->
+      <div class="page" id="pg-tags">
+        <div class="ph"><h1>Etiquetas</h1><p>Organiza tus contactos con etiquetas de color — evita duplicados como "Vip"/"vip "</p></div>
         <div class="card">
-          <div class="card-hd"><h2>Nuevo Lote de Facturas</h2></div>
+          <div class="card-hd"><h2>Nueva etiqueta</h2></div>
+          <div id="tag-alert" class="alert"></div>
+          <div class="fgrid">
+            <div class="ff"><label>Nombre</label><input id="tag-name" placeholder="VIP, Leads, Cliente frecuente…"></div>
+            <div class="ff"><label>Color</label><input id="tag-color" type="color" value="#00e676" style="height:42px;padding:4px;cursor:pointer;"></div>
+            <div class="ff full"><label>Descripción <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="tag-desc" placeholder="Para qué usas esta etiqueta"></div>
+          </div>
+          <button class="btn btn-g" onclick="createTag()" style="margin-top:14px;">+ Crear etiqueta</button>
+        </div>
+        <div class="card">
+          <div class="card-hd"><h2>Etiquetas de tu empresa</h2></div>
+          <div class="tbl-wrap" id="tags-table"></div>
+        </div>
+      </div>
+
+      <!-- ── DOCUMENTOS ── -->
+      <div class="page" id="pg-invoices">
+        <div class="ph"><h1>Documentos</h1><p>Envía facturas, recibos, cotizaciones, recetas, planillas u otros archivos por WhatsApp — puedes mezclar tipos en el mismo lote</p></div>
+        <div class="card">
+          <div class="card-hd"><h2>Nuevo lote de documentos</h2></div>
           <div id="inv-alert" class="alert"></div>
           <div class="fgrid" style="margin-bottom:18px;">
-            <div class="ff"><label>Nombre del lote</label><input id="inv-name" placeholder="Facturas Junio 2025" value="Facturas Junio 2025"></div>
-            <div class="ff"><label>Caption (mensaje acompañante)</label><textarea id="inv-caption" rows="2" placeholder="Adjuntamos tu factura correspondiente..."></textarea></div>
+            <div class="ff"><label>Nombre del lote</label><input id="inv-name" placeholder="Facturas Junio 2025" value="Documentos"></div>
+            <div class="ff"><label>Tipo de documento (para todo el lote, editable por archivo)</label>
+              <select id="inv-doc-type"></select>
+            </div>
+            <div class="ff">
+              <label>Emparejar destinatario por <span style="font-weight:400;text-transform:none">(qué identifica a quién le llega cada archivo)</span></label>
+              <select id="inv-match-field">
+                <option value="phone">Teléfono</option>
+              </select>
+              <div class="hint">Si eliges un campo personalizado (identidad, RTN, employee_id...), cada documento se busca por ese valor exacto en tus contactos — así una planilla se reparte 1-a-1 sin que el mismo archivo le llegue a todos.</div>
+            </div>
+            <div class="ff full"><label>Mensaje acompañante <span style="font-weight:400;text-transform:none">(opcional, para todos)</span></label><textarea id="inv-caption" rows="2" placeholder="Adjuntamos tu documento correspondiente..."></textarea></div>
           </div>
           <div style="margin-bottom:14px;">
-            <label style="display:block;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Subir PDFs</label>
-            <input type="file" id="inv-files" multiple accept="application/pdf" style="margin-bottom:6px;">
+            <label style="display:block;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Subir archivos <span id="inv-files-hint" style="font-weight:400;text-transform:none">(PDF, Excel, Word o CSV — nombra el archivo con el valor de emparejamiento, ej. factura_50499112233.pdf, o corrígelo después)</span></label>
+            <input type="file" id="inv-files" multiple accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" style="margin-bottom:6px;">
             <div id="selected-files" style="font-size:12px;color:var(--text2);min-height:16px;"></div>
           </div>
-          <button class="btn btn-g" onclick="createInvoiceBatch()">📤 Crear Lote y Subir PDFs</button>
+          <button class="btn btn-g" onclick="createInvoiceBatch()">📤 Crear lote y subir archivos</button>
         </div>
         <div class="card">
           <div class="card-hd"><h2>Lotes enviados</h2><button class="btn btn-o" onclick="loadInvoiceBatches()" style="font-size:11px;">↻ Actualizar</button></div>
@@ -1220,9 +1524,56 @@ tr:hover td{background:rgba(34,211,160,.025);}
         </div>
       </div>
 
+      <!-- ── INTEGRACIONES ── -->
+      <div class="page" id="pg-integrations">
+        <div class="ph"><h1>Integraciones</h1><p>Conecta WaSapinf con tus propios sistemas — tu sitio, tu ERP, tus planillas</p></div>
+
+        <div class="int-cards-grid">
+          <div class="int-card">
+            <div class="int-card-ico" style="background:var(--green-bg);color:var(--green);">🔌</div>
+            <div class="int-card-title">API REST</div>
+            <div class="int-card-desc">Integra tus sistemas usando nuestra API REST — contactos, campañas, plantillas y envío de mensajes.</div>
+            <a class="btn btn-o" href="/docs" target="_blank" style="font-size:12px;">📘 Ver documentación</a>
+          </div>
+          <div class="int-card">
+            <div class="int-card-ico" style="background:var(--blue-bg);color:var(--blue);">🪝</div>
+            <div class="int-card-title">Webhooks</div>
+            <div class="int-card-desc">Recibe notificaciones en tiempo real en tu sistema cuando llega un mensaje, se crea un contacto, o termina una campaña.</div>
+            <button class="btn btn-o" onclick="document.getElementById('webhooks-section').scrollIntoView({behavior:'smooth'})" style="font-size:12px;">⚙️ Configurar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><h2>Llaves API<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Usa tu llave en el header "Authorization: Bearer &lt;tu_api_key&gt;" al llamar a /api/v1/... — la llave completa solo se muestra una vez, al crearla.</span></span></h2>
+            <button class="btn btn-g" onclick="openCreateApiKey()" style="font-size:12px;">+ Crear llave API</button>
+          </div>
+          <div id="apikey-alert" class="alert"></div>
+          <div id="apikey-created-box" style="display:none;margin-bottom:16px;padding:14px;background:var(--green-bg);border:1px solid rgba(0,230,118,.25);border-radius:var(--radius-md);">
+            <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">✅ Llave creada — cópiala ahora, no se vuelve a mostrar completa:</div>
+            <code id="apikey-raw-value" style="display:block;background:var(--bg3);padding:10px;border-radius:var(--radius-sm);font-size:12px;word-break:break-all;margin-bottom:8px;"></code>
+            <button class="btn btn-o" style="font-size:11px;" onclick="copyApiKeyValue()">📋 Copiar</button>
+          </div>
+          <div class="tbl-wrap" id="apikeys-table"></div>
+        </div>
+
+        <div class="card" id="webhooks-section">
+          <div class="card-hd"><h2>Webhooks<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Cada evento se envía firmado con HMAC-SHA256 en el header X-WaSapinf-Signature, usando el secreto que se muestra al crear el webhook — así tu sistema puede verificar que el envío vino de nosotros.</span></span></h2></div>
+          <div id="webhook-alert" class="alert"></div>
+          <div class="fgrid" style="margin-bottom:12px;">
+            <div class="ff full"><label>URL de tu sistema</label><input id="wh-url" placeholder="https://tusistema.com/webhooks/wasapinf"></div>
+            <div class="ff full">
+              <label>Eventos a recibir</label>
+              <div id="wh-events-box" style="display:flex;flex-direction:column;gap:6px;margin-top:4px;"></div>
+            </div>
+          </div>
+          <button class="btn btn-g" onclick="createWebhook()">+ Crear webhook</button>
+          <div class="tbl-wrap" id="webhooks-table" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
       <!-- ── AGENTES ── -->
       <div class="page" id="pg-agents">
-        <div class="ph"><h1>Agentes</h1><p>Gestiona quiénes pueden enviar facturas y campañas</p></div>
+        <div class="ph"><h1>Agentes</h1><p>Gestiona quiénes pueden enviar documentos, campañas, atender el chat, etc. — un agente puede tener varios roles a la vez</p></div>
         <div class="card">
           <div class="card-hd"><h2>Nuevo Agente</h2></div>
           <div id="agent-alert" class="alert"></div>
@@ -1230,19 +1581,212 @@ tr:hover td{background:rgba(34,211,160,.025);}
             <div class="ff"><label>Nombre del Agente</label><input id="agent-name" placeholder="Carlos López"></div>
             <div class="ff"><label>Email</label><input id="agent-email" type="email" placeholder="carlos@empresa.com"></div>
             <div class="ff"><label>Contraseña</label><input id="agent-password" type="password" placeholder="Mínimo 6 caracteres"></div>
-            <div class="ff"><label>Rol</label>
-              <select id="agent-role">
-                <option value="sender">Usuario — Envía Facturas</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
             <div class="ff"><label>WhatsApp Phone ID (opcional)</label><input id="agent-phone-id" placeholder="123456789012345"></div>
+            <div class="ff full">
+              <label>Roles / permisos <span style="font-weight:400;text-transform:none">(marca todos los que apliquen — puede tener más de uno)</span></label>
+              <div style="display:flex;gap:8px;margin:6px 0 10px;">
+                <button type="button" class="btn btn-o" style="font-size:11px;padding:5px 10px;" onclick="renderPermissionCheckboxes(AGENT_PERM_CATALOG.map(p=>p.key))">Marcar todos</button>
+                <button type="button" class="btn btn-o" style="font-size:11px;padding:5px 10px;" onclick="renderPermissionCheckboxes([])">Ninguno</button>
+              </div>
+              <div id="agent-permissions-box" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
           </div>
           <button class="btn btn-g" onclick="createAgent()" style="margin-top:14px;">+ Crear Agente</button>
         </div>
         <div class="card">
           <div class="card-hd"><h2>Lista de Agentes</h2></div>
           <div class="tbl-wrap" id="agents-table"></div>
+        </div>
+      </div>
+
+      <!-- ── PANEL ADMIN (solo superadmin) ── -->
+      <div class="page" id="pg-admin">
+        <div class="ph"><h1>Panel Admin</h1><p>Control total de la plataforma — verifica que todo esté funcionando bien</p></div>
+
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-tab="resumen" onclick="showAdminTab('resumen')">📊 Resumen</button>
+          <button class="admin-tab" data-tab="clientes" onclick="showAdminTab('clientes')">🏢 Clientes y conexión</button>
+          <button class="admin-tab" data-tab="plantillas" onclick="showAdminTab('plantillas')">📣 Plantillas y campañas</button>
+          <button class="admin-tab" data-tab="agentes" onclick="showAdminTab('agentes')">👤 Agentes</button>
+        </div>
+
+        <!-- ═══ TAB: RESUMEN ═══ -->
+        <div class="admin-subtab" data-tab="resumen">
+          <div class="card" id="admin-onboarding-card" style="display:none;background:linear-gradient(135deg, var(--card), var(--card2));border-color:var(--border2);">
+            <div class="card-hd"><h2>👋 Primeros pasos</h2></div>
+            <p style="color:var(--text2);font-size:12px;margin-bottom:14px;">Sigue estos pasos para dejar tu plataforma lista — se marcan solos según avances.</p>
+            <div id="onboarding-checklist" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+
+          <div class="stats4" id="admin-overview">
+            <div class="scard"><div class="slb">Empresas</div><div class="sv c-green" id="ad-clients">–</div><div class="ss" id="ad-clients-sub">–</div></div>
+            <div class="scard"><div class="slb">WhatsApp conectado</div><div class="sv c-blue" id="ad-connected">–</div><div class="ss">de las empresas totales</div></div>
+            <div class="scard"><div class="slb">Mensajes enviados</div><div class="sv c-green" id="ad-sent">–</div><div class="ss" id="ad-failed-sub">–</div></div>
+            <div class="scard"><div class="slb">Agentes</div><div class="sv c-yellow" id="ad-agents">–</div><div class="ss" id="ad-agents-sub">–</div></div>
+          </div>
+
+          <div class="card" id="admin-alerts-card" style="display:none;">
+            <div class="card-hd"><h2>⚠️ Alertas</h2></div>
+            <div id="admin-alerts-list"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><h2>Recordatorios recurrentes activos</h2>
+              <button class="btn btn-o" onclick="showAdminTab('plantillas')" style="font-size:11px;">Ir a gestionarlos →</button>
+            </div>
+            <div class="tbl-wrap" id="admin-recurring-summary-table"></div>
+          </div>
+        </div>
+
+        <!-- ═══ TAB: CLIENTES Y CONEXIÓN ═══ -->
+        <div class="admin-subtab" data-tab="clientes" style="display:none;">
+          <div class="card">
+            <div class="card-hd"><h2>Nueva empresa (cliente)<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Tú das de alta la cuenta del cliente y le compartes el email/contraseña. Elige o escribe un rubro para precargar campos personalizados típicos (editables después).</span></span></h2></div>
+            <div id="admin-newclient-alert" class="alert"></div>
+            <div class="fgrid">
+              <div class="ff"><label>Nombre de la empresa</label><input id="nc-name" placeholder="Farmacia XYZ"></div>
+              <div class="ff"><label>Email de acceso</label><input id="nc-email" type="email" placeholder="contacto@farmacia.com"></div>
+              <div class="ff"><label>Contraseña temporal</label><input id="nc-password" type="password" placeholder="Mínimo 6 caracteres"></div>
+              <div class="ff"><label>Rubro <span style="font-weight:400;text-transform:none">(elige uno o escribe uno nuevo)</span></label>
+                <input id="nc-industry" list="industries-datalist" placeholder="salud, ferreteria, camaronera… o el que quieras">
+                <datalist id="industries-datalist">
+                  <option value="salud">
+                  <option value="ferreteria">
+                  <option value="camaronera">
+                  <option value="agroexportador">
+                </datalist>
+              </div>
+            </div>
+            <button class="btn btn-g" onclick="createClient()" style="margin-top:14px;">+ Crear empresa</button>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><h2>Empresas (clientes)</h2>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-o" onclick="exportClientsXlsx()" style="font-size:11px;">📤 Exportar</button>
+                <button class="btn btn-o" onclick="loadAdminClients()" style="font-size:11px;">↻ Actualizar</button>
+              </div>
+            </div>
+            <div class="tbl-wrap" id="admin-clients-table"></div>
+          </div>
+
+          <div class="card" id="admin-edit-client-card" style="display:none;">
+            <div class="card-hd"><h2>Editar <span id="edit-client-name" style="color:var(--green)">–</span></h2>
+              <button class="btn btn-o" style="font-size:11px;" onclick="document.getElementById('admin-edit-client-card').style.display='none'">✕ Cerrar</button>
+            </div>
+            <div id="edit-client-alert" class="alert"></div>
+            <div class="fgrid">
+              <div class="ff"><label>Nombre</label><input id="ec-name"></div>
+              <div class="ff"><label>Email</label><input id="ec-email"></div>
+              <div class="ff"><label>Rubro</label><input id="ec-industry" list="industries-datalist"></div>
+              <div class="ff"><label>Nueva contraseña <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="ec-password" type="password" placeholder="Dejar vacío para no cambiar"></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+              <button class="btn btn-g" onclick="saveClientEdit()">💾 Guardar cambios</button>
+              <button class="btn btn-r" onclick="deleteClientConfirm()">🗑 Eliminar empresa</button>
+            </div>
+          </div>
+
+          <div class="card" id="admin-fields-card">
+            <div class="card-hd"><h2>Campos personalizados por empresa<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Define qué datos aplican a cada empresa (medicamento, identidad, RTN...) — quedan disponibles como {{variable}} en las plantillas, como columnas al importar contactos, y como criterio para enviar documentos a la persona correcta.</span></span></h2></div>
+            <div id="admin-fields-alert" class="alert"></div>
+            <div class="fgrid" style="margin-bottom:12px;">
+              <div class="ff"><label>Empresa</label>
+                <select id="field-client" onchange="loadClientFields()"><option value="">— Elige una empresa —</option></select>
+              </div>
+              <div class="ff"><label>Clave <span style="font-weight:400;text-transform:none">(sin espacios, ej. rtn)</span></label><input id="field-key" placeholder="rtn"></div>
+              <div class="ff"><label>Etiqueta visible</label><input id="field-label" placeholder="RTN"></div>
+              <div class="ff"><label>Tipo</label>
+                <select id="field-type"><option value="text">Texto</option><option value="date">Fecha</option><option value="number">Número</option></select>
+              </div>
+            </div>
+            <button class="btn btn-g" onclick="createClientField()">+ Agregar campo</button>
+            <div class="tbl-wrap" id="admin-fields-table" style="margin-top:14px;"></div>
+          </div>
+        </div>
+
+        <!-- ═══ TAB: PLANTILLAS Y CAMPAÑAS ═══ -->
+        <div class="admin-subtab" data-tab="plantillas" style="display:none;">
+          <div class="card" id="admin-meta-tpl-card">
+            <div class="card-hd"><h2>Plantillas aprobadas por Meta (HSM)<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Fuera de la ventana de 24h, WhatsApp exige una plantilla ya aprobada en Meta. Sincroniza el catálogo del cliente y úsalo con un clic para crear la plantilla de campaña — sin retipear nada.</span></span></h2></div>
+            <div id="admin-meta-tpl-alert" class="alert"></div>
+            <div class="fgrid" style="margin-bottom:12px;">
+              <div class="ff"><label>Empresa</label>
+                <select id="meta-tpl-client"><option value="">— Elige una empresa —</option></select>
+              </div>
+            </div>
+            <button class="btn btn-o" onclick="syncMetaTemplates()">🔄 Sincronizar desde Meta</button>
+            <div class="tbl-wrap" id="admin-meta-tpl-table" style="margin-top:14px;"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><h2 id="tpl-form-title">Plantilla de campaña<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Crea el texto una vez y asígnalo a una empresa. Las empresas solo pueden elegir y enviar la plantilla — no pueden editar el texto.</span></span></h2></div>
+            <div id="admin-tpl-alert" class="alert"></div>
+            <div class="tpl-editor-grid">
+              <div class="fgrid" style="margin-bottom:0;">
+                <div class="ff"><label>Nombre de la plantilla</label><input id="tpl-name" placeholder="Recordatorio de medicamentos" oninput="updateTplPreview()"></div>
+                <div class="ff"><label>Categoría <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="tpl-category" placeholder="Farmacia"></div>
+                <div class="ff"><label>Asignar a</label>
+                  <select id="tpl-client"><option value="">— Global (todas las empresas) —</option></select>
+                </div>
+                <div class="ff"><label>Plantilla Meta (HSM) <span style="font-weight:400;text-transform:none">(opcional, para fuera de 24h)</span></label>
+                  <input id="tpl-meta-name" placeholder="nombre_exacto_en_meta">
+                </div>
+                <div class="ff full">
+                  <label>Mensaje</label>
+                  <textarea id="tpl-msg" placeholder="Hola {{name}}, es hora de renovar tu {{medicamento}}. Contáctanos para coordinar la entrega." oninput="updateTplPreview()"></textarea>
+                  <div class="hint">Variables: <code>{{name}}</code>, <code>{{phone}}</code>, o cualquier campo personalizado</div>
+                </div>
+              </div>
+              <div class="tpl-preview-col">
+                <div class="tpl-preview-label">Así se ve en el chat</div>
+                <div class="phone-mock">
+                  <div class="phone-mock-bar"></div>
+                  <div class="phone-mock-screen">
+                    <div class="chat-bubble-preview" id="tpl-preview-bubble">
+                      <span id="tpl-preview-text" style="color:#ffffff;">Escribe el mensaje para ver la vista previa…</span>
+                      <div class="chat-bubble-preview-time">12:34 ✓✓</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+              <button class="btn btn-g" id="tpl-submit-btn" onclick="createTemplate()">+ Crear plantilla</button>
+              <button class="btn btn-o" id="tpl-cancel-edit-btn" style="display:none;" onclick="cancelTemplateEdit()">Cancelar edición</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><h2>Plantillas existentes</h2></div>
+            <div class="tbl-wrap" id="admin-templates-table"></div>
+          </div>
+
+          <div class="card" id="admin-recurring-card">
+            <div class="card-hd"><h2>Recordatorios recurrentes<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Se disparan solos: cada 6h revisan qué contactos ya cumplieron su fecha (ej. next_reminder_date) y les mandan la plantilla asignada.</span></span></h2></div>
+            <div id="admin-recurring-alert" class="alert"></div>
+            <div class="fgrid" style="margin-bottom:12px;">
+              <div class="ff"><label>Nombre</label><input id="rec-name" placeholder="Recordatorio mensual de medicamento"></div>
+              <div class="ff"><label>Empresa</label><select id="rec-client"><option value="">— Elige una empresa —</option></select></div>
+              <div class="ff"><label>Plantilla</label><select id="rec-template"><option value="">— Elige una plantilla —</option></select></div>
+              <div class="ff"><label>Etiqueta de contacto <span style="font-weight:400;text-transform:none">(opcional, filtra)</span></label><input id="rec-tag" placeholder="vip, mensuales…"></div>
+              <div class="ff"><label>Campo de fecha</label><input id="rec-date-field" value="next_reminder_date"></div>
+              <div class="ff"><label>Reprogramar cada <span style="font-weight:400;text-transform:none">(días, opcional)</span></label><input id="rec-interval" type="number" placeholder="30"></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-g" onclick="createRecurring()">+ Crear recordatorio</button>
+              <button class="btn btn-o" onclick="runRecurringNow()">▶ Ejecutar ahora (prueba)</button>
+            </div>
+            <div class="tbl-wrap" id="admin-recurring-table" style="margin-top:14px;"></div>
+          </div>
+        </div>
+
+        <!-- ═══ TAB: AGENTES ═══ -->
+        <div class="admin-subtab" data-tab="agentes" style="display:none;">
+          <div class="card">
+            <div class="card-hd"><h2>Verificar agentes y roles<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Puedes editar los permisos, o desactivar/eliminar, cualquier agente de cualquier empresa desde aquí.</span></span></h2></div>
+            <div id="admin-agents-alert" class="alert"></div>
+            <div class="tbl-wrap" id="admin-agents-table"></div>
+          </div>
         </div>
       </div>
 
@@ -1285,7 +1829,6 @@ function toggleChatSidebar() {
   panel.classList.toggle('show');
 }
 
-// Mostrar toggle de chat sidebar en móvil
 function updateChatSidebarButton() {
   const btn = document.getElementById('chat-sidebar-toggle');
   if (window.innerWidth <= 700) {
@@ -1296,7 +1839,6 @@ function updateChatSidebarButton() {
 }
 window.addEventListener('resize', updateChatSidebarButton);
 
-// Cerrar sidebar al hacer clic en nav item (móvil)
 document.querySelectorAll('.ni').forEach(ni => {
   ni.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
@@ -1327,33 +1869,57 @@ document.querySelectorAll('.ni').forEach(ni => {
 })();
 
 function showAuth() { document.getElementById('auth-screen').style.display = 'flex'; }
+
+function iHavePermission(perm) {
+  if (ME.type !== 'agent') return true;
+  return (ME.permissions || []).includes(perm);
+}
+
 function showApp() {
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
-  document.getElementById('sb-av').textContent = ME.name[0].toUpperCase();
-  document.getElementById('sb-name').textContent = ME.name;
+  const displayName = ME.name || ME.company_name || 'Usuario';
+  document.getElementById('sb-av').textContent = displayName[0].toUpperCase();
+  document.getElementById('sb-name').textContent = displayName;
   document.getElementById('sb-email').textContent = ME.email;
 
   if (ME.has_whatsapp) document.getElementById('wa-badge').style.display = 'flex';
 
+  const isSuperAdmin = !!ME.is_superadmin;
   const isOwner = ME.type === 'owner';
+  const isAgent = ME.type === 'agent';
 
   document.querySelectorAll('.ni').forEach(item => {
     const text = item.textContent.trim();
-    if (text.includes('Agentes') && !isOwner) item.style.display = 'none';
-    if (text.includes('Campañas') && !isOwner) item.style.display = 'none';
-    if (text.includes('Conectar WhatsApp') && !isOwner) item.style.display = 'none';
-    if (text.includes('Dashboard') && !isOwner) item.style.display = 'none';
+    if (text.includes('Agentes'))            item.style.display = isAgent ? 'none' : 'flex';
+    if (text.includes('Campañas'))           item.style.display = (isOwner || iHavePermission('send_campaigns')) ? 'flex' : 'none';
+    if (text.includes('Dashboard'))          item.style.display = isAgent ? 'none' : 'flex';
+    if (text.includes('Documentos'))         item.style.display = (isOwner || iHavePermission('send_invoices')) ? 'flex' : 'none';
+    if (text.includes('Integraciones'))      item.style.display = isOwner ? 'flex' : 'none';
+    if (text.includes('Chat en vivo'))       item.style.display = (isOwner || iHavePermission('chat_support')) ? 'flex' : 'none';
   });
+  document.getElementById('ni-group-contacts').style.display =
+    (isOwner || iHavePermission('manage_contacts') || iHavePermission('view_reports')) ? 'block' : 'none';
+
+  document.getElementById('ni-connect').style.display = isSuperAdmin ? 'flex' : 'none';
+  document.getElementById('ni-admin').style.display = isSuperAdmin ? 'flex' : 'none';
 
   if (isOwner) {
     loadDashboard();
     loadCampaigns();
     loadContacts();
-  } else {
-    go('invoices');
+    loadMyTemplates();
+  } else if (isAgent) {
+    const firstAllowed =
+      iHavePermission('send_invoices')  ? 'invoices'  :
+      iHavePermission('send_campaigns') ? 'campaigns' :
+      iHavePermission('manage_contacts')|| iHavePermission('view_reports') ? 'contacts' :
+      iHavePermission('chat_support')   ? 'chat' : 'invoices';
+    go(firstAllowed);
   }
+
+  if (isSuperAdmin) loadAdminOverview();
 
   loadChat();
   updateChatBadge();
@@ -1436,9 +2002,28 @@ function logout() {
 // ════════════════════════════════════════════════════════════════
 // NAV
 // ════════════════════════════════════════════════════════════════
+function toggleNavGroup(headerEl) {
+  headerEl.parentElement.classList.toggle('open');
+}
+
 function go(name) {
+  const isSuperAdmin = ME && !!ME.is_superadmin;
   const isOwner = ME && ME.type === 'owner';
-  if (!isOwner && ['dashboard','campaigns','connect','agents'].includes(name)) {
+  const isAgent = ME && ME.type === 'agent';
+
+  const blocked =
+    (name === 'connect' && !isSuperAdmin) ||
+    (name === 'admin'   && !isSuperAdmin) ||
+    (name === 'agents'  && isAgent) ||
+    (name === 'dashboard' && isAgent) ||
+    (name === 'integrations' && isAgent) ||
+    (name === 'tags'      && isAgent && !iHavePermission('manage_contacts')) ||
+    (name === 'campaigns' && isAgent && !iHavePermission('send_campaigns')) ||
+    (name === 'invoices'  && isAgent && !iHavePermission('send_invoices')) ||
+    (name === 'chat'      && isAgent && !iHavePermission('chat_support')) ||
+    (name === 'contacts'  && isAgent && !iHavePermission('manage_contacts') && !iHavePermission('view_reports'));
+
+  if (blocked) {
     alert("❌ No tienes permiso para acceder a esta sección.");
     return;
   }
@@ -1446,11 +2031,23 @@ function go(name) {
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
   const targetNav = document.querySelector(`.ni[onclick="go('${name}')"]`);
   if (targetNav) targetNav.classList.add('active');
+  if (name === 'contacts' || name === 'tags') {
+    document.getElementById('ni-group-contacts')?.classList.add('open');
+  }
   const pageElement = document.getElementById('pg-' + name);
   if (pageElement) pageElement.classList.add('active');
   if (name === 'chat') { loadChat(); updateChatSidebarButton(); }
-  if (name === 'connect' && isOwner) loadWAStatus();
-  if (name === 'agents' && isOwner) loadAgents();
+  if (name === 'connect' && isSuperAdmin) loadWAStatus();
+  if (name === 'agents' && !isAgent) loadAgents();
+  if (name === 'invoices') loadInvoiceBatches();
+  if (name === 'contacts') loadCustomFieldDefs();
+  if (name === 'tags') loadTagsPage();
+  if (name === 'integrations') { loadApiKeys(); loadWebhooks(); loadWebhookEventCatalog(); }
+  if (name === 'admin' && isSuperAdmin) {
+    showAdminTab('resumen');
+    loadAdminOverview(); loadAdminClients(); loadAdminTemplates(); loadAdminAgents(); loadAdminRecurring();
+    renderOnboardingChecklist();
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1464,7 +2061,21 @@ async function loadDashboard() {
     document.getElementById('d-delivered').textContent = camps.reduce((s,c)=>s+c.delivered,0).toLocaleString();
     document.getElementById('d-contacts').textContent = cons.length;
     renderCampTable('d-table', camps.slice(0,5), true);
+    renderCompanyProfileCard();
   } catch(e){ console.error(e); }
+}
+
+const INDUSTRY_LABELS = { salud:'Salud', ferreteria:'Ferretería', camaronera:'Camaronera', agroexportador:'Agroexportador', otro:'Otro' };
+
+function renderCompanyProfileCard() {
+  const displayName = ME.company_name || ME.name || 'Tu empresa';
+  document.getElementById('cp-avatar').textContent = displayName[0].toUpperCase();
+  document.getElementById('cp-name').textContent = displayName;
+  document.getElementById('cp-industry').textContent = ME.industry ? (INDUSTRY_LABELS[ME.industry] || ME.industry) : 'Este es el perfil de tu empresa en WaSapinf';
+  const waEl = document.getElementById('cp-wa-status');
+  waEl.innerHTML = ME.has_whatsapp
+    ? `<span class="bdg bdg-completed">🟢 WhatsApp conectado${ME.whatsapp_phone_id ? ' · '+esc(ME.whatsapp_phone_id) : ''}</span>`
+    : `<span class="bdg bdg-draft">⏳ WhatsApp pendiente de conexión</span>`;
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1502,25 +2113,46 @@ function renderCampTable(id, rows, mini) {
   </tbody></table>`;
 }
 
+let MY_TEMPLATES = [];
+
+async function loadMyTemplates() {
+  try {
+    MY_TEMPLATES = await req('GET','/templates/mine');
+    const sel = document.getElementById('c-template');
+    sel.innerHTML = '<option value="">— Elige una plantilla —</option>' +
+      MY_TEMPLATES.map(t => `<option value="${t.id}">${esc(t.name)}${t.category?` (${esc(t.category)})`:''}</option>`).join('');
+    document.getElementById('c-msg-wrap').style.display = (ME && ME.is_superadmin) ? 'flex' : 'none';
+  } catch(e){ console.error(e); }
+}
+
+function onCampaignTemplateChange() {
+  const id = document.getElementById('c-template').value;
+  const t = MY_TEMPLATES.find(x => String(x.id) === String(id));
+  const freeText = document.getElementById('c-msg') ? document.getElementById('c-msg').value : '';
+  document.getElementById('c-template-preview').innerHTML = renderMessagePreview(t ? t.message_template : freeText);
+}
+
 async function createCampaign() {
   const name = document.getElementById('c-name').value.trim();
+  const templateId = document.getElementById('c-template').value;
   const msg = document.getElementById('c-msg').value.trim();
   const tag = document.getElementById('c-tag').value.trim();
   setAlert('ca-alert','','');
   if (!name) { setAlert('ca-alert','err','⚠ Escribe un nombre para la campaña'); return; }
-  if (!msg) { setAlert('ca-alert','err','⚠ Escribe el mensaje de la campaña'); return; }
+  if (!templateId && !msg) { setAlert('ca-alert','err','⚠ Elige una plantilla o escribe el mensaje'); return; }
   try {
-    const d = await req('POST','/campaigns',{name, message_template:msg, contact_tag:tag||null});
+    const body = { name, contact_tag: tag || null };
+    if (templateId) body.template_id = parseInt(templateId, 10);
+    if (msg) body.message_template = msg;
+    const d = await req('POST','/campaigns', body);
     setAlert('ca-alert','ok',`✅ Campaña "${d.name}" creada con ${d.total_contacts} contacto(s).`);
     document.getElementById('c-name').value='';
     document.getElementById('c-msg').value='';
     document.getElementById('c-tag').value='';
+    document.getElementById('c-template').value='';
+    onCampaignTemplateChange();
     loadCampaigns();
   } catch(e){ setAlert('ca-alert','err','✕ '+e.message); }
-}
-
-function updateFileName(input) {
-  document.getElementById('file-name').textContent = input.files[0] ? input.files[0].name : "Ningún archivo seleccionado";
 }
 
 async function sendCamp(id, btn) {
@@ -1574,38 +2206,108 @@ function closeMo(){ document.getElementById('mo-stats').classList.remove('open')
 // ════════════════════════════════════════════════════════════════
 // CONTACTS
 // ════════════════════════════════════════════════════════════════
+let CUSTOM_FIELD_DEFS = [];
+
+async function loadCustomFieldDefs() {
+  try {
+    CUSTOM_FIELD_DEFS = await req('GET', '/contacts/fields');
+    const box = document.getElementById('co-custom-fields-box');
+    const inner = document.getElementById('co-custom-fields-inner');
+    if (!CUSTOM_FIELD_DEFS.length) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    inner.innerHTML = CUSTOM_FIELD_DEFS.map(f => `
+      <div class="ff">
+        <label>${esc(f.label)}</label>
+        <input class="co-cf-input" data-key="${esc(f.key)}" type="${f.field_type === 'date' ? 'date' : f.field_type === 'number' ? 'number' : 'text'}">
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
 async function loadContacts() {
+  await loadCustomFieldDefs();
+  await loadContactTagsDatalist();
   try {
     const cons = await req('GET','/contacts');
     document.getElementById('co-count').textContent = `${cons.length} contacto(s)`;
     const el = document.getElementById('co-table');
     if (!cons.length) { el.innerHTML='<div class="empty"><div class="ei">👥</div><p>Sin contactos. Agrega el primero arriba.</p></div>'; return; }
-    el.innerHTML = `<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Etiqueta</th><th></th></tr></thead>
-    <tbody>${cons.map(c=>`<tr>
+    const extraHeaders = CUSTOM_FIELD_DEFS.map(f => `<th>${esc(f.label)}</th>`).join('');
+    el.innerHTML = `<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Etiqueta</th>${extraHeaders}<th>Baja</th><th></th></tr></thead>
+    <tbody>${cons.map(c=>{
+      const extraCells = CUSTOM_FIELD_DEFS.map(f => `<td style="font-size:12px;color:var(--text2)">${esc((c.custom_fields||{})[f.key] || '—')}</td>`).join('');
+      return `<tr${c.opted_out?' style="opacity:.55"':''}>
       <td><strong>${esc(c.name)}</strong></td>
       <td><code style="color:var(--green);background:var(--bg3);padding:2px 7px;border-radius:4px;font-size:12px">${c.phone}</code></td>
       <td>${c.tag?`<span class="bdg bdg-draft">${esc(c.tag)}</span>`:'–'}</td>
+      ${extraCells}
+      <td>${c.opted_out
+        ? `<button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="toggleOptOut(${c.id},false)">Reactivar</button>`
+        : `<button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="toggleOptOut(${c.id},true)">Dar de baja</button>`}</td>
       <td><button class="btn btn-r" style="padding:4px 9px;font-size:11px" onclick="delContact(${c.id},this)">✕</button></td>
-    </tr>`).join('')}</tbody></table>`;
+    </tr>`;
+    }).join('')}</tbody></table>`;
   } catch(e){ console.error(e); }
+}
+
+async function toggleOptOut(id, optedOut) {
+  try { await req('PATCH', `/contacts/${id}/opt-out`, {opted_out: optedOut}); loadContacts(); }
+  catch(e){ alert('Error: ' + e.message); }
 }
 
 async function addContact() {
   const name = document.getElementById('co-name').value.trim();
-  const phone = document.getElementById('co-phone').value.trim().replace(/\s+/g,'');
+  const prefix = document.getElementById('co-prefix').value;
+  const phoneDigits = document.getElementById('co-phone').value.trim().replace(/\s+/g,'');
+  const phone = phoneDigits.startsWith(prefix) ? phoneDigits : (prefix + phoneDigits);
   const tag = document.getElementById('co-tag').value.trim();
+  const custom_fields = {};
+  document.querySelectorAll('.co-cf-input').forEach(inp => {
+    if (inp.value.trim()) custom_fields[inp.dataset.key] = inp.value.trim();
+  });
   setAlert('co-alert','','');
   if (!name) { setAlert('co-alert','err','⚠ Escribe el nombre del contacto'); return; }
-  if (!phone) { setAlert('co-alert','err','⚠ Escribe el número de teléfono'); return; }
+  if (!phoneDigits) { setAlert('co-alert','err','⚠ Escribe el número de teléfono'); return; }
   if (!/^\d{7,15}$/.test(phone)) { setAlert('co-alert','err','⚠ Solo números, con código de país. Ej: 50499887766'); return; }
   try {
-    await req('POST','/contacts',{name, phone, tag:tag||null});
+    await req('POST','/contacts',{name, phone, tag:tag||null, custom_fields});
     document.getElementById('co-name').value='';
     document.getElementById('co-phone').value='';
     document.getElementById('co-tag').value='';
+    document.querySelectorAll('.co-cf-input').forEach(inp => inp.value = '');
     setAlert('co-alert','ok',`✅ Contacto "${name}" agregado`);
     loadContacts();
   } catch(e){ setAlert('co-alert','err','✕ '+e.message); }
+}
+
+async function importContactsCsv(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  setAlert('co-alert','','');
+  try {
+    const res = await fetch(`${API}/contacts/import`, {
+      method: 'POST', headers: { 'Authorization': 'Bearer ' + TOKEN }, body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error al importar');
+    setAlert('co-alert','ok',`✅ Importación completa: ${data.created} agregado(s), ${data.skipped} omitido(s) (duplicados o filas inválidas).`);
+    loadContacts();
+  } catch(e) { setAlert('co-alert','err','✕ '+e.message); }
+  finally { input.value = ''; }
+}
+
+function exportContacts() {
+  fetch(`${API}/contacts/export`, { headers: { 'Authorization': 'Bearer ' + TOKEN } })
+    .then(res => { if (!res.ok) throw new Error('No se pudo exportar'); return res.blob(); })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'contactos.xlsx'; a.click();
+      URL.revokeObjectURL(url);
+    })
+    .catch(e => alert('Error al exportar: ' + e.message));
 }
 
 async function delContact(id, btn) {
@@ -1623,7 +2325,7 @@ const META_CONFIG_ID = '2192998534770589';
 let embeddedSignupToken = null;
 let embeddedPhones      = [];
 let embeddedWabaId      = null;
-let signupMode          = 'new'; // 'new' = crear WABA/número desde cero | 'migrate' = migrar número existente de la app de WhatsApp Business
+let signupMode          = 'new';
 
 function selectMethod(method) {
   document.getElementById('mopt-signup').classList.toggle('selected', method==='signup');
@@ -1640,7 +2342,6 @@ function launchEmbeddedSignup() {
   FB.login(function(response) {
     if (response.authResponse) {
       const code = response.authResponse.code;
-      // Enviamos el code a nuestro backend para intercambiarlo
       handleFBCode(code);
     } else {
       document.getElementById('signup-waiting').style.display = 'none';
@@ -1652,11 +2353,6 @@ function launchEmbeddedSignup() {
     response_type: 'code',
     override_default_response_type: true,
     extras: {
-      // '' (vacío) = crear WABA + número nuevos desde cero.
-      // 'whatsapp_business_app_onboarding' = SOLO cuando el cliente ya
-      // tiene un número corriendo en la app normal de WhatsApp Business
-      // y lo va a migrar a Cloud API. Usar el valor equivocado aquí es
-      // la causa más común de que Meta no devuelva phone_number_id.
       featureType: signupMode === 'migrate' ? 'whatsapp_business_app_onboarding' : '',
       sessionInfoVersion: '3',
       version: 'v4'
@@ -1664,8 +2360,6 @@ function launchEmbeddedSignup() {
   });
 }
 
-// Listener para capturar el evento WA_EMBEDDED_SIGNUP (phone_number_id, waba_id)
-// Listener para capturar el evento WA_EMBEDDED_SIGNUP (phone_number_id, waba_id)
 window._waEmbeddedData = null;
 window._waEmbeddedDataResolvers = [];
 
@@ -1673,12 +2367,10 @@ window.addEventListener('message', (event) => {
   if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
   try {
     const data = JSON.parse(event.data);
-    // Log de diagnóstico: deja ver en la consola EXACTAMENTE qué evento
-    // manda Meta (FINISH, CANCEL, cualquier error) y con qué datos.
     console.log('[WA_EMBEDDED_SIGNUP raw event]', data);
     if (data.type === 'WA_EMBEDDED_SIGNUP') {
       if (data.event === 'FINISH' || data.event === 'FINISH_ONLY_WABA') {
-        window._waEmbeddedData = data.data; // { phone_number_id, waba_id }
+        window._waEmbeddedData = data.data;
         window._waEmbeddedDataResolvers.forEach(resolve => resolve(data.data));
         window._waEmbeddedDataResolvers = [];
       } else if (data.event === 'CANCEL') {
@@ -1799,7 +2491,8 @@ async function completeSignup(phoneIdOverride = null) {
       token: embeddedSignupToken,
       phone_id: phoneId,
       profile_name: profileName || null,
-      waba_id: embeddedWabaId || wabaIdManual || null
+      waba_id: embeddedWabaId || wabaIdManual || null,
+      client_id: ADMIN_TARGET_CLIENT_ID || null
     });
     onWAConnected(profileName || 'Línea conectada', phoneId);
   } catch (e) {
@@ -1816,17 +2509,22 @@ async function saveManualCredentials() {
   if (!token)   { setAlert('manual-alert','err','⚠ Ingresa el Access Token'); return; }
   if (!phoneId) { setAlert('manual-alert','err','⚠ Ingresa el Phone Number ID'); return; }
   try {
-    await req('POST','/config/whatsapp',{ whatsapp_token: token, whatsapp_phone_id: phoneId, waba_id: wabaId || null, profile_name: name || null });
+    await req('POST','/config/whatsapp',{ whatsapp_token: token, whatsapp_phone_id: phoneId, waba_id: wabaId || null, profile_name: name || null, client_id: ADMIN_TARGET_CLIENT_ID || null });
     onWAConnected(name || 'Línea conectada', phoneId);
   } catch(e) { setAlert('manual-alert','err','✕ '+e.message); }
 }
 
 function onWAConnected(profileName, phoneId) {
-  ME.has_whatsapp = true;
-  ME.whatsapp_phone_id = phoneId;
-  ME.profile_name = profileName || null;
+  if (!ADMIN_TARGET_CLIENT_ID) {
+    ME.has_whatsapp = true;
+    ME.whatsapp_phone_id = phoneId;
+    ME.profile_name = profileName || null;
+    document.getElementById('wa-badge').style.display='flex';
+  } else {
+    loadAdminClients();
+    loadAdminOverview();
+  }
   loadWAStatus();
-  document.getElementById('wa-badge').style.display='flex';
   document.getElementById('wa-connect-panel').style.display='none';
   document.getElementById('wa-success-panel').style.display='block';
   document.getElementById('wa-connected-panel').style.display='block';
@@ -1837,11 +2535,17 @@ function onWAConnected(profileName, phoneId) {
 }
 
 async function disconnectWA() {
-  if (!confirm('¿Desconectar tu línea de WhatsApp?')) return;
+  if (!confirm('¿Desconectar esta línea de WhatsApp?')) return;
   try {
-    await req('POST','/config/whatsapp',{whatsapp_token:'', whatsapp_phone_id:'', profile_name:null});
-    ME.has_whatsapp = false;
-    document.getElementById('wa-badge').style.display='none';
+    if (ADMIN_TARGET_CLIENT_ID) {
+      await req('DELETE', `/admin/clients/${ADMIN_TARGET_CLIENT_ID}/whatsapp`);
+      loadAdminClients();
+      loadAdminOverview();
+    } else {
+      await req('POST','/config/whatsapp',{whatsapp_token:'', whatsapp_phone_id:'', profile_name:null});
+      ME.has_whatsapp = false;
+      document.getElementById('wa-badge').style.display='none';
+    }
     document.getElementById('wa-connected-panel').style.display='none';
     document.getElementById('wa-connect-panel').style.display='block';
     document.getElementById('wa-success-panel').style.display='none';
@@ -1850,6 +2554,22 @@ async function disconnectWA() {
 
 async function loadWAStatus() {
   try {
+    if (ADMIN_TARGET_CLIENT_ID) {
+      const c = await req('GET', `/admin/clients/${ADMIN_TARGET_CLIENT_ID}`);
+      if (c.whatsapp_connected) {
+        document.getElementById('wa-connected-panel').style.display='block';
+        document.getElementById('wa-connect-panel').style.display='none';
+        document.getElementById('wa-line-info').textContent =
+          c.profile_name ? `${c.profile_name} · ID: ${c.whatsapp_phone_id}` : `Phone ID: ${c.whatsapp_phone_id||'–'}`;
+        document.getElementById('wa-daily-limit').textContent = '50–1000 msg/día';
+        document.getElementById('wa-quality').textContent = 'Verde';
+        document.getElementById('wa-status').textContent = 'Activo';
+      } else {
+        document.getElementById('wa-connected-panel').style.display='none';
+        document.getElementById('wa-connect-panel').style.display='block';
+      }
+      return;
+    }
     const me = await req('GET','/auth/me');
     if (me.has_whatsapp) {
       document.getElementById('wa-connected-panel').style.display='block';
@@ -1859,6 +2579,9 @@ async function loadWAStatus() {
       document.getElementById('wa-daily-limit').textContent = '50–1000 msg/día';
       document.getElementById('wa-quality').textContent = 'Verde';
       document.getElementById('wa-status').textContent = 'Activo';
+    } else {
+      document.getElementById('wa-connected-panel').style.display='none';
+      document.getElementById('wa-connect-panel').style.display='block';
     }
   } catch(e){ console.error(e); }
 }
@@ -1943,7 +2666,6 @@ async function openConv(convId) {
   document.getElementById('chat-empty').style.display = 'none';
   document.getElementById('chat-header').style.display = 'flex';
   document.getElementById('chat-input-area').style.display = 'flex';
-  // En móvil, cerrar el sidebar de chat al abrir conversación
   if (window.innerWidth <= 700) {
     document.getElementById('chat-sidebar-panel').classList.remove('show');
   }
@@ -2005,6 +2727,34 @@ async function sendReply() {
   }
 }
 
+async function sendChatFile(input) {
+  const file = input.files[0];
+  if (!file || !activeConvId) return;
+  const caption = prompt('¿Algún mensaje para acompañar el documento? (opcional)') || '';
+  const el = document.getElementById('chat-messages');
+  el.innerHTML += `<div class="bubble bubble-out" id="bubble-file-sending">📎 ${esc(file.name)}<div class="bubble-time">enviando…</div></div>`;
+  el.scrollTop = el.scrollHeight;
+  const formData = new FormData();
+  formData.append('file', file);
+  if (caption) formData.append('caption', caption);
+  try {
+    const res = await fetch(`${API}/chat/conversations/${activeConvId}/send_document?caption=${encodeURIComponent(caption)}`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error al enviar el documento');
+    await loadMessages(activeConvId, true);
+  } catch(e) {
+    const b = document.getElementById('bubble-file-sending');
+    if (b) b.style.opacity = '0.5';
+    alert('Error al enviar documento: ' + e.message);
+  } finally {
+    input.value = '';
+  }
+}
+
 async function setConvStatus(status) {
   if (!activeConvId) return;
   try {
@@ -2021,28 +2771,32 @@ async function setConvStatus(status) {
 }
 
 async function updateChatBadge() {
-  // 1. Guardia: Si no hay token, no hagas nada y vuelve a intentarlo más tarde
-  const token = localStorage.getItem('token'); // O donde guardes tu token
+  const token = localStorage.getItem('wb_tok');
   if (!token) {
-    setTimeout(updateChatBadge, 60000); // Espera 1 minuto antes de volver a verificar
+    setTimeout(updateChatBadge, 60000);
     return;
   }
-
   try {
-    const data = await req('GET', '/api/chat/unread_count');
-    // ... procesar el contador ...
+    const data = await req('GET', '/chat/unread_count');
+    const badge = document.getElementById('chat-badge');
+    if (data.unread > 0) {
+      badge.style.display = 'inline';
+      badge.textContent = data.unread;
+    } else {
+      badge.style.display = 'none';
+    }
   } catch(e) {
     console.error("Error al obtener contador:", e);
   } finally {
-    // 2. Solo programa la siguiente ejecución después de terminar la actual
-    setTimeout(updateChatBadge, 30000); 
+    setTimeout(updateChatBadge, 30000);
   }
 }
 
 // ════════════════════════════════════════════════════════════════
-// FACTURAS
+// DOCUMENTOS
 // ════════════════════════════════════════════════════════════════
 let selectedFiles = [];
+let DOC_TYPE_SUGGESTIONS = [];
 
 document.getElementById('inv-files').addEventListener('change', function(e) {
   selectedFiles = Array.from(e.target.files);
@@ -2052,25 +2806,49 @@ document.getElementById('inv-files').addEventListener('change', function(e) {
     : '';
 });
 
+async function loadDocTypeSuggestions() {
+  if (DOC_TYPE_SUGGESTIONS.length) return;
+  try {
+    const d = await req('GET', '/documents/types');
+    DOC_TYPE_SUGGESTIONS = d.suggestions || [];
+    const sel = document.getElementById('inv-doc-type');
+    sel.innerHTML = DOC_TYPE_SUGGESTIONS.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function loadMatchFieldOptions() {
+  try {
+    const fields = await req('GET', '/contacts/fields');
+    const sel = document.getElementById('inv-match-field');
+    sel.innerHTML = '<option value="phone">Teléfono</option>' +
+      fields.map(f => `<option value="${esc(f.key)}">${esc(f.label)} (campo personalizado)</option>`).join('');
+  } catch(e) { console.error(e); }
+}
+
 async function createInvoiceBatch() {
   const name = document.getElementById('inv-name').value.trim();
   const caption = document.getElementById('inv-caption').value.trim();
+  const docType = document.getElementById('inv-doc-type').value || 'Documento';
+  const matchField = document.getElementById('inv-match-field').value || 'phone';
   setAlert('inv-alert', '', '');
   if (!name) return setAlert('inv-alert', 'err', '⚠ Ingresa un nombre para el lote');
-  if (selectedFiles.length === 0) return setAlert('inv-alert', 'err', '⚠ Sube al menos un PDF');
+  if (selectedFiles.length === 0) return setAlert('inv-alert', 'err', '⚠ Sube al menos un archivo');
   const formData = new FormData();
   formData.append('name', name);
+  formData.append('default_doc_type', docType);
+  formData.append('match_field_key', matchField);
   if (caption) formData.append('caption', caption);
   selectedFiles.forEach(file => formData.append('files', file));
   try {
-    const res = await fetch(API + '/invoices/batches', {
+    const res = await fetch(API + '/documents/batches', {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + TOKEN },
       body: formData
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Error al crear lote');
-    setAlert('inv-alert', 'ok', `✅ Lote "${name}" creado con ${data.total} documentos.`);
+    setAlert('inv-alert', data.warning ? 'err' : 'ok',
+      data.warning ? `⚠ Lote "${name}" creado, pero ${data.warning}` : `✅ Lote "${name}" creado con ${data.total} documento(s).`);
     selectedFiles = [];
     document.getElementById('inv-files').value = '';
     document.getElementById('selected-files').innerHTML = '';
@@ -2081,24 +2859,28 @@ async function createInvoiceBatch() {
 }
 
 async function loadInvoiceBatches() {
+  await loadDocTypeSuggestions();
+  await loadMatchFieldOptions();
   try {
-    const batches = await req('GET', '/invoices/batches');
+    const batches = await req('GET', '/documents/batches');
     const el = document.getElementById('inv-table');
     if (!batches || batches.length === 0) {
-      el.innerHTML = `<div class="empty"><div class="ei">📄</div><p>Aún no tienes lotes de facturas</p></div>`; return;
+      el.innerHTML = `<div class="empty"><div class="ei">📄</div><p>Aún no tienes lotes de documentos</p></div>`; return;
     }
     let html = `<table><thead><tr><th>Lote</th><th>Estado</th><th>Total</th><th>Enviados</th><th>Fallidos</th><th>Acciones</th></tr></thead><tbody>`;
     for (let b of batches) {
-      const statusClass = b.status === 'completed' ? 'bdg-completed' : b.status === 'sending' ? 'bdg-sending' : 'bdg-pending';
+      const statusClass = b.status === 'completed' ? 'bdg-completed' : b.status === 'sending' ? 'bdg-sending' : 'bdg-draft';
       html += `<tr>
         <td><strong>${esc(b.name)}</strong><br><small style="color:var(--text2);font-size:11px">${fmtDate(b.created_at)}</small></td>
         <td><span class="bdg ${statusClass}">${b.status}</span></td>
         <td>${b.total}</td>
         <td class="c-green">${b.sent || 0}</td>
         <td class="c-red">${b.failed || 0}</td>
-        <td>${b.status === 'pending'
-          ? `<button class="btn btn-g" style="padding:5px 10px;font-size:11px" onclick="sendInvoiceBatch(${b.id}, this)">▶ Enviar</button>`
-          : `<button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="viewInvoiceStats(${b.id})">📊</button>`}</td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="viewInvoiceStats(${b.id})">👁 Ver</button>
+          ${b.status === 'pending'
+            ? `<button class="btn btn-g" style="padding:5px 10px;font-size:11px" onclick="sendInvoiceBatch(${b.id}, this)">▶ Enviar</button>`
+            : ``}</td>
       </tr>`;
     }
     el.innerHTML = html + `</tbody></table>`;
@@ -2111,7 +2893,7 @@ async function sendInvoiceBatch(batchId, btn) {
   if (!confirm('¿Iniciar el envío masivo de este lote?')) return;
   btn.disabled = true; btn.textContent = 'Enviando...';
   try {
-    await req('POST', `/invoices/batches/${batchId}/send`);
+    await req('POST', `/documents/batches/${batchId}/send`);
     setAlert('inv-alert', 'ok', '🚀 Envío iniciado en segundo plano...');
     loadInvoiceBatches();
   } catch (e) {
@@ -2121,29 +2903,86 @@ async function sendInvoiceBatch(batchId, btn) {
 }
 
 async function viewInvoiceStats(batchId) {
-  alert(`📊 Estadísticas del lote ${batchId}\n\nEsta vista detallada está en desarrollo.`);
+  try {
+    const items = await req('GET', `/documents/batches/${batchId}/items`);
+    const rows = items.map(i => `
+      <tr>
+        <td>${esc(i.original_name)}</td>
+        <td>${esc(i.doc_type || '—')}</td>
+        <td>${i.has_valid_phone ? esc(i.contact_phone) : `<span class="c-red">sin resolver</span>`}${i.match_value && !i.has_valid_phone ? `<div class="hint" style="margin:2px 0 0;">buscando: ${esc(i.match_value)}</div>` : ''}</td>
+        <td>${esc(i.contact_name || '—')}</td>
+        <td><span class="bdg ${i.status==='sent'?'bdg-completed':i.status==='failed'?'bdg-failed':'bdg-draft'}">${i.status}</span></td>
+      </tr>`).join('');
+    const pending = items.filter(i => !i.has_valid_phone).length;
+    const html = `
+      <table><thead><tr><th>Archivo</th><th>Tipo</th><th>Destinatario</th><th>Contacto</th><th>Estado</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+    setAlert('inv-alert', '', '');
+    const retryBtn = pending
+      ? `<button class="btn btn-o" style="font-size:11px" onclick="resolveInvoiceBatch(${batchId})">🔄 Reintentar emparejamiento (${pending} pendiente${pending>1?'s':''})</button>`
+      : '';
+    document.getElementById('inv-table').insertAdjacentHTML('afterend', `<div class="card" id="inv-detail-card"><div class="card-hd"><h2>Documentos del lote ${batchId}</h2><div style="display:flex;gap:8px;">${retryBtn}<button class="btn btn-o" style="font-size:11px" onclick="document.getElementById('inv-detail-card').remove()">✕ Cerrar</button></div></div><div class="tbl-wrap">${html}</div></div>`);
+    document.getElementById('inv-detail-card').scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    alert('Error al cargar el detalle: ' + e.message);
+  }
+}
+
+async function resolveInvoiceBatch(batchId) {
+  try {
+    const d = await req('POST', `/documents/batches/${batchId}/resolve`);
+    alert(`Emparejados ahora: ${d.resolved}. Pendientes: ${d.unresolved.length}${d.unresolved.length ? '\n\n' + d.unresolved.join('\n') : ''}`);
+    document.getElementById('inv-detail-card')?.remove();
+    viewInvoiceStats(batchId);
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ════════════════════════════════════════════════════════════════
 // AGENTES
 // ════════════════════════════════════════════════════════════════
+let AGENT_PERM_CATALOG = [];
+let AGENT_ROLE_DEFAULTS = {};
+
+async function loadPermissionCatalog() {
+  if (AGENT_PERM_CATALOG.length) return;
+  try {
+    const d = await req('GET', '/agents/permissions');
+    AGENT_PERM_CATALOG = d.permissions || [];
+    AGENT_ROLE_DEFAULTS = d.role_defaults || {};
+  } catch(e) { console.error(e); }
+}
+
+function renderPermissionCheckboxes(selected) {
+  const box = document.getElementById('agent-permissions-box');
+  box.innerHTML = AGENT_PERM_CATALOG.map(p => `
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
+      <input type="checkbox" class="agent-perm-cb" value="${p.key}" ${selected.includes(p.key)?'checked':''}>
+      ${esc(p.label)}
+    </label>
+  `).join('');
+}
+
 async function createAgent() {
   const name     = document.getElementById('agent-name').value.trim();
   const email    = document.getElementById('agent-email').value.trim();
   const password = document.getElementById('agent-password').value.trim();
-  const role     = document.getElementById('agent-role').value;
   const phoneId  = document.getElementById('agent-phone-id').value.trim();
+  const permissions = Array.from(document.querySelectorAll('.agent-perm-cb:checked')).map(cb => cb.value);
   setAlert('agent-alert', '', '');
   if (!name)                         return setAlert('agent-alert', 'err', '⚠ Ingresa el nombre del agente');
   if (!email)                        return setAlert('agent-alert', 'err', '⚠ Ingresa un email');
   if (!password || password.length < 6) return setAlert('agent-alert', 'err', '⚠ Contraseña mínimo 6 caracteres');
+  if (!permissions.length)           return setAlert('agent-alert', 'err', '⚠ Marca al menos un rol/permiso para este agente');
   try {
-    await req('POST', '/agents', { name, email, password, role, whatsapp_phone_id: phoneId || null });
-    setAlert('agent-alert', 'ok', `✅ Agente "${name}" creado exitosamente`);
+    const d = await req('POST', '/agents', { name, email, password, permissions, whatsapp_phone_id: phoneId || null });
+    const granted = (d.agent && d.agent.permissions) || [];
+    const grantedLabels = AGENT_PERM_CATALOG.filter(p => granted.includes(p.key)).map(p => p.label);
+    setAlert('agent-alert', 'ok', `✅ Agente "${name}" creado. Roles confirmados: ${grantedLabels.map(l=>'✓ '+l).join(' · ') || '—'}`);
     document.getElementById('agent-name').value = '';
     document.getElementById('agent-email').value = '';
     document.getElementById('agent-password').value = '';
     document.getElementById('agent-phone-id').value = '';
+    renderPermissionCheckboxes([]);
     loadAgents();
   } catch(e) {
     setAlert('agent-alert', 'err', '✕ ' + (e.message || 'Error desconocido'));
@@ -2151,26 +2990,743 @@ async function createAgent() {
 }
 
 async function loadAgents() {
+  await loadPermissionCatalog();
+  renderPermissionCheckboxes([]);
   try {
     const agents = await req('GET', '/agents');
     const el = document.getElementById('agents-table');
     if (!agents || agents.length === 0) {
       el.innerHTML = `<div class="empty"><div class="ei">👤</div><p>Aún no tienes agentes creados</p></div>`; return;
     }
-    let html = `<table><thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>WhatsApp ID</th><th>Estado</th></tr></thead><tbody>`;
+    let html = `<table><thead><tr><th>Nombre</th><th>Email</th><th>Roles confirmados</th><th>Estado</th></tr></thead><tbody>`;
     for (let a of agents) {
+      const permsHtml = AGENT_PERM_CATALOG.map(p => {
+        const has = (a.permissions || []).includes(p.key);
+        return `<div style="font-size:11px;color:${has?'var(--green)':'var(--text3)'}">${has?'✓':'✕'} ${esc(p.label)}</div>`;
+      }).join('');
       html += `<tr>
         <td><strong>${esc(a.name)}</strong></td>
         <td style="font-size:12px;">${a.email}</td>
-        <td><span class="bdg ${a.role==='admin'?'bdg-completed':'bdg-draft'}">${a.role}</span></td>
-        <td>${a.whatsapp_phone_id ? `<code style="font-size:11px;color:var(--green)">${a.whatsapp_phone_id}</code>` : '—'}</td>
-        <td><span class="bdg bdg-completed">Activo</span></td>
+        <td>${permsHtml}</td>
+        <td><span class="bdg ${a.is_active?'bdg-completed':'bdg-failed'}">${a.is_active?'Activo':'Inactivo'}</span></td>
       </tr>`;
     }
     el.innerHTML = html + `</tbody></table>`;
   } catch(e) {
     document.getElementById('agents-table').innerHTML = `<div class="empty"><div class="ei">⚠️</div><p>Error al cargar agentes</p></div>`;
   }
+}
+
+// ════════════════════════════════════════════════════════════════
+// PANEL ADMIN (superadmin)
+// ════════════════════════════════════════════════════════════════
+function showAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.admin-subtab').forEach(s => s.style.display = (s.dataset.tab === tab ? 'block' : 'none'));
+}
+
+async function renderOnboardingChecklist() {
+  try {
+    const [clients, templates, agents] = await Promise.all([
+      req('GET', '/admin/clients'),
+      req('GET', '/admin/templates'),
+      req('GET', '/admin/agents'),
+    ]);
+    const steps = [
+      { done: clients.length > 0, label: 'Crea tu primera empresa (cliente)', action: "showAdminTab('clientes')", cta: 'Ir a Clientes' },
+      { done: clients.some(c => c.whatsapp_connected), label: 'Conecta el WhatsApp de una empresa', action: "showAdminTab('clientes')", cta: 'Ir a Clientes' },
+      { done: templates.length > 0, label: 'Crea una plantilla de campaña', action: "showAdminTab('plantillas')", cta: 'Ir a Plantillas' },
+      { done: agents.length > 0, label: 'Agrega un agente a una empresa (opcional)', action: "showAdminTab('agentes')", cta: 'Ir a Agentes' },
+    ];
+    const card = document.getElementById('admin-onboarding-card');
+    const essential = steps.filter(s => !s.label.includes('opcional'));
+    const allDone = essential.every(s => s.done);
+    if (allDone) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    document.getElementById('onboarding-checklist').innerHTML = steps.map(s => `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:${s.done?'var(--green-bg)':'var(--bg3)'};border-radius:var(--radius-md);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">${s.done ? '✅' : '⬜'}</span>
+          <span style="font-size:13px;${s.done?'color:var(--text2);text-decoration:line-through;':''}">${s.label}</span>
+        </div>
+        ${s.done ? '' : `<button class="btn btn-o" style="font-size:11px;padding:5px 10px;" onclick="${s.action}">${s.cta} →</button>`}
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function loadAdminOverview() {
+  try {
+    const d = await req('GET', '/admin/overview');
+    document.getElementById('ad-clients').textContent = d.clients.total;
+    document.getElementById('ad-clients-sub').textContent = `${d.clients.whatsapp_pending} sin conectar`;
+    document.getElementById('ad-connected').textContent = d.clients.whatsapp_connected;
+    document.getElementById('ad-sent').textContent = d.messages.sent_or_better.toLocaleString();
+    document.getElementById('ad-failed-sub').textContent = `${d.messages.failed} fallidos`;
+    document.getElementById('ad-agents').textContent = d.agents.total;
+    document.getElementById('ad-agents-sub').textContent = `${d.agents.active} activos`;
+
+    const alertsCard = document.getElementById('admin-alerts-card');
+    const alertsList = document.getElementById('admin-alerts-list');
+    if (!d.alerts || !d.alerts.length) {
+      alertsCard.style.display = 'none';
+    } else {
+      alertsCard.style.display = 'block';
+      alertsList.innerHTML = d.alerts.map(a => `
+        <div class="alert err" style="margin-bottom:8px;">
+          <strong>${esc(a.client_name)}</strong> — ${esc(a.message)}
+          ${a.at ? `<div style="font-size:11px;opacity:.7;margin-top:2px;">${fmtDate(a.at)}</div>` : ''}
+        </div>
+      `).join('');
+    }
+  } catch(e) { console.error(e); }
+}
+
+let ADMIN_CLIENTS = [];
+
+async function createClient() {
+  const name = document.getElementById('nc-name').value.trim();
+  const email = document.getElementById('nc-email').value.trim();
+  const password = document.getElementById('nc-password').value.trim();
+  const industry = document.getElementById('nc-industry').value || null;
+  setAlert('admin-newclient-alert', '', '');
+  if (!name)  return setAlert('admin-newclient-alert', 'err', '⚠ Escribe el nombre de la empresa');
+  if (!email) return setAlert('admin-newclient-alert', 'err', '⚠ Escribe un email de acceso');
+  if (!password || password.length < 6) return setAlert('admin-newclient-alert', 'err', '⚠ Contraseña mínimo 6 caracteres');
+  try {
+    const d = await req('POST', '/admin/clients', { name, email, password, industry, apply_suggested_fields: true });
+    const fieldsMsg = d.fields_created && d.fields_created.length ? ` Se precargaron los campos: ${d.fields_created.join(', ')}.` : '';
+    setAlert('admin-newclient-alert', 'ok', `✅ Empresa "${name}" creada.${fieldsMsg} Comparte el email y contraseña con el cliente.`);
+    document.getElementById('nc-name').value = '';
+    document.getElementById('nc-email').value = '';
+    document.getElementById('nc-password').value = '';
+    document.getElementById('nc-industry').value = '';
+    loadAdminClients();
+    loadAdminOverview();
+  } catch(e) { setAlert('admin-newclient-alert', 'err', '✕ ' + e.message); }
+}
+
+async function exportClientsXlsx() {
+  fetch(`${API}/admin/export/clients`, { headers: { 'Authorization': 'Bearer ' + TOKEN } })
+    .then(res => { if (!res.ok) throw new Error('No se pudo exportar'); return res.blob(); })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'empresas_wasapinf.xlsx'; a.click();
+      URL.revokeObjectURL(url);
+    })
+    .catch(e => alert('Error al exportar: ' + e.message));
+}
+
+async function loadAdminClients() {
+  try {
+    ADMIN_CLIENTS = await req('GET', '/admin/clients');
+    const el = document.getElementById('admin-clients-table');
+    if (!ADMIN_CLIENTS.length) {
+      el.innerHTML = `<div class="empty"><div class="ei">🏢</div><p>Aún no hay empresas registradas</p></div>`;
+    } else {
+      el.innerHTML = `<table><thead><tr><th>Empresa</th><th>Email</th><th>Rubro</th><th>WhatsApp</th><th>Contactos</th><th>Campañas</th><th>Agentes</th><th>Acciones</th></tr></thead><tbody>
+        ${ADMIN_CLIENTS.map(c => `<tr>
+          <td><strong>${esc(c.name)}</strong></td>
+          <td style="font-size:12px;">${esc(c.email)}</td>
+          <td>${esc(c.industry || '—')}</td>
+          <td>${c.whatsapp_connected ? `<span class="bdg bdg-completed">✓ ${esc(c.whatsapp_phone_id||'')}</span>` : `<span class="bdg bdg-draft">Sin conectar</span>`}</td>
+          <td>${c.contacts}</td>
+          <td>${c.campaigns}</td>
+          <td>${c.agents}</td>
+          <td style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="connectClientWA(${c.id})">🔗 ${c.whatsapp_connected ? 'Reconectar' : 'Conectar'}</button>
+            <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="editClient(${c.id})">✏️ Editar</button>
+          </td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    }
+    const opts = ADMIN_CLIENTS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    document.getElementById('tpl-client').innerHTML = '<option value="">— Global (todas las empresas) —</option>' + opts;
+    document.getElementById('field-client').innerHTML = '<option value="">— Elige una empresa —</option>' + opts;
+    document.getElementById('meta-tpl-client').innerHTML = '<option value="">— Elige una empresa —</option>' + opts;
+    document.getElementById('rec-client').innerHTML = '<option value="">— Elige una empresa —</option>' + opts;
+  } catch(e) { console.error(e); }
+}
+
+let EDITING_CLIENT_ID = null;
+
+function editClient(clientId) {
+  const c = ADMIN_CLIENTS.find(x => x.id === clientId);
+  if (!c) return;
+  EDITING_CLIENT_ID = clientId;
+  document.getElementById('admin-edit-client-card').style.display = 'block';
+  document.getElementById('edit-client-name').textContent = c.name;
+  document.getElementById('ec-name').value = c.name;
+  document.getElementById('ec-email').value = c.email;
+  document.getElementById('ec-industry').value = c.industry || '';
+  document.getElementById('ec-password').value = '';
+  setAlert('edit-client-alert', '', '');
+  document.getElementById('admin-edit-client-card').scrollIntoView({behavior:'smooth'});
+}
+
+async function saveClientEdit() {
+  if (!EDITING_CLIENT_ID) return;
+  const name = document.getElementById('ec-name').value.trim();
+  const email = document.getElementById('ec-email').value.trim();
+  const industry = document.getElementById('ec-industry').value.trim();
+  const new_password = document.getElementById('ec-password').value.trim();
+  setAlert('edit-client-alert', '', '');
+  try {
+    await req('PATCH', `/admin/clients/${EDITING_CLIENT_ID}`, {
+      name: name || null, email: email || null, industry,
+      new_password: new_password || null,
+    });
+    setAlert('edit-client-alert', 'ok', '✅ Cambios guardados');
+    loadAdminClients();
+  } catch(e) { setAlert('edit-client-alert', 'err', '✕ ' + e.message); }
+}
+
+async function deleteClientConfirm() {
+  if (!EDITING_CLIENT_ID) return;
+  const c = ADMIN_CLIENTS.find(x => x.id === EDITING_CLIENT_ID);
+  if (!confirm(`¿Eliminar "${c?.name}" por completo? Esto borra TODOS sus contactos, campañas, documentos, agentes y conversaciones. No se puede deshacer.`)) return;
+  try {
+    await req('DELETE', `/admin/clients/${EDITING_CLIENT_ID}`);
+    document.getElementById('admin-edit-client-card').style.display = 'none';
+    EDITING_CLIENT_ID = null;
+    loadAdminClients();
+    loadAdminOverview();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+let ADMIN_TARGET_CLIENT_ID = null;
+
+function connectClientWA(clientId) {
+  const c = ADMIN_CLIENTS.find(x => x.id === clientId);
+  if (!c) return;
+  ADMIN_TARGET_CLIENT_ID = clientId;
+  document.getElementById('connect-target-banner').style.display = 'flex';
+  document.getElementById('connect-target-name').textContent = c.name;
+  go('connect');
+}
+
+function clearConnectTarget() {
+  ADMIN_TARGET_CLIENT_ID = null;
+  document.getElementById('connect-target-banner').style.display = 'none';
+  loadWAStatus();
+}
+
+async function loadClientFields() {
+  const clientId = document.getElementById('field-client').value;
+  const el = document.getElementById('admin-fields-table');
+  if (!clientId) { el.innerHTML = ''; return; }
+  try {
+    const fields = await req('GET', `/admin/clients/${clientId}/fields`);
+    if (!fields.length) { el.innerHTML = `<div class="empty"><div class="ei">🏷️</div><p>Esta empresa aún no tiene campos personalizados</p></div>`; return; }
+    el.innerHTML = `<table><thead><tr><th>Clave</th><th>Etiqueta</th><th>Tipo</th><th></th></tr></thead><tbody>
+      ${fields.map(f => `<tr>
+        <td><code>${esc(f.key)}</code></td>
+        <td>${esc(f.label)}</td>
+        <td>${esc(f.field_type)}</td>
+        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="deleteClientField(${f.id})">🗑</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } catch(e) { console.error(e); }
+}
+
+async function createClientField() {
+  const clientId = document.getElementById('field-client').value;
+  const key = document.getElementById('field-key').value.trim();
+  const label = document.getElementById('field-label').value.trim();
+  const field_type = document.getElementById('field-type').value;
+  setAlert('admin-fields-alert', '', '');
+  if (!clientId) return setAlert('admin-fields-alert', 'err', '⚠ Elige una empresa');
+  if (!key || !label) return setAlert('admin-fields-alert', 'err', '⚠ Completa clave y etiqueta');
+  try {
+    await req('POST', `/admin/clients/${clientId}/fields`, { key, label, field_type });
+    setAlert('admin-fields-alert', 'ok', `✅ Campo "${label}" agregado`);
+    document.getElementById('field-key').value = '';
+    document.getElementById('field-label').value = '';
+    loadClientFields();
+  } catch(e) { setAlert('admin-fields-alert', 'err', '✕ ' + e.message); }
+}
+
+async function deleteClientField(id) {
+  if (!confirm('¿Eliminar este campo? Los contactos que ya lo tenían guardado conservarán el valor, pero dejará de mostrarse.')) return;
+  try { await req('DELETE', `/admin/fields/${id}`); loadClientFields(); }
+  catch(e) { alert('Error: ' + e.message); }
+}
+
+async function syncMetaTemplates() {
+  const clientId = document.getElementById('meta-tpl-client').value;
+  setAlert('admin-meta-tpl-alert', '', '');
+  if (!clientId) return setAlert('admin-meta-tpl-alert', 'err', '⚠ Elige una empresa');
+  try {
+    const d = await req('POST', `/admin/clients/${clientId}/meta-templates/sync`);
+    setAlert('admin-meta-tpl-alert', 'ok', `✅ Se sincronizaron ${d.synced} plantilla(s) desde Meta`);
+    loadMetaTemplatesTable(clientId);
+  } catch(e) { setAlert('admin-meta-tpl-alert', 'err', '✕ ' + e.message); }
+}
+
+let META_TEMPLATES_CACHE = [];
+
+async function loadMetaTemplatesTable(clientId) {
+  const el = document.getElementById('admin-meta-tpl-table');
+  if (!clientId) { el.innerHTML = ''; META_TEMPLATES_CACHE = []; return; }
+  try {
+    META_TEMPLATES_CACHE = await req('GET', `/admin/clients/${clientId}/meta-templates`);
+    if (!META_TEMPLATES_CACHE.length) { el.innerHTML = `<div class="empty"><div class="ei">📋</div><p>Sin plantillas sincronizadas todavía — dale a "Sincronizar desde Meta"</p></div>`; return; }
+    el.innerHTML = `<table><thead><tr><th></th><th>Nombre de la plantilla</th><th>Categoría</th><th>Idioma</th><th>Estado</th><th>Vista previa</th><th></th></tr></thead><tbody>
+      ${META_TEMPLATES_CACHE.map((t,i) => `<tr>
+        <td><input type="checkbox" class="meta-tpl-cb" data-idx="${i}"></td>
+        <td><code>${esc(t.name)}</code></td>
+        <td>${esc(t.category||'—')}</td>
+        <td>${esc(t.language)}</td>
+        <td><span class="bdg ${t.status==='APPROVED'?'bdg-completed':t.status==='REJECTED'?'bdg-failed':'bdg-draft'}">${esc(t.status||'—')}</span></td>
+        <td style="max-width:260px;font-size:12px;color:var(--text2)">${esc(t.body_text||'')}</td>
+        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="useMetaTemplate(${i})">Usar →</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } catch(e) { console.error(e); }
+}
+document.getElementById('meta-tpl-client').addEventListener('change', function() { loadMetaTemplatesTable(this.value); });
+
+function toggleTip(el) {
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.info-tip.open').forEach(t => t.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.info-tip')) {
+    document.querySelectorAll('.info-tip.open').forEach(t => t.classList.remove('open'));
+  }
+});
+
+function renderMessagePreview(raw) {
+  if (!raw || !raw.trim()) {
+    return '<span style="color:#ffffff;">Escribe el mensaje para ver la vista previa…</span>';
+  }
+  let html = esc(raw);
+  html = html.replace(/\{\{\s*name\s*\}\}/gi, 'María López');
+  html = html.replace(/\{\{\s*phone\s*\}\}/gi, '+504 9988-7766');
+  html = html.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (m, key) => `<mark>${esc(key)}: ejemplo</mark>`);
+  return html;
+}
+
+function updateTplPreview() {
+  const raw = document.getElementById('tpl-msg').value;
+  document.getElementById('tpl-preview-text').innerHTML = renderMessagePreview(raw);
+}
+
+function useMetaTemplate(idx) {
+  const t = META_TEMPLATES_CACHE[idx];
+  if (!t) return;
+  showAdminTab('plantillas');
+  const clientId = document.getElementById('meta-tpl-client').value;
+  document.getElementById('tpl-name').value = t.name.replace(/_/g,' ');
+  document.getElementById('tpl-category').value = t.category || '';
+  document.getElementById('tpl-client').value = clientId || '';
+  document.getElementById('tpl-meta-name').value = t.name;
+  document.getElementById('tpl-msg').value = t.body_text || '';
+  updateTplPreview();
+  document.getElementById('tpl-name').scrollIntoView({behavior:'smooth', block:'center'});
+  setAlert('admin-tpl-alert', 'ok', `Plantilla "${t.name}" cargada en el formulario — ajusta el texto o el nombre y dale "Crear plantilla".`);
+}
+
+let EDITING_TEMPLATE_ID = null;
+
+async function createTemplate() {
+  const name = document.getElementById('tpl-name').value.trim();
+  const category = document.getElementById('tpl-category').value.trim();
+  const client_id = document.getElementById('tpl-client').value;
+  const message_template = document.getElementById('tpl-msg').value.trim();
+  const meta_template_name = document.getElementById('tpl-meta-name').value.trim();
+  setAlert('admin-tpl-alert', '', '');
+  if (!name)             return setAlert('admin-tpl-alert','err','⚠ Escribe un nombre para la plantilla');
+  if (!message_template) return setAlert('admin-tpl-alert','err','⚠ Escribe el mensaje de la plantilla');
+  const payload = {
+    name, category: category||null, message_template,
+    client_id: client_id? parseInt(client_id,10): null,
+    meta_template_name: meta_template_name || null,
+  };
+  try {
+    if (EDITING_TEMPLATE_ID) {
+      await req('PATCH', `/admin/templates/${EDITING_TEMPLATE_ID}`, payload);
+      setAlert('admin-tpl-alert', 'ok', `✅ Plantilla "${name}" actualizada`);
+      cancelTemplateEdit();
+    } else {
+      await req('POST', '/admin/templates', payload);
+      setAlert('admin-tpl-alert', 'ok', `✅ Plantilla "${name}" creada`);
+    }
+    document.getElementById('tpl-name').value = '';
+    document.getElementById('tpl-category').value = '';
+    document.getElementById('tpl-msg').value = '';
+    document.getElementById('tpl-client').value = '';
+    document.getElementById('tpl-meta-name').value = '';
+    updateTplPreview();
+    loadAdminTemplates();
+  } catch(e) { setAlert('admin-tpl-alert', 'err', '✕ ' + e.message); }
+}
+
+function editTemplate(id) {
+  const t = ADMIN_TEMPLATES_CACHE.find(x => x.id === id);
+  if (!t) return;
+  EDITING_TEMPLATE_ID = id;
+  document.getElementById('tpl-name').value = t.name;
+  document.getElementById('tpl-category').value = t.category || '';
+  document.getElementById('tpl-client').value = t.client_id || '';
+  document.getElementById('tpl-meta-name').value = t.meta_template_name || '';
+  document.getElementById('tpl-msg').value = t.message_template;
+  updateTplPreview();
+  document.getElementById('tpl-form-title').textContent = `Editando: ${t.name}`;
+  document.getElementById('tpl-submit-btn').textContent = '💾 Guardar cambios';
+  document.getElementById('tpl-cancel-edit-btn').style.display = 'inline-block';
+  document.getElementById('tpl-name').scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function cancelTemplateEdit() {
+  EDITING_TEMPLATE_ID = null;
+  document.getElementById('tpl-form-title').textContent = 'Plantilla de campaña';
+  document.getElementById('tpl-submit-btn').textContent = '+ Crear plantilla';
+  document.getElementById('tpl-cancel-edit-btn').style.display = 'none';
+  document.getElementById('tpl-name').value = '';
+  document.getElementById('tpl-category').value = '';
+  document.getElementById('tpl-msg').value = '';
+  document.getElementById('tpl-client').value = '';
+  document.getElementById('tpl-meta-name').value = '';
+  updateTplPreview();
+}
+
+let ADMIN_TEMPLATES_CACHE = [];
+
+async function loadAdminTemplates() {
+  try {
+    const templates = await req('GET', '/admin/templates');
+    ADMIN_TEMPLATES_CACHE = templates;
+    const el = document.getElementById('admin-templates-table');
+    if (!templates.length) {
+      el.innerHTML = `<div class="empty"><div class="ei">📋</div><p>Aún no hay plantillas creadas</p></div>`;
+    } else {
+      const clientName = (id) => {
+        if (!id) return '<span class="bdg bdg-draft">Global</span>';
+        const c = ADMIN_CLIENTS.find(x => x.id === id);
+        return c ? esc(c.name) : `#${id}`;
+      };
+      el.innerHTML = `<table><thead><tr><th>Nombre</th><th>Categoría</th><th>Asignada a</th><th>Plantilla Meta</th><th>Mensaje</th><th></th></tr></thead><tbody>
+        ${templates.map(t => `<tr>
+          <td><strong>${esc(t.name)}</strong></td>
+          <td>${esc(t.category||'—')}</td>
+          <td>${clientName(t.client_id)}</td>
+          <td>${t.meta_template_name ? `<code style="font-size:11px">${esc(t.meta_template_name)}</code>` : '<span style="color:var(--text3)">—</span>'}</td>
+          <td style="max-width:220px;font-size:12px;color:var(--text2);">${esc(t.message_template).slice(0,80)}${t.message_template.length>80?'…':''}</td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="editTemplate(${t.id})">✏️</button>
+            <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="deleteTemplate(${t.id})">🗑</button>
+          </td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    }
+    const sel = document.getElementById('rec-template');
+    if (sel) sel.innerHTML = '<option value="">— Elige una plantilla —</option>' +
+      templates.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function deleteTemplate(id) {
+  if (!confirm('¿Eliminar esta plantilla?')) return;
+  try {
+    await req('DELETE', `/admin/templates/${id}`);
+    if (EDITING_TEMPLATE_ID === id) cancelTemplateEdit();
+    loadAdminTemplates();
+  }
+  catch(e) { alert('Error: ' + e.message); }
+}
+
+async function createRecurring() {
+  const name = document.getElementById('rec-name').value.trim();
+  const client_id = document.getElementById('rec-client').value;
+  const template_id = document.getElementById('rec-template').value;
+  const contact_tag = document.getElementById('rec-tag').value.trim();
+  const date_field_key = document.getElementById('rec-date-field').value.trim() || 'next_reminder_date';
+  const intervalRaw = document.getElementById('rec-interval').value.trim();
+  setAlert('admin-recurring-alert', '', '');
+  if (!name)        return setAlert('admin-recurring-alert', 'err', '⚠ Escribe un nombre');
+  if (!client_id)   return setAlert('admin-recurring-alert', 'err', '⚠ Elige una empresa');
+  if (!template_id) return setAlert('admin-recurring-alert', 'err', '⚠ Elige una plantilla');
+  try {
+    await req('POST', '/admin/recurring', {
+      name, client_id: parseInt(client_id,10), template_id: parseInt(template_id,10),
+      contact_tag: contact_tag || null, date_field_key,
+      interval_days: intervalRaw ? parseInt(intervalRaw,10) : null,
+    });
+    setAlert('admin-recurring-alert', 'ok', `✅ Recordatorio "${name}" creado — se revisa automáticamente cada 6h`);
+    document.getElementById('rec-name').value = '';
+    document.getElementById('rec-tag').value = '';
+    document.getElementById('rec-interval').value = '';
+    loadAdminRecurring();
+  } catch(e) { setAlert('admin-recurring-alert', 'err', '✕ ' + e.message); }
+}
+
+async function loadAdminRecurring() {
+  try {
+    const list = await req('GET', '/admin/recurring');
+    const el = document.getElementById('admin-recurring-table');
+    if (!list.length) { el.innerHTML = `<div class="empty"><div class="ei">⏰</div><p>Aún no hay recordatorios recurrentes</p></div>`; }
+    else {
+      el.innerHTML = `<table><thead><tr><th>Nombre</th><th>Empresa</th><th>Campo fecha</th><th>Reprograma</th><th>Última corrida</th><th>Estado</th><th></th></tr></thead><tbody>
+        ${list.map(r => `<tr>
+          <td><strong>${esc(r.name)}</strong></td>
+          <td>${esc(r.client_name)}</td>
+          <td><code>${esc(r.date_field_key)}</code></td>
+          <td>${r.interval_days ? `cada ${r.interval_days} días` : 'no'}</td>
+          <td style="font-size:12px;color:var(--text2)">${r.last_run_at ? fmtDate(r.last_run_at) : 'nunca'}</td>
+          <td><span class="bdg ${r.is_active?'bdg-completed':'bdg-draft'}">${r.is_active?'Activo':'Pausado'}</span></td>
+          <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="deleteRecurring(${r.id})">🗑</button></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    }
+    const sumEl = document.getElementById('admin-recurring-summary-table');
+    if (sumEl) {
+      const active = list.filter(r => r.is_active);
+      sumEl.innerHTML = !active.length
+        ? `<div class="empty"><div class="ei">⏰</div><p>No hay recordatorios activos todavía</p></div>`
+        : `<table><thead><tr><th>Nombre</th><th>Empresa</th><th>Última corrida</th></tr></thead><tbody>
+            ${active.map(r => `<tr><td><strong>${esc(r.name)}</strong></td><td>${esc(r.client_name)}</td><td style="font-size:12px;color:var(--text2)">${r.last_run_at ? fmtDate(r.last_run_at) : 'nunca'}</td></tr>`).join('')}
+          </tbody></table>`;
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function deleteRecurring(id) {
+  if (!confirm('¿Eliminar este recordatorio recurrente?')) return;
+  try { await req('DELETE', `/admin/recurring/${id}`); loadAdminRecurring(); }
+  catch(e) { alert('Error: ' + e.message); }
+}
+
+async function runRecurringNow() {
+  setAlert('admin-recurring-alert', '', '');
+  try {
+    const d = await req('POST', '/admin/recurring/run-now');
+    setAlert('admin-recurring-alert', 'ok', `✅ Corrida completa: ${d.ran} recordatorio(s) revisado(s)`);
+    loadAdminRecurring();
+    loadAdminOverview();
+  } catch(e) { setAlert('admin-recurring-alert', 'err', '✕ ' + e.message); }
+}
+
+let ADMIN_AGENTS_CACHE = [];
+
+async function loadAdminAgents() {
+  try {
+    const agents = await req('GET', '/admin/agents');
+    ADMIN_AGENTS_CACHE = agents;
+    const el = document.getElementById('admin-agents-table');
+    if (!agents.length) {
+      el.innerHTML = `<div class="empty"><div class="ei">👤</div><p>Aún no hay agentes en ninguna empresa</p></div>`; return;
+    }
+    await loadPermissionCatalog();
+    el.innerHTML = `<table><thead><tr><th>Agente</th><th>Empresa</th><th>Roles confirmados</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${agents.map(a => {
+        const permsHtml = AGENT_PERM_CATALOG.map(p => {
+          const has = (a.permissions||[]).includes(p.key);
+          return `<span style="font-size:11px;color:${has?'var(--green)':'var(--text3)'};margin-right:6px;">${has?'✓':'✕'} ${esc(p.label)}</span>`;
+        }).join('');
+        return `<tr>
+          <td><strong>${esc(a.name)}</strong><br><span style="font-size:11px;color:var(--text2)">${esc(a.email)}</span></td>
+          <td>${esc(a.company)}</td>
+          <td>${permsHtml}</td>
+          <td><span class="bdg ${a.is_active?'bdg-completed':'bdg-failed'}">${a.is_active?'Activo':'Inactivo'}</span></td>
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="editAdminAgent(${a.id})">✏️</button>
+            <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="toggleAdminAgentActive(${a.id}, ${!a.is_active})">${a.is_active?'⏸':'▶'}</button>
+            <button class="btn btn-o" style="padding:5px 10px;font-size:11px" onclick="deleteAdminAgent(${a.id})">🗑</button>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody></table>`;
+  } catch(e) { console.error(e); }
+}
+
+async function editAdminAgent(agentId) {
+  const a = ADMIN_AGENTS_CACHE.find(x => x.id === agentId);
+  if (!a) return;
+  await loadPermissionCatalog();
+  const allKeys = AGENT_PERM_CATALOG.map(p => p.key).join(', ');
+  const input = prompt(
+    `Editar roles de ${a.name} (${a.company})\n\nClaves disponibles: ${allKeys}\n\nEscribe las claves separadas por coma que debe tener:`,
+    (a.permissions||[]).join(', ')
+  );
+  if (input === null) return;
+  const perms = input.split(',').map(s => s.trim()).filter(Boolean);
+  try {
+    await req('PATCH', `/admin/agents/${agentId}`, { permissions: perms });
+    loadAdminAgents();
+  } catch(e) { setAlert('admin-agents-alert', 'err', '✕ ' + e.message); }
+}
+
+async function toggleAdminAgentActive(agentId, newState) {
+  try {
+    await req('PATCH', `/admin/agents/${agentId}`, { is_active: newState });
+    loadAdminAgents();
+  } catch(e) { setAlert('admin-agents-alert', 'err', '✕ ' + e.message); }
+}
+
+async function deleteAdminAgent(agentId) {
+  const a = ADMIN_AGENTS_CACHE.find(x => x.id === agentId);
+  if (!confirm(`¿Eliminar al agente "${a?.name}"? No podrá volver a iniciar sesión.`)) return;
+  try {
+    await req('DELETE', `/admin/agents/${agentId}`);
+    loadAdminAgents();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// ETIQUETAS
+// ════════════════════════════════════════════════════════════════
+let TAGS_CACHE = [];
+
+async function loadContactTagsDatalist() {
+  try {
+    TAGS_CACHE = await req('GET', '/tags');
+    document.getElementById('contact-tags-datalist').innerHTML =
+      TAGS_CACHE.map(t => `<option value="${esc(t.name)}">`).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function loadTagsPage() {
+  try {
+    TAGS_CACHE = await req('GET', '/tags');
+    const el = document.getElementById('tags-table');
+    if (!TAGS_CACHE.length) { el.innerHTML = `<div class="empty"><div class="ei">🏷️</div><p>Aún no tienes etiquetas — crea la primera arriba.</p></div>`; return; }
+    el.innerHTML = `<table><thead><tr><th>Etiqueta</th><th>Descripción</th><th>Color</th><th></th></tr></thead><tbody>
+      ${TAGS_CACHE.map(t => `<tr>
+        <td><span class="bdg" style="background:${t.color}22;color:${t.color};border:1px solid ${t.color}55;">${esc(t.name)}</span></td>
+        <td style="font-size:12px;color:var(--text2)">${esc(t.description || '—')}</td>
+        <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${t.color};vertical-align:middle;"></span></td>
+        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="deleteTag(${t.id})">🗑</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } catch(e) { console.error(e); }
+}
+
+async function createTag() {
+  const name = document.getElementById('tag-name').value.trim();
+  const color = document.getElementById('tag-color').value;
+  const description = document.getElementById('tag-desc').value.trim();
+  setAlert('tag-alert', '', '');
+  if (!name) return setAlert('tag-alert', 'err', '⚠ Escribe un nombre para la etiqueta');
+  try {
+    await req('POST', '/tags', { name, color, description: description || null });
+    setAlert('tag-alert', 'ok', `✅ Etiqueta "${name}" creada`);
+    document.getElementById('tag-name').value = '';
+    document.getElementById('tag-desc').value = '';
+    loadTagsPage();
+  } catch(e) { setAlert('tag-alert', 'err', '✕ ' + e.message); }
+}
+
+async function deleteTag(id) {
+  if (!confirm('¿Eliminar esta etiqueta? Los contactos que la tenían conservan el texto, solo deja de estar en el catálogo.')) return;
+  try { await req('DELETE', `/tags/${id}`); loadTagsPage(); }
+  catch(e) { alert('Error: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// INTEGRACIONES — API Keys
+// ════════════════════════════════════════════════════════════════
+function openCreateApiKey() {
+  const name = prompt('Nombre para identificar esta llave (ej. "Integración con mi ERP"):');
+  if (!name) return;
+  createApiKey(name);
+}
+
+async function createApiKey(name) {
+  setAlert('apikey-alert', '', '');
+  try {
+    const d = await req('POST', '/integrations/api-keys', { name });
+    document.getElementById('apikey-created-box').style.display = 'block';
+    document.getElementById('apikey-raw-value').textContent = d.api_key;
+    document.getElementById('apikey-created-box').scrollIntoView({behavior:'smooth'});
+    loadApiKeys();
+  } catch(e) { setAlert('apikey-alert', 'err', '✕ ' + e.message); }
+}
+
+function copyApiKeyValue() {
+  const val = document.getElementById('apikey-raw-value').textContent;
+  navigator.clipboard?.writeText(val);
+  setAlert('apikey-alert', 'ok', '📋 Copiada al portapapeles');
+}
+
+async function loadApiKeys() {
+  try {
+    const keys = await req('GET', '/integrations/api-keys');
+    const el = document.getElementById('apikeys-table');
+    if (!keys.length) { el.innerHTML = `<div class="empty"><div class="ei">🔑</div><p>Aún no tienes llaves API — créala arriba para empezar a integrar.</p></div>`; return; }
+    el.innerHTML = `<table><thead><tr><th>Nombre</th><th>Llave</th><th>Último uso</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${keys.map(k => `<tr>
+        <td><strong>${esc(k.name)}</strong></td>
+        <td><code style="font-size:11px;">${esc(k.key_prefix)}</code></td>
+        <td style="font-size:12px;color:var(--text2)">${k.last_used_at ? fmtDate(k.last_used_at) : 'nunca usada'}</td>
+        <td><span class="bdg ${k.is_active?'bdg-completed':'bdg-draft'}">${k.is_active?'Activa':'Revocada'}</span></td>
+        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="revokeApiKey(${k.id})">🗑 Revocar</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } catch(e) { console.error(e); }
+}
+
+async function revokeApiKey(id) {
+  if (!confirm('¿Revocar esta llave API? Cualquier sistema que la use dejará de funcionar de inmediato.')) return;
+  try { await req('DELETE', `/integrations/api-keys/${id}`); loadApiKeys(); }
+  catch(e) { alert('Error: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+// INTEGRACIONES — Webhooks
+// ════════════════════════════════════════════════════════════════
+let WEBHOOK_EVENTS_CACHE = [];
+
+async function loadWebhookEventCatalog() {
+  try {
+    WEBHOOK_EVENTS_CACHE = await req('GET', '/integrations/webhook-events');
+    document.getElementById('wh-events-box').innerHTML = WEBHOOK_EVENTS_CACHE.map(e => `
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
+        <input type="checkbox" class="wh-event-cb" value="${e.key}">
+        ${esc(e.label)}
+      </label>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function createWebhook() {
+  const url = document.getElementById('wh-url').value.trim();
+  const events = Array.from(document.querySelectorAll('.wh-event-cb:checked')).map(cb => cb.value);
+  setAlert('webhook-alert', '', '');
+  if (!url) return setAlert('webhook-alert', 'err', '⚠ Escribe la URL de tu sistema');
+  if (!events.length) return setAlert('webhook-alert', 'err', '⚠ Marca al menos un evento');
+  try {
+    const d = await req('POST', '/integrations/webhooks', { url, events, is_active: true });
+    setAlert('webhook-alert', 'ok', `✅ Webhook creado. Secreto para verificar la firma (guárdalo, no se vuelve a mostrar): ${d.secret}`);
+    document.getElementById('wh-url').value = '';
+    document.querySelectorAll('.wh-event-cb').forEach(cb => cb.checked = false);
+    loadWebhooks();
+  } catch(e) { setAlert('webhook-alert', 'err', '✕ ' + e.message); }
+}
+
+async function loadWebhooks() {
+  try {
+    const hooks = await req('GET', '/integrations/webhooks');
+    const el = document.getElementById('webhooks-table');
+    if (!hooks.length) { el.innerHTML = `<div class="empty"><div class="ei">🪝</div><p>Aún no tienes webhooks configurados.</p></div>`; return; }
+    el.innerHTML = `<table><thead><tr><th>URL</th><th>Eventos</th><th>Último envío</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${hooks.map(h => `<tr>
+        <td style="font-size:12px;max-width:220px;word-break:break-all;">${esc(h.url)}</td>
+        <td style="font-size:11px;color:var(--text2)">${h.events.join(', ')}</td>
+        <td style="font-size:12px;color:var(--text2)">${h.last_triggered_at ? fmtDate(h.last_triggered_at) + (h.last_status==='ok'?' ✅':' ❌') : 'sin envíos aún'}</td>
+        <td><span class="bdg ${h.is_active?'bdg-completed':'bdg-draft'}">${h.is_active?'Activo':'Pausado'}</span></td>
+        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="deleteWebhook(${h.id})">🗑</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } catch(e) { console.error(e); }
+}
+
+async function deleteWebhook(id) {
+  if (!confirm('¿Eliminar este webhook?')) return;
+  try { await req('DELETE', `/integrations/webhooks/${id}`); loadWebhooks(); }
+  catch(e) { alert('Error: ' + e.message); }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -2191,12 +3747,10 @@ function fmtDate(iso){
 <script async defer src="https://connect.facebook.net/es_LA/sdk.js"></script>
 <script>
 window.fbAsyncInit = function() {
-  FB.init({
-    appId  : '1423948069499384',
-    cookie : true,
-    xfbml  : true,
-    version: 'v22.0'
-  });
+  fetch(API + '/config/public')
+    .then(r => r.json())
+    .then(cfg => FB.init({ appId: cfg.meta_app_id || '1423948069499384', cookie: true, xfbml: true, version: 'v22.0' }))
+    .catch(() => FB.init({ appId: '1423948069499384', cookie: true, xfbml: true, version: 'v22.0' }));
 };
 </script>
 </body>

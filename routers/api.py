@@ -1,22 +1,53 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, UploadFile, File
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, text
 from pydantic import BaseModel, EmailStr
-from typing import Optional
-from datetime import datetime
+from typing import Optional, List
+from datetime import datetime, timedelta
 import httpx
 import os
+import csv
+import io
+import json
+import uuid
+import secrets
+import export_service
 
 from models.database import (
     User, Campaign, Contact, Message, CampaignStatus,
-    Conversation, ConversationStatus, ChatMessage, Agent, AgentRole, get_db
+    Conversation, ConversationStatus, ChatMessage, Agent, AgentRole,
+    CampaignTemplate, CustomFieldDef, MetaTemplate, ContactTag,
+    ApiKey, WebhookSubscription, WEBHOOK_EVENTS, get_db
 )
-from auth import hash_password, verify_password, create_token, get_current_user
-from whatsapp_service import run_campaign, recalc_campaign_counters, send_whatsapp_text
+from auth import (
+    hash_password, verify_password, create_token, get_current_user,
+    has_permission, require_superadmin, require_owner_or_superadmin,
+    generate_api_key
+)
+from whatsapp_service import (
+    run_campaign, recalc_campaign_counters, send_whatsapp_text,
+    send_whatsapp_document, send_whatsapp_image, is_within_24h_window,
+    get_public_base_url
+)
+from webhooks_service import dispatch_webhook_event
 
 
 router = APIRouter()
+
+
+@router.get("/config/public")
+async def public_config():
+    """
+    Config sin autenticación que el frontend necesita antes de loguearse
+    (ej. el App ID de Meta para inicializar el SDK de Facebook Login).
+    Se lee de la variable de entorno META_APP_ID si existe; si no, cae
+    al valor que ya tenías funcionando, para no romper nada en quien no
+    configure la variable.
+    """
+    return {
+        "meta_app_id": os.getenv("META_APP_ID", "1423948069499384"),
+    }
 
 # ────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN META  (reemplaza con tus valores reales)
@@ -44,6 +75,54 @@ GRAPH_VERSION = "v21.0"
 GRAPH_BASE    = f"https://graph.facebook.com/{GRAPH_VERSION}"
 
 
+# ── Baja / opt-out & auto-respuesta de horario ────────────────────
+OPT_OUT_KEYWORDS = {"BAJA", "STOP", "CANCELAR", "UNSUBSCRIBE", "NO MOLESTAR"}
+AUTO_REPLY_COOLDOWN_HOURS = 12
+# Sin timezone por cliente todavía — se asume Centroamérica (UTC-6) como
+# valor razonable por defecto para el cálculo de horario de atención.
+DEFAULT_UTC_OFFSET_HOURS = -6
+DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+
+
+def is_within_business_hours(user: "User") -> Optional[bool]:
+    """
+    True/False si hay horario configurado; None si el cliente no
+    configuró horario de atención (en ese caso no se puede saber si
+    "está fuera de horario", así que no se bloquea el auto-reply).
+    """
+    if not user.business_hours:
+        return None
+    try:
+        hours = json.loads(user.business_hours)
+    except (ValueError, TypeError):
+        return None
+    local_now = datetime.utcnow() + timedelta(hours=DEFAULT_UTC_OFFSET_HOURS)
+    day_key = DAY_KEYS[local_now.weekday()]
+    ranges = hours.get(day_key)
+    if not ranges:
+        return False  # día sin horario definido = cerrado
+    try:
+        start_s, end_s = ranges
+        start_h, start_m = map(int, start_s.split(":"))
+        end_h, end_m = map(int, end_s.split(":"))
+        start = local_now.replace(hour=start_h, minute=start_m, second=0, microsecond=0)
+        end = local_now.replace(hour=end_h, minute=end_m, second=0, microsecond=0)
+        return start <= local_now <= end
+    except (ValueError, TypeError):
+        return None
+
+
+def should_send_auto_reply(user: "User", conv) -> bool:
+    if not user.auto_reply_enabled or not user.auto_reply_message:
+        return False
+    within_hours = is_within_business_hours(user)
+    if within_hours is True:
+        return False  # dentro de horario: asumimos que hay alguien atendiendo
+    if conv.last_auto_reply_at and (datetime.utcnow() - conv.last_auto_reply_at) < timedelta(hours=AUTO_REPLY_COOLDOWN_HOURS):
+        return False  # ya se mandó hace poco, no saturar la conversación
+    return True
+
+
 def provider_token(client_token: str) -> str:
     """
     Devuelve el mejor token disponible para operar sobre la WABA de un
@@ -68,15 +147,12 @@ class WhatsAppConfigIn(BaseModel):
     whatsapp_phone_id: str
     profile_name: Optional[str] = None
     waba_id: Optional[str] = None
-
-class ContactIn(BaseModel):
-    name: str
-    phone: str
-    tag: Optional[str] = None
+    client_id: Optional[int] = None   # superadmin: conectar la línea de ESTE cliente, no la propia
 
 class CampaignIn(BaseModel):
     name: str
-    message_template: str
+    message_template: Optional[str] = None
+    template_id: Optional[int] = None
     contact_tag: Optional[str] = None
 
 class ChatReplyIn(BaseModel):
@@ -97,8 +173,9 @@ async def register(data: RegisterIn, db: AsyncSession = Depends(get_db)):
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return {"token": create_token(user.id, user.email),
-            "user": {"id": user.id, "name": user.name, "email": user.email}}
+    return {"token": create_token(user.id, user.email, typ="owner"),
+            "user": {"id": user.id, "name": user.name, "email": user.email,
+                      "type": "owner", "is_superadmin": False}}
 
 
 @router.post("/auth/login")
@@ -109,13 +186,18 @@ async def login(data: LoginIn, db: AsyncSession = Depends(get_db)):
 
     if user and verify_password(data.password, user.hashed_password):
         return {
-            "token": create_token(user.id, user.email),
+            "token": create_token(user.id, user.email, typ="owner"),
             "user": {
                 "id": user.id,
                 "name": user.name,
                 "email": user.email,
                 "type": "owner",
-                "role": "admin"
+                "role": "admin",
+                "is_superadmin": bool(user.is_superadmin),
+                "company_name": user.name,
+                "industry": user.industry,
+                "has_whatsapp": bool(user.whatsapp_token),
+                "whatsapp_phone_id": user.whatsapp_phone_id,
             }
         }
 
@@ -127,15 +209,17 @@ async def login(data: LoginIn, db: AsyncSession = Depends(get_db)):
 
     if agent and verify_password(data.password, agent.hashed_password):
         return {
-            "token": create_token(agent.id, agent.email),
+            "token": create_token(agent.id, agent.email, typ="agent"),
             "user": {
                 "id": agent.id,
                 "name": agent.name,
                 "email": agent.email,
                 "type": "agent",
                 "role": agent.role.value,
+                "permissions": agent.get_permissions(),
                 "owner_id": agent.owner_id,
-                "whatsapp_phone_id": agent.whatsapp_phone_id
+                "whatsapp_phone_id": agent.whatsapp_phone_id,
+                "is_superadmin": False
             }
         }
 
@@ -144,8 +228,17 @@ async def login(data: LoginIn, db: AsyncSession = Depends(get_db)):
 
 @router.get("/auth/me")
 async def me(user: User = Depends(get_current_user)):
+    actor_type = getattr(user, "_actor_type", "owner")
+    agent = getattr(user, "_agent", None)
     return {
-        "id": user.id, "name": user.name, "email": user.email,
+        "id": agent.id if agent else user.id,
+        "name": agent.name if agent else user.name,
+        "email": agent.email if agent else user.email,
+        "type": actor_type,
+        "is_superadmin": getattr(user, "_is_superadmin", False),
+        "permissions": sorted(agent.get_permissions()) if agent else None,
+        "company_name": user.name,
+        "industry": user.industry,
         "has_whatsapp": bool(user.whatsapp_token),
         "whatsapp_phone_id": user.whatsapp_phone_id,
         "profile_name": user.profile_name,
@@ -156,9 +249,22 @@ async def me(user: User = Depends(get_current_user)):
 @router.post("/config/whatsapp")
 async def save_whatsapp_config(
     data: WhatsAppConfigIn,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_superadmin),
     db: AsyncSession = Depends(get_db)
 ):
+    # Las empresas/clientes ya NO pueden conectar su propia línea de
+    # WhatsApp — solo el superadmin (PRIME) puede. Si viene client_id,
+    # la conexión se guarda en ESE cliente (el caso normal: el admin
+    # está registrando/gestionando una empresa desde el Panel Admin);
+    # si no viene, se guarda en la propia cuenta del superadmin (uso
+    # para pruebas).
+    if data.client_id:
+        res_client = await db.execute(select(User).where(User.id == data.client_id, User.is_superadmin == False))
+        target = res_client.scalar_one_or_none()
+        if not target:
+            raise HTTPException(404, "Cliente no encontrado")
+        user = target
+
     token    = data.whatsapp_token or None
     phone_id = data.whatsapp_phone_id or None
     waba_id  = data.waba_id or None
@@ -168,8 +274,12 @@ async def save_whatsapp_config(
         reg_result = await register_phone_number(phone_id, op_token)
         if "error" in reg_result:
             print(f"[Register] Aviso (puede ya estar registrado): {reg_result['error']}")
+            user.last_whatsapp_error = str(reg_result["error"].get("message", reg_result["error"]))[:500]
+            user.last_whatsapp_error_at = datetime.utcnow()
         else:
             print(f"[Register] ✅ OK para phone_id={phone_id}")
+            user.last_whatsapp_error = None
+            user.last_whatsapp_error_at = None
         if waba_id:
             sub_result = await subscribe_app_to_waba(waba_id, op_token)
             if "error" in sub_result:
@@ -283,13 +393,17 @@ async def register_phone_number(phone_id: str, token: str, pin: str = "000000") 
     (no es crítico, significa que ya estaba listo).
     """
     async with httpx.AsyncClient(timeout=20) as client:
-        r = await client.post(
-            f"{GRAPH_BASE}/{phone_id}/register",
-            headers={"Authorization": f"Bearer {token}"},
-            json={"messaging_product": "whatsapp", "pin": pin},
-        )
-        data = r.json()
-        return data
+        try:
+            r = await client.post(
+                f"{GRAPH_BASE}/{phone_id}/register",
+                headers={"Authorization": f"Bearer {token}"},
+                json={"messaging_product": "whatsapp", "pin": pin},
+            )
+            return r.json()
+        except Exception as e:
+            # Red caída, token inválido, o Meta devolvió algo no-JSON.
+            # Nunca dejamos que esto tumbe la request del admin/cliente.
+            return {"error": {"message": f"No se pudo contactar la API de Meta: {e}"}}
 
 
 async def subscribe_app_to_waba(waba_id: str, token: str) -> dict:
@@ -299,11 +413,50 @@ async def subscribe_app_to_waba(waba_id: str, token: str) -> dict:
     ni mensajes entrantes de esa línea, aunque el envío en sí pueda funcionar.
     """
     async with httpx.AsyncClient(timeout=20) as client:
-        r = await client.post(
-            f"{GRAPH_BASE}/{waba_id}/subscribed_apps",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        return r.json()
+        try:
+            r = await client.post(
+                f"{GRAPH_BASE}/{waba_id}/subscribed_apps",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            return r.json()
+        except Exception as e:
+            return {"error": {"message": f"No se pudo contactar la API de Meta: {e}"}}
+
+
+async def fetch_meta_templates(waba_id: str, token: str) -> list:
+    """
+    Trae el catálogo de plantillas (HSM) aprobadas/pendientes/rechazadas
+    en Meta Business Manager para esta WABA. Necesarias para enviar
+    mensajes fuera de la ventana de 24h (WhatsApp no permite texto libre
+    ahí — solo plantillas pre-aprobadas).
+    """
+    async with httpx.AsyncClient(timeout=20) as client:
+        try:
+            r = await client.get(
+                f"{GRAPH_BASE}/{waba_id}/message_templates",
+                params={"fields": "name,language,category,status,components", "limit": 200},
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            data = r.json()
+            if "error" in data:
+                return []
+            out = []
+            for t in data.get("data", []):
+                body_comp = next((c for c in t.get("components", []) if c.get("type") == "BODY"), {})
+                body_text = body_comp.get("text", "")
+                var_count = body_text.count("{{")
+                out.append({
+                    "name": t.get("name"),
+                    "language": t.get("language", "es"),
+                    "category": t.get("category"),
+                    "status": t.get("status"),
+                    "body_text": body_text,
+                    "variable_count": var_count,
+                })
+            return out
+        except Exception as e:
+            print(f"[fetch_meta_templates] error: {e}")
+            return []
 
 
 # ── Meta Embedded Signup OAuth ────────────────────────────────────
@@ -407,7 +560,7 @@ def _popup_close_html(status: str, data: dict) -> str:
 @router.post("/auth/facebook/exchange")
 async def exchange_facebook_code(
     data: dict,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_superadmin),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -478,21 +631,35 @@ async def exchange_facebook_code(
 @router.post("/auth/facebook/save")
 async def save_facebook_connection(
     data: dict,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_superadmin),
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Guarda el token OAuth de Facebook + Phone ID seleccionado por el usuario,
-    y completa los dos pasos que Meta exige antes de poder enviar/recibir
-    mensajes por Cloud API: registrar el número y suscribir la app al WABA.
+    Guarda el token OAuth de Facebook + Phone ID obtenidos vía Embedded
+    Signup, y completa los dos pasos que Meta exige antes de poder
+    enviar/recibir mensajes por Cloud API: registrar el número y
+    suscribir la app al WABA.
+
+    Solo el superadmin puede llamar esto. Si se pasa "client_id", la
+    conexión se guarda en la empresa/cliente indicado (el superadmin
+    conectando la línea EN NOMBRE del cliente); si no, se guarda en la
+    propia cuenta del superadmin.
     """
     token    = data.get("token")
     phone_id = data.get("phone_id")
     profile  = data.get("profile_name")
     waba_id  = data.get("waba_id")
+    client_id = data.get("client_id")
 
     if not token or not phone_id:
         raise HTTPException(400, "Token y Phone ID son obligatorios")
+
+    if client_id:
+        res_client = await db.execute(select(User).where(User.id == client_id))
+        target = res_client.scalar_one_or_none()
+        if not target:
+            raise HTTPException(404, "Cliente no encontrado")
+        user = target
 
     # Usamos SYSTEM_USER_TOKEN (tuyo) cuando esté disponible: el token del
     # cliente recién emitido a veces todavía no tiene los permisos de
@@ -537,29 +704,71 @@ async def save_facebook_connection(
 
 # ── Contacts ──────────────────────────────────────────────────────
 
+class ContactIn(BaseModel):
+    name: str
+    phone: str
+    tag: Optional[str] = None
+    custom_fields: Optional[dict] = None
+
+
+def _contact_out(c: Contact) -> dict:
+    return {
+        "id": c.id, "name": c.name, "phone": c.phone, "tag": c.tag,
+        "opted_out": c.opted_out, "custom_fields": c.get_fields(),
+    }
+
+
 @router.post("/contacts")
 async def add_contact(data: ContactIn,
                       user: User = Depends(get_current_user),
                       db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar contactos")
     c = Contact(owner_id=user.id, name=data.name, phone=data.phone, tag=data.tag)
+    c.set_fields(data.custom_fields or {})
     db.add(c)
     await db.commit()
     await db.refresh(c)
-    return {"id": c.id, "name": c.name, "phone": c.phone, "tag": c.tag}
+    await dispatch_webhook_event(user.id, "contact.created", {
+        "id": c.id, "name": c.name, "phone": c.phone, "tag": c.tag,
+    })
+    return _contact_out(c)
 
 
 @router.get("/contacts")
 async def list_contacts(user: User = Depends(get_current_user),
                         db: AsyncSession = Depends(get_db)):
     res = await db.execute(select(Contact).where(Contact.owner_id == user.id))
-    return [{"id": c.id, "name": c.name, "phone": c.phone, "tag": c.tag}
-            for c in res.scalars().all()]
+    return [_contact_out(c) for c in res.scalars().all()]
+
+
+@router.patch("/contacts/{contact_id}")
+async def update_contact(contact_id: int,
+                         data: ContactIn,
+                         user: User = Depends(get_current_user),
+                         db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar contactos")
+    res = await db.execute(
+        select(Contact).where(Contact.id == contact_id, Contact.owner_id == user.id))
+    c = res.scalar_one_or_none()
+    if not c:
+        raise HTTPException(404, "Contacto no encontrado")
+    c.name = data.name
+    c.phone = data.phone
+    c.tag = data.tag
+    if data.custom_fields is not None:
+        c.set_fields(data.custom_fields)
+    await db.commit()
+    return _contact_out(c)
 
 
 @router.delete("/contacts/{contact_id}")
 async def delete_contact(contact_id: int,
                          user: User = Depends(get_current_user),
                          db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar contactos")
     res = await db.execute(
         select(Contact).where(Contact.id == contact_id, Contact.owner_id == user.id))
     c = res.scalar_one_or_none()
@@ -569,21 +778,185 @@ async def delete_contact(contact_id: int,
     await db.commit()
     return {"ok": True}
 
+
+@router.patch("/contacts/{contact_id}/opt-out")
+async def toggle_contact_opt_out(
+    contact_id: int,
+    data: dict,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Marca/desmarca manualmente a un contacto como dado de baja de
+    campañas (lo mismo que pasa automático si el contacto escribe
+    "BAJA"/"STOP" por WhatsApp). Sigue pudiendo usar el chat.
+    """
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar contactos")
+    res = await db.execute(
+        select(Contact).where(Contact.id == contact_id, Contact.owner_id == user.id))
+    c = res.scalar_one_or_none()
+    if not c:
+        raise HTTPException(404, "Contacto no encontrado")
+    c.opted_out = bool(data.get("opted_out", True))
+    await db.commit()
+    return {"ok": True, "opted_out": c.opted_out}
+
+
+@router.get("/contacts/export")
+async def export_contacts_xlsx(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if not (has_permission(user, "view_reports") or has_permission(user, "manage_contacts")):
+        raise HTTPException(403, "Tu cuenta de agente no puede exportar reportes")
+    res = await db.execute(select(Contact).where(Contact.owner_id == user.id))
+    contacts = res.scalars().all()
+    fields_res = await db.execute(select(CustomFieldDef).where(CustomFieldDef.client_id == user.id))
+    field_defs = fields_res.scalars().all()
+    buf = export_service.contacts_to_xlsx(contacts, field_defs)
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=contactos.xlsx"}
+    )
+
+
+@router.get("/contacts/fields")
+async def list_my_custom_fields(user: User = Depends(get_current_user),
+                                db: AsyncSession = Depends(get_db)):
+    """
+    Campos personalizados definidos para esta empresa (los define el
+    superadmin según el rubro — ver /admin/clients/{id}/fields). El
+    cliente solo los lee para saber qué mostrar/llenar por contacto.
+    """
+    res = await db.execute(select(CustomFieldDef).where(CustomFieldDef.client_id == user.id))
+    return [{"key": f.key, "label": f.label, "field_type": f.field_type}
+            for f in res.scalars().all()]
+
+
+@router.post("/contacts/import")
+async def import_contacts_csv(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Importación masiva desde CSV. Columnas esperadas: name, phone, tag
+    (opcional) — cualquier columna adicional que coincida con la `key`
+    de un campo personalizado de esta empresa se guarda en custom_fields.
+    Filas con teléfono ya existente se omiten (no duplica).
+    """
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar contactos")
+
+    raw = await file.read()
+    try:
+        text_content = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text_content = raw.decode("latin-1")
+
+    reader = csv.DictReader(io.StringIO(text_content))
+    if not reader.fieldnames or "name" not in [f.strip().lower() for f in reader.fieldnames]:
+        raise HTTPException(400, "El CSV debe tener al menos las columnas: name, phone")
+
+    field_defs_res = await db.execute(select(CustomFieldDef).where(CustomFieldDef.client_id == user.id))
+    field_keys = {f.key for f in field_defs_res.scalars().all()}
+
+    existing_res = await db.execute(select(Contact.phone).where(Contact.owner_id == user.id))
+    existing_phones = {p for (p,) in existing_res.all()}
+
+    created = skipped = 0
+    for row in reader:
+        row = {(k or "").strip().lower(): (v or "").strip() for k, v in row.items()}
+        name = row.get("name")
+        phone = row.get("phone")
+        if not name or not phone:
+            skipped += 1
+            continue
+        if phone in existing_phones:
+            skipped += 1
+            continue
+        c = Contact(owner_id=user.id, name=name, phone=phone, tag=row.get("tag") or None)
+        extra = {k: v for k, v in row.items() if k in field_keys and v}
+        c.set_fields(extra)
+        db.add(c)
+        existing_phones.add(phone)
+        created += 1
+
+    await db.commit()
+    return {"created": created, "skipped": skipped}
+
+# ── Plantillas asignadas (solo lectura para el cliente/agente) ────
+# El cliente NO puede crear ni editar plantillas — solo el superadmin
+# (ver routers/admin.py). Aquí solo se listan las que le asignaron.
+
+@router.get("/templates/mine")
+async def list_my_templates(user: User = Depends(get_current_user),
+                            db: AsyncSession = Depends(get_db)):
+    res = await db.execute(
+        select(CampaignTemplate).where(
+            CampaignTemplate.is_active == True,
+            (CampaignTemplate.client_id == user.id) | (CampaignTemplate.client_id.is_(None))
+        ).order_by(CampaignTemplate.created_at.desc())
+    )
+    return [{
+        "id": t.id, "name": t.name, "category": t.category,
+        "message_template": t.message_template,
+    } for t in res.scalars().all()]
+
 # ── Campaigns ─────────────────────────────────────────────────────
 
 @router.post("/campaigns")
 async def create_campaign(data: CampaignIn,
                           user: User = Depends(get_current_user),
                           db: AsyncSession = Depends(get_db)):
-    q = select(Contact).where(Contact.owner_id == user.id)
+    if not has_permission(user, "send_campaigns"):
+        raise HTTPException(403, "Tu cuenta de agente no puede enviar campañas")
+
+    # Las empresas/clientes no redactan el contenido del mensaje libremente:
+    # solo el superadmin puede crear texto de campaña desde cero. Un
+    # cliente (o su agente) debe elegir una plantilla ya asignada por el
+    # administrador — así se garantiza consistencia (ej. recordatorios
+    # de medicamentos con el texto correcto aprobado por el negocio).
+    message_template = data.message_template
+    meta_template_name = None
+    meta_template_language = "es"
+
+    if data.template_id:
+        res_t = await db.execute(select(CampaignTemplate).where(
+            CampaignTemplate.id == data.template_id,
+            CampaignTemplate.is_active == True,
+            (CampaignTemplate.client_id == user.id) | (CampaignTemplate.client_id.is_(None))
+        ))
+        template = res_t.scalar_one_or_none()
+        if not template:
+            raise HTTPException(404, "Plantilla no encontrada o no asignada a tu empresa")
+        message_template = template.message_template
+        meta_template_name = template.meta_template_name
+        meta_template_language = template.meta_template_language or "es"
+    elif not getattr(user, "_is_superadmin", False):
+        raise HTTPException(
+            400,
+            "Selecciona una plantilla de campaña asignada por el administrador."
+        )
+
+    if not message_template:
+        raise HTTPException(400, "Falta el mensaje de la campaña")
+
+    # Los contactos que se dieron de baja (BAJA/STOP) quedan fuera de
+    # campañas y recordatorios, aunque sigan pudiendo usar el chat.
+    q = select(Contact).where(Contact.owner_id == user.id, Contact.opted_out == False)
     if data.contact_tag:
         q = q.where(Contact.tag == data.contact_tag)
     contacts = (await db.execute(q)).scalars().all()
     if not contacts:
-        raise HTTPException(400, "No hay contactos. Agrega contactos primero.")
+        raise HTTPException(400, "No hay contactos activos con ese filtro. Agrega contactos o revisa las bajas.")
 
     camp = Campaign(owner_id=user.id, name=data.name,
-                    message_template=data.message_template,
+                    message_template=message_template,
+                    meta_template_name=meta_template_name,
+                    meta_template_language=meta_template_language,
                     total_contacts=len(contacts))
     db.add(camp)
     await db.flush()
@@ -602,8 +975,10 @@ async def send_campaign(campaign_id: int,
                         background_tasks: BackgroundTasks,
                         user: User = Depends(get_current_user),
                         db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "send_campaigns"):
+        raise HTTPException(403, "Tu cuenta de agente no puede enviar campañas")
     if not user.whatsapp_token or not user.whatsapp_phone_id:
-        raise HTTPException(400, "Configura tu WhatsApp API Token y Phone ID primero.")
+        raise HTTPException(400, "Tu línea de WhatsApp aún no está conectada. Contacta al administrador.")
     res = await db.execute(
         select(Campaign).where(Campaign.id == campaign_id, Campaign.owner_id == user.id))
     camp = res.scalar_one_or_none()
@@ -656,6 +1031,31 @@ async def campaign_stats(campaign_id: int,
                       "sent_at": m.sent_at.isoformat() if m.sent_at else None}
                      for m in msgs[:100]]
     }
+
+
+@router.get("/campaigns/{campaign_id}/export")
+async def export_campaign_report_xlsx(
+    campaign_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if not has_permission(user, "view_reports"):
+        raise HTTPException(403, "Tu cuenta de agente no puede exportar reportes")
+    res = await db.execute(
+        select(Campaign).where(Campaign.id == campaign_id, Campaign.owner_id == user.id))
+    campaign = res.scalar_one_or_none()
+    if not campaign:
+        raise HTTPException(404, "Campaña no encontrada")
+    msgs = (await db.execute(
+        select(Message).where(Message.campaign_id == campaign_id)
+    )).scalars().all()
+    buf = export_service.campaign_report_to_xlsx(campaign, msgs)
+    safe_name = "".join(ch for ch in campaign.name if ch.isalnum() or ch in " _-").strip() or "campana"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={safe_name}.xlsx"}
+    )
 
 # ── Meta Webhook ──────────────────────────────────────────────────
 
@@ -765,10 +1165,49 @@ async def webhook_receive(request: Request, db: AsyncSession = Depends(get_db)):
 
                     conv.last_msg    = body
                     conv.last_msg_at = datetime.utcnow()
+                    conv.last_inbound_at = datetime.utcnow()
                     conv.unread      = (conv.unread or 0) + 1
                     conv.status      = ConversationStatus.open
 
                     await db.commit()
+
+                    await dispatch_webhook_event(owner.id, "message.received", {
+                        "phone": from_phone, "contact_name": conv.contact_name,
+                        "body": body, "msg_type": msg_type, "conversation_id": conv.id,
+                    })
+
+                    # ── Baja / opt-out ──────────────────────────────
+                    if msg_type == "text" and body.strip().upper() in OPT_OUT_KEYWORDS:
+                        contact_res = await db.execute(select(Contact).where(
+                            Contact.owner_id == owner.id, Contact.phone == from_phone))
+                        contact = contact_res.scalar_one_or_none()
+                        if contact and not contact.opted_out:
+                            contact.opted_out = True
+                            await db.commit()
+                        if owner.whatsapp_token and owner.whatsapp_phone_id:
+                            try:
+                                confirm = "Listo, ya no recibirás más campañas de nuestra parte. Si necesitas algo, escríbenos por aquí."
+                                resp = await send_whatsapp_text(owner.whatsapp_phone_id, owner.whatsapp_token, from_phone, confirm)
+                                if "messages" in resp:
+                                    db.add(ChatMessage(conversation_id=conv.id, direction="out",
+                                                       body=confirm, msg_type="text", status="sent",
+                                                       wamid=resp["messages"][0]["id"]))
+                                    await db.commit()
+                            except Exception as e:
+                                print(f"[OptOut] error al confirmar baja: {e}")
+
+                    # ── Auto-respuesta (fuera de horario) ───────────
+                    elif owner.whatsapp_token and owner.whatsapp_phone_id and should_send_auto_reply(owner, conv):
+                        try:
+                            resp = await send_whatsapp_text(owner.whatsapp_phone_id, owner.whatsapp_token, from_phone, owner.auto_reply_message)
+                            if "messages" in resp:
+                                db.add(ChatMessage(conversation_id=conv.id, direction="out",
+                                                   body=owner.auto_reply_message, msg_type="text", status="sent",
+                                                   wamid=resp["messages"][0]["id"]))
+                                conv.last_auto_reply_at = datetime.utcnow()
+                                await db.commit()
+                        except Exception as e:
+                            print(f"[AutoReply] error: {e}")
 
     except Exception as e:
         print(f"[Webhook] Error: {e}")
@@ -833,8 +1272,10 @@ async def reply_to_conversation(conv_id: int,
                                 data: ChatReplyIn,
                                 user: User = Depends(get_current_user),
                                 db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "chat_support"):
+        raise HTTPException(403, "Tu cuenta de agente no puede responder el chat")
     if not user.whatsapp_token:
-        raise HTTPException(400, "Configura tu WhatsApp API antes de responder.")
+        raise HTTPException(400, "Tu línea de WhatsApp aún no está conectada. Contacta al administrador.")
 
     res = await db.execute(
         select(Conversation).where(Conversation.id == conv_id,
@@ -893,6 +1334,115 @@ async def update_conv_status(conv_id: int,
     return {"ok": True, "status": conv.status}
 
 
+@router.post("/chat/conversations/{conv_id}/send_document")
+async def send_chat_document(
+    conv_id: int,
+    file: UploadFile = File(...),
+    caption: Optional[str] = None,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Manda un documento puntual DENTRO de una conversación — el caso de
+    "el cliente pide por chat una copia de su factura/receta y se la
+    mando en el momento". Las campañas masivas ya NO llevan adjunto
+    (se movió aquí a propósito, ver /api/campaigns).
+    """
+    if not has_permission(user, "chat_support"):
+        raise HTTPException(403, "Tu cuenta de agente no puede responder el chat")
+    if not user.whatsapp_token or not user.whatsapp_phone_id:
+        raise HTTPException(400, "Tu línea de WhatsApp aún no está conectada. Contacta al administrador.")
+
+    res = await db.execute(
+        select(Conversation).where(Conversation.id == conv_id, Conversation.owner_id == user.id))
+    conv = res.scalar_one_or_none()
+    if not conv:
+        raise HTTPException(404, "Conversación no encontrada")
+
+    ext = (file.filename.rsplit(".", 1)[-1] if "." in file.filename else "pdf").lower()
+    if ext not in ("pdf", "jpg", "jpeg", "png"):
+        raise HTTPException(400, "Solo se pueden enviar PDF o imágenes (jpg/png) por chat")
+
+    chat_uploads_dir = "uploads/chat"
+    os.makedirs(chat_uploads_dir, exist_ok=True)
+    file_id = f"{uuid.uuid4()}.{ext}"
+    content = await file.read()
+    with open(f"{chat_uploads_dir}/{file_id}", "wb") as f:
+        f.write(content)
+
+    public_url = f"{get_public_base_url()}/uploads/chat/{file_id}"
+
+    if ext == "pdf":
+        resp = await send_whatsapp_document(
+            phone_id=user.whatsapp_phone_id, token=user.whatsapp_token,
+            to_phone=conv.contact_phone, document_url=public_url,
+            filename=file.filename, caption=caption or ""
+        )
+    else:
+        resp = await send_whatsapp_image(
+            phone_id=user.whatsapp_phone_id, token=user.whatsapp_token,
+            to_phone=conv.contact_phone, image_url=public_url, caption=caption or ""
+        )
+
+    wamid = None
+    status = "failed"
+    if "messages" in resp:
+        wamid = resp["messages"][0]["id"]
+        status = "sent"
+
+    display_body = f"[📎 {file.filename}]" + (f" — {caption}" if caption else "")
+    msg = ChatMessage(
+        conversation_id=conv.id, direction="out",
+        body=display_body, msg_type="document" if ext == "pdf" else "image",
+        wamid=wamid, status=status,
+    )
+    db.add(msg)
+    conv.last_msg    = display_body
+    conv.last_msg_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(msg)
+
+    if status == "failed":
+        raise HTTPException(400, f"WhatsApp no aceptó el envío: {resp.get('error', {}).get('message', 'error desconocido')}")
+
+    return {"id": msg.id, "status": msg.status, "url": public_url}
+
+
+class ChatSettingsIn(BaseModel):
+    auto_reply_enabled: Optional[bool] = None
+    auto_reply_message: Optional[str] = None
+    business_hours: Optional[dict] = None  # {"mon": ["08:00","17:00"], ...}
+
+
+@router.get("/chat/settings")
+async def get_chat_settings(user: User = Depends(get_current_user)):
+    try:
+        hours = json.loads(user.business_hours) if user.business_hours else {}
+    except (ValueError, TypeError):
+        hours = {}
+    return {
+        "auto_reply_enabled": bool(user.auto_reply_enabled),
+        "auto_reply_message": user.auto_reply_message or "",
+        "business_hours": hours,
+    }
+
+
+@router.patch("/chat/settings")
+async def update_chat_settings(
+    data: ChatSettingsIn,
+    user: User = Depends(require_owner_or_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    if data.auto_reply_enabled is not None:
+        user.auto_reply_enabled = data.auto_reply_enabled
+    if data.auto_reply_message is not None:
+        user.auto_reply_message = data.auto_reply_message
+    if data.business_hours is not None:
+        user.business_hours = json.dumps(data.business_hours)
+    await db.commit()
+    return {"ok": True}
+
+
 @router.get("/chat/unread_count")
 async def unread_count(user: User = Depends(get_current_user),
                        db: AsyncSession = Depends(get_db)):
@@ -901,3 +1451,179 @@ async def unread_count(user: User = Depends(get_current_user),
                                    Conversation.unread > 0))
     count = len(res.scalars().all())
     return {"unread_conversations": count}
+
+
+# ── Etiquetas gestionadas ────────────────────────────────────────
+# Reemplaza el texto libre de Contact.tag por un catálogo propio por
+# empresa (nombre + color + descripción), como en la mayoría de
+# plataformas de marketing por WhatsApp — evita duplicados como
+# "Vip" / "vip " / "VIP" y se ve mejor en la UI.
+
+class ContactTagIn(BaseModel):
+    name: str
+    color: str = "#22d3a0"
+    description: Optional[str] = None
+
+
+@router.get("/tags")
+async def list_tags(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(ContactTag).where(ContactTag.client_id == user.id))
+    return [{"id": t.id, "name": t.name, "color": t.color, "description": t.description}
+            for t in res.scalars().all()]
+
+
+@router.post("/tags")
+async def create_tag(data: ContactTagIn, user: User = Depends(get_current_user),
+                     db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar etiquetas")
+    dup = await db.execute(select(ContactTag).where(
+        ContactTag.client_id == user.id, ContactTag.name == data.name))
+    if dup.scalar_one_or_none():
+        raise HTTPException(400, f"Ya existe una etiqueta llamada '{data.name}'")
+    t = ContactTag(client_id=user.id, name=data.name, color=data.color, description=data.description)
+    db.add(t)
+    await db.commit()
+    await db.refresh(t)
+    return {"id": t.id, "name": t.name, "color": t.color, "description": t.description}
+
+
+@router.patch("/tags/{tag_id}")
+async def update_tag(tag_id: int, data: ContactTagIn, user: User = Depends(get_current_user),
+                     db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar etiquetas")
+    res = await db.execute(select(ContactTag).where(ContactTag.id == tag_id, ContactTag.client_id == user.id))
+    t = res.scalar_one_or_none()
+    if not t:
+        raise HTTPException(404, "Etiqueta no encontrada")
+    old_name = t.name
+    t.name, t.color, t.description = data.name, data.color, data.description
+    if old_name != data.name:
+        # Propagar el renombre a los contactos que ya la tenían.
+        contacts_res = await db.execute(select(Contact).where(Contact.owner_id == user.id, Contact.tag == old_name))
+        for c in contacts_res.scalars().all():
+            c.tag = data.name
+    await db.commit()
+    return {"ok": True}
+
+
+@router.delete("/tags/{tag_id}")
+async def delete_tag(tag_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if not has_permission(user, "manage_contacts"):
+        raise HTTPException(403, "Tu cuenta de agente no puede gestionar etiquetas")
+    res = await db.execute(select(ContactTag).where(ContactTag.id == tag_id, ContactTag.client_id == user.id))
+    t = res.scalar_one_or_none()
+    if not t:
+        raise HTTPException(404, "Etiqueta no encontrada")
+    await db.delete(t)
+    await db.commit()
+    return {"ok": True}
+
+
+# ── Integraciones: API Keys ──────────────────────────────────────
+# Para que la empresa conecte WaSapinf con SUS propios sistemas (su
+# sitio, su ERP, su hoja de planillas) sin depender de ti. Solo el
+# dueño de la empresa las administra (no los agentes), igual que
+# conectar WhatsApp.
+
+class ApiKeyIn(BaseModel):
+    name: str
+
+
+@router.get("/integrations/api-keys")
+async def list_api_keys(user: User = Depends(require_owner_or_superadmin), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(ApiKey).where(ApiKey.client_id == user.id).order_by(ApiKey.created_at.desc()))
+    return [{
+        "id": k.id, "name": k.name, "key_prefix": k.key_prefix, "is_active": k.is_active,
+        "last_used_at": k.last_used_at.isoformat() if k.last_used_at else None,
+        "created_at": k.created_at.isoformat() if k.created_at else None,
+    } for k in res.scalars().all()]
+
+
+@router.post("/integrations/api-keys")
+async def create_api_key(data: ApiKeyIn, user: User = Depends(require_owner_or_superadmin), db: AsyncSession = Depends(get_db)):
+    raw, prefix, key_hash = generate_api_key()
+    k = ApiKey(client_id=user.id, name=data.name, key_prefix=prefix, key_hash=key_hash)
+    db.add(k)
+    await db.commit()
+    await db.refresh(k)
+    return {
+        "id": k.id, "name": k.name, "key_prefix": k.key_prefix,
+        # SOLO aquí, en la respuesta de creación, va la key completa —
+        # no se vuelve a poder ver después (ni nosotros la guardamos en claro).
+        "api_key": raw,
+    }
+
+
+@router.delete("/integrations/api-keys/{key_id}")
+async def revoke_api_key(key_id: int, user: User = Depends(require_owner_or_superadmin), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(ApiKey).where(ApiKey.id == key_id, ApiKey.client_id == user.id))
+    k = res.scalar_one_or_none()
+    if not k:
+        raise HTTPException(404, "API key no encontrada")
+    await db.delete(k)
+    await db.commit()
+    return {"ok": True}
+
+
+# ── Integraciones: Webhooks ──────────────────────────────────────
+
+class WebhookIn(BaseModel):
+    url: str
+    events: List[str]
+    is_active: bool = True
+
+
+@router.get("/integrations/webhook-events")
+async def list_webhook_events(user: User = Depends(get_current_user)):
+    return [{"key": k, "label": v} for k, v in WEBHOOK_EVENTS.items()]
+
+
+@router.get("/integrations/webhooks")
+async def list_webhooks(user: User = Depends(require_owner_or_superadmin), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(WebhookSubscription).where(WebhookSubscription.client_id == user.id))
+    return [{
+        "id": w.id, "url": w.url, "events": w.get_events(), "is_active": w.is_active,
+        "last_triggered_at": w.last_triggered_at.isoformat() if w.last_triggered_at else None,
+        "last_status": w.last_status,
+    } for w in res.scalars().all()]
+
+
+@router.post("/integrations/webhooks")
+async def create_webhook(data: WebhookIn, user: User = Depends(require_owner_or_superadmin), db: AsyncSession = Depends(get_db)):
+    if not data.url.startswith("https://") and not data.url.startswith("http://"):
+        raise HTTPException(400, "La URL debe empezar con http:// o https://")
+    w = WebhookSubscription(client_id=user.id, url=data.url, is_active=data.is_active,
+                            secret=secrets.token_hex(24))
+    w.set_events(data.events)
+    db.add(w)
+    await db.commit()
+    await db.refresh(w)
+    return {"id": w.id, "url": w.url, "events": w.get_events(), "secret": w.secret}
+
+
+@router.patch("/integrations/webhooks/{webhook_id}")
+async def update_webhook(webhook_id: int, data: WebhookIn, user: User = Depends(require_owner_or_superadmin), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(WebhookSubscription).where(
+        WebhookSubscription.id == webhook_id, WebhookSubscription.client_id == user.id))
+    w = res.scalar_one_or_none()
+    if not w:
+        raise HTTPException(404, "Webhook no encontrado")
+    w.url = data.url
+    w.is_active = data.is_active
+    w.set_events(data.events)
+    await db.commit()
+    return {"ok": True}
+
+
+@router.delete("/integrations/webhooks/{webhook_id}")
+async def delete_webhook(webhook_id: int, user: User = Depends(require_owner_or_superadmin), db: AsyncSession = Depends(get_db)):
+    res = await db.execute(select(WebhookSubscription).where(
+        WebhookSubscription.id == webhook_id, WebhookSubscription.client_id == user.id))
+    w = res.scalar_one_or_none()
+    if not w:
+        raise HTTPException(404, "Webhook no encontrado")
+    await db.delete(w)
+    await db.commit()
+    return {"ok": True}

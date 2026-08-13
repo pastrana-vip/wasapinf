@@ -9,7 +9,7 @@ __pycache__/
 
 .env
 
-*.db
+# Bases de datos
 *.sqlite3
 
 uploads/

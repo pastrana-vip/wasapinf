@@ -22,7 +22,7 @@ def _normalize_database_url(url: str) -> str:
     return url
 
 
-DATABASE_URL = _normalize_database_url(os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./wasapi.db"))
+DATABASE_URL = _normalize_database_url(os.getenv("DATABASE_URL"))
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

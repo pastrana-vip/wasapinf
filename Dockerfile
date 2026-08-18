@@ -3,25 +3,23 @@ FROM python:3.11-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Dependencias del sistema
+# Dependencias necesarias para ODBC
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
-        gnupg \
         ca-certificates \
+        gnupg \
         unixodbc \
         unixodbc-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Repositorio oficial de Microsoft
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
-    | gpg --dearmor \
-    -o /usr/share/keyrings/microsoft-prod.gpg
+# Instalar repositorio de Microsoft
+RUN curl -fSL https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb \
+    -o /tmp/packages-microsoft-prod.deb \
+    && dpkg -i /tmp/packages-microsoft-prod.deb \
+    && rm /tmp/packages-microsoft-prod.deb
 
-RUN curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list \
-    -o /etc/apt/sources.list.d/mssql-release.list
-
-# ODBC Driver 18
+# Instalar Microsoft ODBC Driver 18
 RUN apt-get update \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
     && rm -rf /var/lib/apt/lists/*

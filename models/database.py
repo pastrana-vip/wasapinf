@@ -22,10 +22,29 @@ def _normalize_database_url(url: str) -> str:
     return url
 
 
-DATABASE_URL = _normalize_database_url(os.getenv("DATABASE_URL"))
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_async_engine(DATABASE_URL, echo=False)
-AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL no está configurada")
+
+print(f"[DB] Usando DATABASE_URL: {DATABASE_URL}")
+
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    pool_pre_ping=True,
+    pool_recycle=1800,
+    connect_args={
+        "timeout": 30,
+    },
+)
+
+AsyncSessionLocal = sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
 Base = declarative_base()
 
 

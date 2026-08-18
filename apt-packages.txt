@@ -1,5 +1,0 @@
-msodbcsql18
-curl
-gnupg
-unixodbc
-unixodbc-dev

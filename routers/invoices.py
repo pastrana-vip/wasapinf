@@ -25,7 +25,10 @@ import re
 import json
 from typing import Optional, List
 
-from models.database import InvoiceBatch, InvoiceItem, Contact, CustomFieldDef, DOCUMENT_TYPE_SUGGESTIONS, get_db
+from models.database import (
+    InvoiceBatch, InvoiceItem, Contact, CustomFieldDef, DOCUMENT_TYPE_SUGGESTIONS,
+    get_db, normalize_phone,
+)
 from auth import get_current_user, has_permission
 from models.database import User
 from whatsapp_service import run_invoice_batch
@@ -42,37 +45,39 @@ PHONE_RE = re.compile(r"^\d{8,15}$")
 ALLOWED_EXTENSIONS = {"pdf", "xlsx", "xls", "csv", "doc", "docx"}
 
 
-def normalize_phone(raw: str) -> Optional[str]:
-    """
-    Normaliza un número de teléfono a formato E.164 sin '+'.
-    Devuelve None si no es un número válido (en vez de guardar un
-    placeholder como 'pendiente_validar', que rompía el envío silenciosamente).
-    """
-    if not raw:
-        return None
-    digits = re.sub(r"\D", "", raw)
-    if not PHONE_RE.match(digits):
-        return None
-    # Si viene con 8 dígitos, asumimos código de país Honduras (504) por defecto.
-    if len(digits) == 8:
-        digits = "504" + digits
-    return digits
 
 
-def extract_phone_from_filename(filename: str) -> Optional[str]:
+
+
+def extract_value_from_filename(filename: str) -> Optional[str]:
     """
-    Fallback: intenta extraer el teléfono del nombre del archivo,
-    ej. factura_50499112233.pdf. Si no se puede, devuelve None
-    (el llamador debe exigir el teléfono explícito en ese caso).
+    Extrae el valor de emparejamiento del nombre del archivo — funciona
+    para CUALQUIER campo (teléfono, RTN, identidad, código de empleado...),
+    no solo teléfono. La regla es simple y siempre igual: se toma lo que
+    viene después del ÚLTIMO guion bajo, sin importar la palabra que va
+    antes (esa primera parte — "factura", "recibo", "receta"... — es
+    solo para que TÚ identifiques el archivo; el sistema nunca la lee).
+
+    Ejemplos:
+      factura_9585-5720.pdf        → "9585-5720"
+      recibo_RTN-08011990012345.pdf → "RTN-08011990012345"
+      planilla_EMP-0042.xlsx        → "EMP-0042"
+
+    Si el nombre no tiene guion bajo, no hay nada que extraer.
     """
     try:
         name_part = filename.rsplit(".", 1)[0]
         if "_" in name_part:
-            possible_phone = name_part.split("_")[-1]
-            return normalize_phone(possible_phone)
+            return name_part.split("_")[-1].strip() or None
     except Exception:
         pass
     return None
+
+
+def extract_phone_from_filename(filename: str) -> Optional[str]:
+    """Caso particular de extract_value_from_filename para teléfono (normaliza a E.164)."""
+    raw = extract_value_from_filename(filename)
+    return normalize_phone(raw) if raw else None
 
 
 @router.get("/types")
@@ -166,10 +171,16 @@ async def create_document_batch(
             if not phone:
                 items_pending_resolution.append(file.filename)
         else:
-            # Emparejamiento por campo personalizado: se resuelve el
-            # teléfono real contra Contact.custom_fields al momento de
+            # Emparejamiento por campo personalizado: si no vino un
+            # match_value explícito (via phones_map), se intenta sacar
+            # del nombre del archivo igual que con teléfono — lo que
+            # va después del último guion bajo (ej. recibo_08011990012345
+            # → "08011990012345"). El teléfono real de contacto se
+            # resuelve contra Contact.custom_fields al momento de
             # enviar (así se puede corregir el contacto entre subir el
             # lote y enviarlo, sin tener que re-subir nada).
+            if not match_value:
+                match_value = extract_value_from_filename(file.filename)
             if not match_value:
                 items_pending_resolution.append(file.filename)
 

@@ -9,10 +9,11 @@ Fix aplicado:
 - Se añade ruta de inicio rápido /setup que muestra cómo configurar la URL.
 """
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Response, HTMLResponse
+from fastapi.responses import FileResponse, Response, HTMLResponse, JSONResponse
+from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi import Query, HTTPException
 import uvicorn
 import os
@@ -33,6 +34,7 @@ from routers.agents import router as agents_router
 from routers.roles import router as roles_router
 from routers.admin import router as admin_router
 from routers.external_api import router as external_api_router
+from auth import get_current_user, has_permission, create_docs_token, verify_docs_token
 import asyncio
 from whatsapp_service import run_recurring_campaigns
 from models.database import AsyncSessionLocal
@@ -114,6 +116,15 @@ app = FastAPI(
         "web y requieren sesión de usuario."
     ),
     version="1.0.0",
+    # /docs, /redoc y /openapi.json quedan DESACTIVADOS por defecto: antes
+    # cualquiera en internet podía abrir el Swagger completo de la API sin
+    # loguearse. Ahora se sirven a mano más abajo, protegidos por un token
+    # de corta duración que solo se entrega a quien tiene permiso
+    # "view_api_docs" (dueño de empresa/superadmin siempre; agente solo si
+    # se le otorgó explícitamente). Ver /api/integrations/docs-token.
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
 app.include_router(agents_router, prefix="/api")
 app.include_router(roles_router, prefix="/api")
@@ -174,6 +185,56 @@ async def serve_upload(subpath: str, request: Request):
             "X-Content-Type-Options": "nosniff",
         }
     )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# DOCUMENTACIÓN DE LA API — protegida (ver comentario en app = FastAPI(...))
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/integrations/docs-token")
+async def get_docs_token(user = Depends(get_current_user)):
+    """
+    Entrega un token de un solo uso (10 min) para abrir /docs.
+
+    Reglas:
+    - Superadmin: siempre.
+    - Dueño de empresa: solo si users.api_docs_allowed = True
+      (lo activa el superadmin desde Panel Admin → Editar empresa).
+    - Agente: necesita view_api_docs en sus permisos Y que la empresa
+      tenga api_docs_allowed = True.
+    """
+    is_super = bool(getattr(user, "_is_superadmin", False) or getattr(user, "is_superadmin", False))
+    if not is_super:
+        # get_current_user siempre devuelve el User de la empresa
+        # (si es agente, adjunta _actor_type="agent" y _permissions).
+        if not bool(getattr(user, "api_docs_allowed", False)):
+            raise HTTPException(
+                403,
+                "La documentación de la API no está autorizada para esta empresa. "
+                "Contacta al administrador de la plataforma."
+            )
+        if not has_permission(user, "view_api_docs"):
+            raise HTTPException(
+                403,
+                "No tienes permiso para ver la documentación de la API. "
+                "Pide al administrador de tu empresa que te otorgue 'view_api_docs'."
+            )
+    token = create_docs_token(user.id)
+    return {"url": f"/docs?t={token}"}
+
+
+@app.get("/docs", response_class=HTMLResponse, include_in_schema=False)
+async def protected_swagger_ui(t: str = ""):
+    if not verify_docs_token(t):
+        raise HTTPException(401, "Enlace inválido o expirado. Ábrelo desde Integraciones → API REST → Ver documentación.")
+    return get_swagger_ui_html(openapi_url=f"/openapi.json?t={t}", title="WaSapinf API — Documentación")
+
+
+@app.get("/openapi.json", include_in_schema=False)
+async def protected_openapi(t: str = ""):
+    if not verify_docs_token(t):
+        raise HTTPException(401, "Enlace inválido o expirado.")
+    return JSONResponse(app.openapi())
 
 
 # ══════════════════════════════════════════════════════════════════════════════

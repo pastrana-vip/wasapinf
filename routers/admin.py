@@ -17,7 +17,8 @@ from datetime import datetime, timedelta
 from models.database import (
     User, Agent, Campaign, Contact, Message, Conversation, ChatMessage,
     CampaignTemplate, InvoiceBatch, InvoiceItem, CustomFieldDef, MetaTemplate,
-    RecurringCampaign, AGENT_PERMISSIONS, INDUSTRY_FIELD_SUGGESTIONS, get_db
+    RecurringCampaign, ContactTag, ApiKey, WebhookSubscription,
+    AGENT_PERMISSIONS, INDUSTRY_FIELD_SUGGESTIONS, get_db
 )
 from auth import require_superadmin, hash_password
 from routers.api import (
@@ -154,6 +155,7 @@ async def list_clients(
             "whatsapp_connected": bool(c.whatsapp_phone_id),
             "whatsapp_phone_id": c.whatsapp_phone_id,
             "profile_name": c.profile_name,
+            "api_docs_allowed": bool(c.api_docs_allowed),
             "contacts": n_contacts, "campaigns": n_campaigns, "agents": n_agents,
             "last_whatsapp_error": c.last_whatsapp_error,
             "created_at": c.created_at.isoformat() if c.created_at else None,
@@ -228,6 +230,7 @@ async def get_client(
         "id": c.id, "name": c.name, "email": c.email, "industry": c.industry,
         "whatsapp_connected": bool(c.whatsapp_phone_id), "whatsapp_phone_id": c.whatsapp_phone_id,
         "waba_id": c.waba_id, "profile_name": c.profile_name,
+        "api_docs_allowed": bool(c.api_docs_allowed),
     }
 
 
@@ -236,6 +239,7 @@ class ClientUpdateIn(BaseModel):
     email: Optional[str] = None
     industry: Optional[str] = None
     new_password: Optional[str] = None   # para restablecer contraseña del cliente
+    api_docs_allowed: Optional[bool] = None  # autorizar acceso a /docs por empresa
 
 
 @router.patch("/clients/{client_id}")
@@ -263,9 +267,11 @@ async def update_client(
         if len(data.new_password) < 6:
             raise HTTPException(400, "La contraseña debe tener al menos 6 caracteres")
         client.hashed_password = hash_password(data.new_password)
+    if data.api_docs_allowed is not None:
+        client.api_docs_allowed = bool(data.api_docs_allowed)
 
     await db.commit()
-    return {"ok": True}
+    return {"ok": True, "api_docs_allowed": client.api_docs_allowed}
 
 
 @router.delete("/clients/{client_id}")
@@ -277,62 +283,74 @@ async def delete_client(
     """
     Elimina una empresa y TODO lo que le pertenece (contactos, campañas,
     mensajes, agentes, documentos, conversaciones, campos personalizados,
-    plantillas asignadas, recordatorios). Es irreversible — se usa solo
-    cuando de verdad quieres borrar al cliente, no para desactivarlo
-    temporalmente (para eso, simplemente desconecta su WhatsApp).
+    plantillas asignadas, recordatorios, etiquetas, API keys, webhooks).
+    Es irreversible — se usa solo cuando de verdad quieres borrar al
+    cliente, no para desactivarlo temporalmente (para eso, simplemente
+    desconecta su WhatsApp).
     """
     res = await db.execute(select(User).where(User.id == client_id, User.is_superadmin == False))
     client = res.scalar_one_or_none()
     if not client:
         raise HTTPException(404, "Cliente no encontrado")
 
-    # Mensajes de sus campañas
-    camp_ids_res = await db.execute(select(Campaign.id).where(Campaign.owner_id == client_id))
-    camp_ids = [c for (c,) in camp_ids_res.all()]
-    if camp_ids:
-        msgs = await db.execute(select(Message).where(Message.campaign_id.in_(camp_ids)))
-        for m in msgs.scalars().all():
-            await db.delete(m)
-    campaigns = await db.execute(select(Campaign).where(Campaign.owner_id == client_id))
-    for c in campaigns.scalars().all():
-        await db.delete(c)
+    try:
+        # 1) Mensajes de campañas (dependen de campaigns)
+        camp_ids_res = await db.execute(select(Campaign.id).where(Campaign.owner_id == client_id))
+        camp_ids = [c for (c,) in camp_ids_res.all()]
+        if camp_ids:
+            msgs = await db.execute(select(Message).where(Message.campaign_id.in_(camp_ids)))
+            for m in msgs.scalars().all():
+                await db.delete(m)
+        campaigns = await db.execute(select(Campaign).where(Campaign.owner_id == client_id))
+        for c in campaigns.scalars().all():
+            await db.delete(c)
 
-    # Documentos
-    batch_ids_res = await db.execute(select(InvoiceBatch.id).where(InvoiceBatch.owner_id == client_id))
-    batch_ids = [b for (b,) in batch_ids_res.all()]
-    if batch_ids:
-        items = await db.execute(select(InvoiceItem).where(InvoiceItem.batch_id.in_(batch_ids)))
-        for i in items.scalars().all():
-            await db.delete(i)
-    batches = await db.execute(select(InvoiceBatch).where(InvoiceBatch.owner_id == client_id))
-    for b in batches.scalars().all():
-        await db.delete(b)
+        # 2) Documentos (invoice_items → invoice_batches)
+        batch_ids_res = await db.execute(select(InvoiceBatch.id).where(InvoiceBatch.owner_id == client_id))
+        batch_ids = [b for (b,) in batch_ids_res.all()]
+        if batch_ids:
+            items = await db.execute(select(InvoiceItem).where(InvoiceItem.batch_id.in_(batch_ids)))
+            for i in items.scalars().all():
+                await db.delete(i)
+        batches = await db.execute(select(InvoiceBatch).where(InvoiceBatch.owner_id == client_id))
+        for b in batches.scalars().all():
+            await db.delete(b)
 
-    # Chat
-    conv_ids_res = await db.execute(select(Conversation.id).where(Conversation.owner_id == client_id))
-    conv_ids = [cv for (cv,) in conv_ids_res.all()]
-    if conv_ids:
-        chatmsgs = await db.execute(select(ChatMessage).where(ChatMessage.conversation_id.in_(conv_ids)))
-        for cm in chatmsgs.scalars().all():
-            await db.delete(cm)
-    convs = await db.execute(select(Conversation).where(Conversation.owner_id == client_id))
-    for cv in convs.scalars().all():
-        await db.delete(cv)
+        # 3) Chat (chat_messages → conversations)
+        conv_ids_res = await db.execute(select(Conversation.id).where(Conversation.owner_id == client_id))
+        conv_ids = [cv for (cv,) in conv_ids_res.all()]
+        if conv_ids:
+            chatmsgs = await db.execute(select(ChatMessage).where(ChatMessage.conversation_id.in_(conv_ids)))
+            for cm in chatmsgs.scalars().all():
+                await db.delete(cm)
+        convs = await db.execute(select(Conversation).where(Conversation.owner_id == client_id))
+        for cv in convs.scalars().all():
+            await db.delete(cv)
 
-    # Resto de datos propios
-    for model, col in [
-        (Contact, Contact.owner_id), (Agent, Agent.owner_id),
-        (CustomFieldDef, CustomFieldDef.client_id),
-        (CampaignTemplate, CampaignTemplate.client_id),
-        (MetaTemplate, MetaTemplate.client_id),
-        (RecurringCampaign, RecurringCampaign.client_id),
-    ]:
-        rows = await db.execute(select(model).where(col == client_id))
-        for row in rows.scalars().all():
-            await db.delete(row)
+        # 4) Recordatorios recurrentes ANTES de campaign_templates
+        #    (recurring_campaigns.template_id → campaign_templates.id)
+        for model, col in [
+            (RecurringCampaign, RecurringCampaign.client_id),
+            (CampaignTemplate, CampaignTemplate.client_id),
+            (MetaTemplate, MetaTemplate.client_id),
+            (CustomFieldDef, CustomFieldDef.client_id),
+            (ContactTag, ContactTag.client_id),
+            (ApiKey, ApiKey.client_id),
+            (WebhookSubscription, WebhookSubscription.client_id),
+            (Contact, Contact.owner_id),
+            (Agent, Agent.owner_id),
+        ]:
+            rows = await db.execute(select(model).where(col == client_id))
+            for row in rows.scalars().all():
+                await db.delete(row)
 
-    await db.delete(client)
-    await db.commit()
+        # 5) Finalmente el usuario/empresa
+        await db.delete(client)
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(500, f"Error al eliminar cliente: {str(e)}")
+
     return {"ok": True, "deleted_client_id": client_id}
 
 
@@ -585,7 +603,32 @@ async def admin_delete_agent(
 class CustomFieldIn(BaseModel):
     key: str
     label: str
-    field_type: str = "text"   # text | date | number
+    field_type: str = "text"   # text | date | number | phone
+
+CUSTOM_FIELD_TYPES = {"text", "date", "number", "phone"}
+
+
+@router.get("/fields")
+async def list_all_fields(
+    admin: User = Depends(require_superadmin),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Todos los campos personalizados de TODAS las empresas, de un
+    vistazo — para no depender de elegir una empresa primero para ver
+    que sí existen.
+    """
+    res = await db.execute(select(CustomFieldDef))
+    fields = res.scalars().all()
+    out = []
+    for f in fields:
+        owner_res = await db.execute(select(User).where(User.id == f.client_id))
+        owner = owner_res.scalar_one_or_none()
+        out.append({
+            "id": f.id, "key": f.key, "label": f.label, "field_type": f.field_type,
+            "client_id": f.client_id, "client_name": owner.name if owner else "—",
+        })
+    return out
 
 
 @router.get("/clients/{client_id}/fields")
@@ -615,8 +658,8 @@ async def create_client_field(
     if dup.scalar_one_or_none():
         raise HTTPException(400, f"Ya existe un campo con la clave '{data.key}' para este cliente")
 
-    if data.field_type not in ("text", "date", "number"):
-        raise HTTPException(400, "field_type debe ser text, date o number")
+    if data.field_type not in CUSTOM_FIELD_TYPES:
+        raise HTTPException(400, f"field_type debe ser uno de: {', '.join(sorted(CUSTOM_FIELD_TYPES))}")
 
     f = CustomFieldDef(client_id=client_id, key=data.key, label=data.label, field_type=data.field_type)
     db.add(f)
@@ -662,8 +705,8 @@ async def update_client_field(
     f = res.scalar_one_or_none()
     if not f:
         raise HTTPException(404, "Campo no encontrado")
-    if data.field_type not in ("text", "date", "number"):
-        raise HTTPException(400, "field_type debe ser text, date o number")
+    if data.field_type not in CUSTOM_FIELD_TYPES:
+        raise HTTPException(400, f"field_type debe ser uno de: {', '.join(sorted(CUSTOM_FIELD_TYPES))}")
     f.label = data.label
     f.field_type = data.field_type
     await db.commit()

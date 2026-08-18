@@ -22,7 +22,7 @@ from typing import Optional, List
 from datetime import datetime
 
 from models.database import (
-    User, Contact, ContactTag, Campaign, CampaignTemplate, get_db
+    User, Contact, ContactTag, Campaign, CampaignTemplate, get_db, normalize_phone
 )
 from auth import get_client_from_api_key
 from whatsapp_service import send_whatsapp_text, is_within_24h_window, send_whatsapp_template
@@ -81,11 +81,17 @@ async def ext_create_contact(
 ):
     """Crea un contacto, o actualiza uno existente si el teléfono ya está registrado (upsert)."""
     from webhooks_service import dispatch_webhook_event
-    existing = await db.execute(select(Contact).where(Contact.owner_id == user.id, Contact.phone == data.phone))
+    # Formato estándar único en toda la plataforma: solo dígitos, con
+    # código de país, sin '+' — así el upsert por teléfono funciona
+    # aunque el sistema externo mande el número con espacios, guiones o '+'.
+    phone = normalize_phone(data.phone)
+    if not phone:
+        raise HTTPException(400, "phone inválido. Usa solo dígitos con código de país. Ej: 50490908080")
+    existing = await db.execute(select(Contact).where(Contact.owner_id == user.id, Contact.phone == phone))
     c = existing.scalar_one_or_none()
     is_new = c is None
     if not c:
-        c = Contact(owner_id=user.id, name=data.name, phone=data.phone, tag=data.tag)
+        c = Contact(owner_id=user.id, name=data.name, phone=phone, tag=data.tag)
     else:
         c.name = data.name
         if data.tag is not None:
@@ -117,7 +123,10 @@ async def ext_update_contact(contact_id: int, data: ExtContactIn, user: User = D
     c = res.scalar_one_or_none()
     if not c:
         raise HTTPException(404, "Contacto no encontrado")
-    c.name, c.phone, c.tag = data.name, data.phone, data.tag
+    phone = normalize_phone(data.phone)
+    if not phone:
+        raise HTTPException(400, "phone inválido. Usa solo dígitos con código de país. Ej: 50490908080")
+    c.name, c.phone, c.tag = data.name, phone, data.tag
     if data.custom_fields is not None:
         c.set_fields(data.custom_fields)
     await db.commit()
@@ -191,7 +200,11 @@ async def ext_send_message(
     if not user.whatsapp_token or not user.whatsapp_phone_id:
         raise HTTPException(400, "Tu línea de WhatsApp aún no está conectada")
 
-    within_window = await is_within_24h_window(user.id, data.phone, db)
+    phone = normalize_phone(data.phone)
+    if not phone:
+        raise HTTPException(400, "phone inválido. Usa solo dígitos con código de país. Ej: 50490908080")
+
+    within_window = await is_within_24h_window(user.id, phone, db)
 
     if data.template_id:
         res_t = await db.execute(select(CampaignTemplate).where(
@@ -202,16 +215,16 @@ async def ext_send_message(
         if not template:
             raise HTTPException(404, "Plantilla no encontrada o no asignada a tu empresa")
         if within_window:
-            resp = await send_whatsapp_text(user.whatsapp_phone_id, user.whatsapp_token, data.phone, template.message_template)
+            resp = await send_whatsapp_text(user.whatsapp_phone_id, user.whatsapp_token, phone, template.message_template)
         elif template.meta_template_name:
-            resp = await send_whatsapp_template(user.whatsapp_phone_id, user.whatsapp_token, data.phone,
-                                                 template.meta_template_name, template.meta_template_language, [data.phone])
+            resp = await send_whatsapp_template(user.whatsapp_phone_id, user.whatsapp_token, phone,
+                                                 template.meta_template_name, template.meta_template_language, [phone])
         else:
             raise HTTPException(400, "Este contacto está fuera de la ventana de 24h y la plantilla no tiene una plantilla Meta enlazada")
     elif data.message:
         if not within_window:
             raise HTTPException(400, "Este contacto está fuera de la ventana de 24h — usa template_id en vez de message")
-        resp = await send_whatsapp_text(user.whatsapp_phone_id, user.whatsapp_token, data.phone, data.message)
+        resp = await send_whatsapp_text(user.whatsapp_phone_id, user.whatsapp_token, phone, data.message)
     else:
         raise HTTPException(400, "Manda 'message' (dentro de 24h) o 'template_id' (fuera de 24h)")
 

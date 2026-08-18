@@ -65,6 +65,11 @@ class User(Base):
     # por cliente.
     last_whatsapp_error    = Column(Text, nullable=True)
     last_whatsapp_error_at = Column(DateTime, nullable=True)
+    # Acceso a /docs (Swagger). Por defecto False: ni el dueño de la
+    # empresa ve la documentación hasta que el superadmin lo autorice
+    # desde el Panel Admin. Los agentes además necesitan el permiso
+    # view_api_docs en su cuenta.
+    api_docs_allowed  = Column(Boolean, default=False)
     created_at        = Column(DateTime, default=datetime.utcnow)
     campaigns         = relationship("Campaign",     back_populates="owner")
     contacts          = relationship("Contact",      back_populates="owner")
@@ -98,6 +103,50 @@ class Contact(Base):
     def set_fields(self, data: dict):
         import json
         self.custom_fields = json.dumps(data or {})
+
+
+# ════════════════════════════════════════════════════════════════
+# TELÉFONOS — formato estándar único en toda la plataforma
+# ════════════════════════════════════════════════════════════════
+# Todo número se guarda SIEMPRE igual: solo dígitos, código de país
+# pegado adelante, sin "+", sin espacios, sin guiones.
+#   Honduras:    50490908080   (504 + 90908080)
+#   Nicaragua:   50585477750   (505 + 85477750)
+# Se normaliza aquí — un único lugar — y se reutiliza en la creación
+# de contactos (UI, importación CSV, y la API externa /v1) y en el
+# emparejamiento de documentos por teléfono, para que un mismo
+# contacto nunca quede guardado con dos formatos distintos.
+import re as _re
+
+_PHONE_RE = _re.compile(r"^\d{8,15}$")
+
+# Códigos de país predefinidos: Centroamérica, México y USA/Canadá.
+CENTRAL_AMERICA_MX_US_CODES = {
+    "501": "Belice", "502": "Guatemala", "503": "El Salvador",
+    "504": "Honduras", "505": "Nicaragua", "506": "Costa Rica",
+    "507": "Panamá", "52": "México", "1": "USA/Canadá",
+}
+
+
+def normalize_phone(raw: str, default_country_code: str = "504") -> "str | None":
+    """
+    Normaliza un número de teléfono al formato estándar de la plataforma:
+    solo dígitos, con código de país incluido, sin '+'. Devuelve None si
+    no es un número válido (en vez de guardar un placeholder que rompía
+    el envío silenciosamente).
+    """
+    if not raw:
+        return None
+    digits = _re.sub(r"\D", "", raw)
+    if not digits:
+        return None
+    # Si vino como número local de 8 dígitos (típico en Centroamérica sin
+    # código de país), se asume el código por defecto de la empresa.
+    if len(digits) == 8:
+        digits = default_country_code + digits
+    if not _PHONE_RE.match(digits):
+        return None
+    return digits
 
 
 # ════════════════════════════════════════════════════════════════
@@ -348,6 +397,10 @@ AGENT_PERMISSIONS = {
     "manage_contacts": "Gestionar contactos (agregar/eliminar)",
     "view_reports":    "Ver reportes y estadísticas",
     "chat_support":    "Atender chat en vivo",
+    # No cualquiera debe poder abrir el Swagger de la API — solo el
+    # dueño de la empresa/superadmin (siempre) o un agente al que se le
+    # haya otorgado este permiso explícitamente.
+    "view_api_docs":   "Ver documentación de la API (Swagger)",
 }
 
 # Ya no existe un único "rol" con permisos fijos — esto queda solo como

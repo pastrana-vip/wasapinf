@@ -162,6 +162,36 @@ def hash_api_key(raw: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
+# ════════════════════════════════════════════════════════════════
+# ACCESO A LA DOCUMENTACIÓN DE LA API (Swagger /docs)
+# ════════════════════════════════════════════════════════════════
+# Antes /docs quedaba público para cualquiera en internet. Ahora se
+# genera un token de un solo uso, de vida muy corta, únicamente para
+# quien tiene el permiso "view_api_docs" (dueño/superadmin siempre,
+# agente solo si se le otorgó). El botón "Ver documentación" del
+# frontend pide este token y abre /docs?t=<token>.
+
+DOCS_TOKEN_EXPIRE_MINUTES = 10
+
+def create_docs_token(user_id: int) -> str:
+    expire = datetime.utcnow() + timedelta(minutes=DOCS_TOKEN_EXPIRE_MINUTES)
+    return jwt.encode(
+        {"sub": str(user_id), "typ": "docs_access", "exp": expire},
+        SECRET_KEY, algorithm=ALGORITHM
+    )
+
+def verify_docs_token(token: str) -> bool:
+    """True si el token es válido, no expiró, y es específicamente de tipo
+    docs_access (no sirve reusar aquí un JWT de sesión normal)."""
+    if not token:
+        return False
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        return False
+    return payload.get("typ") == "docs_access"
+
+
 async def get_client_from_api_key(
     request: Request,
     db: AsyncSession = Depends(get_db)

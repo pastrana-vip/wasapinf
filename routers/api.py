@@ -18,7 +18,7 @@ from models.database import (
     User, Campaign, Contact, Message, CampaignStatus,
     Conversation, ConversationStatus, ChatMessage, Agent, AgentRole,
     CampaignTemplate, CustomFieldDef, MetaTemplate, ContactTag,
-    ApiKey, WebhookSubscription, WEBHOOK_EVENTS, get_db
+    ApiKey, WebhookSubscription, WEBHOOK_EVENTS, get_db, normalize_phone
 )
 from auth import (
     hash_password, verify_password, create_token, get_current_user,
@@ -27,8 +27,8 @@ from auth import (
 )
 from whatsapp_service import (
     run_campaign, recalc_campaign_counters, send_whatsapp_text,
-    send_whatsapp_document, send_whatsapp_image, is_within_24h_window,
-    get_public_base_url
+    send_whatsapp_document, send_whatsapp_image, send_whatsapp_template,
+    is_within_24h_window, get_public_base_url
 )
 from webhooks_service import dispatch_webhook_event
 
@@ -157,6 +157,23 @@ class CampaignIn(BaseModel):
 
 class ChatReplyIn(BaseModel):
     body: str
+    # Opcional: si el contacto está fuera de la ventana de 24h, se puede
+    # enviar una plantilla HSM en lugar de texto libre.
+    template_name: Optional[str] = None
+    template_language: Optional[str] = None
+    template_variables: Optional[List[str]] = None
+
+class ChatStartIn(BaseModel):
+    """Inicia una conversación con un contacto que aún no ha escrito
+    (o cuya ventana de 24h ya expiró) usando una plantilla aprobada por Meta.
+    Ejemplo típico: plantilla marketing 'mensaje_inicial' en es_HN.
+    """
+    contact_id: Optional[int] = None
+    phone: Optional[str] = None
+    contact_name: Optional[str] = None
+    template_name: str                          # nombre exacto en Meta, ej. mensaje_inicial
+    template_language: str = "es"               # ej. es, es_HN, es_MX
+    template_variables: Optional[List[str]] = None  # valores para {{1}}, {{2}}...
 
 class ConvStatusIn(BaseModel):
     status: str   # open | waiting | closed
@@ -724,7 +741,13 @@ async def add_contact(data: ContactIn,
                       db: AsyncSession = Depends(get_db)):
     if not has_permission(user, "manage_contacts"):
         raise HTTPException(403, "Tu cuenta de agente no puede gestionar contactos")
-    c = Contact(owner_id=user.id, name=data.name, phone=data.phone, tag=data.tag)
+    # Formato estándar único: solo dígitos, con código de país, sin '+'
+    # — así el mismo contacto nunca queda guardado con dos formatos
+    # distintos (ej. "+504 9990-9099" vs "50499909099").
+    phone = normalize_phone(data.phone)
+    if not phone:
+        raise HTTPException(400, "Número de teléfono inválido. Usa solo dígitos con código de país. Ej: 50490908080")
+    c = Contact(owner_id=user.id, name=data.name, phone=phone, tag=data.tag)
     c.set_fields(data.custom_fields or {})
     db.add(c)
     await db.commit()
@@ -754,8 +777,11 @@ async def update_contact(contact_id: int,
     c = res.scalar_one_or_none()
     if not c:
         raise HTTPException(404, "Contacto no encontrado")
+    phone = normalize_phone(data.phone)
+    if not phone:
+        raise HTTPException(400, "Número de teléfono inválido. Usa solo dígitos con código de país. Ej: 50490908080")
     c.name = data.name
-    c.phone = data.phone
+    c.phone = phone
     c.tag = data.tag
     if data.custom_fields is not None:
         c.set_fields(data.custom_fields)
@@ -866,13 +892,13 @@ async def import_contacts_csv(
     existing_res = await db.execute(select(Contact.phone).where(Contact.owner_id == user.id))
     existing_phones = {p for (p,) in existing_res.all()}
 
-    created = skipped = 0
+    created = skipped = invalid = 0
     for row in reader:
         row = {(k or "").strip().lower(): (v or "").strip() for k, v in row.items()}
         name = row.get("name")
-        phone = row.get("phone")
+        phone = normalize_phone(row.get("phone"))
         if not name or not phone:
-            skipped += 1
+            invalid += 1
             continue
         if phone in existing_phones:
             skipped += 1
@@ -885,7 +911,7 @@ async def import_contacts_csv(
         created += 1
 
     await db.commit()
-    return {"created": created, "skipped": skipped}
+    return {"created": created, "skipped": skipped, "invalid": invalid}
 
 # ── Plantillas asignadas (solo lectura para el cliente/agente) ────
 # El cliente NO puede crear ni editar plantillas — solo el superadmin
@@ -903,6 +929,11 @@ async def list_my_templates(user: User = Depends(get_current_user),
     return [{
         "id": t.id, "name": t.name, "category": t.category,
         "message_template": t.message_template,
+        # El cliente necesita saber si esta plantilla puede iniciar una
+        # conversación fuera de la ventana de 24h (Meta lo exige); si no
+        # tiene meta_template_name, esos contactos quedarán fuera.
+        "meta_template_name": t.meta_template_name,
+        "meta_template_language": t.meta_template_language,
     } for t in res.scalars().all()]
 
 # ── Campaigns ─────────────────────────────────────────────────────
@@ -1274,7 +1305,7 @@ async def reply_to_conversation(conv_id: int,
                                 db: AsyncSession = Depends(get_db)):
     if not has_permission(user, "chat_support"):
         raise HTTPException(403, "Tu cuenta de agente no puede responder el chat")
-    if not user.whatsapp_token:
+    if not user.whatsapp_token or not user.whatsapp_phone_id:
         raise HTTPException(400, "Tu línea de WhatsApp aún no está conectada. Contacta al administrador.")
 
     res = await db.execute(
@@ -1284,35 +1315,218 @@ async def reply_to_conversation(conv_id: int,
     if not conv:
         raise HTTPException(404)
 
-    resp = await send_whatsapp_text(
-        user.whatsapp_phone_id, user.whatsapp_token,
-        conv.contact_phone, data.body
-    )
+    within = await is_within_24h_window(user.id, conv.contact_phone, db)
+    used_template = False
+    body_preview = (data.body or "").strip()
+
+    if within and body_preview:
+        resp = await send_whatsapp_text(
+            user.whatsapp_phone_id, user.whatsapp_token,
+            conv.contact_phone, body_preview
+        )
+    elif data.template_name:
+        # Fuera de ventana (o respuesta forzada con plantilla)
+        vars_ = data.template_variables or []
+        resp = await send_whatsapp_template(
+            user.whatsapp_phone_id, user.whatsapp_token,
+            conv.contact_phone,
+            data.template_name,
+            data.template_language or "es",
+            vars_,
+        )
+        used_template = True
+        if not body_preview:
+            body_preview = f"[Plantilla: {data.template_name}]" + (
+                f" ({', '.join(vars_)})" if vars_ else ""
+            )
+    else:
+        raise HTTPException(
+            400,
+            "El contacto está fuera de la ventana de 24h de WhatsApp. "
+            "Debes enviar una plantilla aprobada por Meta (ej. mensaje_inicial) "
+            "para reabrir la conversación. Usa template_name + template_language."
+        )
 
     wamid = None
+    err_detail = None
     if "messages" in resp:
         wamid = resp["messages"][0]["id"]
         status = "sent"
     else:
         status = "failed"
+        err_detail = (resp.get("error") or {}).get("message") if isinstance(resp, dict) else str(resp)
 
     msg = ChatMessage(
         conversation_id=conv.id,
         direction="out",
-        body=data.body,
+        body=body_preview,
+        msg_type="template" if used_template else "text",
         wamid=wamid,
         status=status,
     )
     db.add(msg)
-    conv.last_msg    = data.body
+    conv.last_msg = body_preview
     conv.last_msg_at = datetime.utcnow()
+    if conv.status == ConversationStatus.closed:
+        conv.status = ConversationStatus.open
     await db.commit()
     await db.refresh(msg)
 
-    return {
+    out = {
         "id": msg.id, "direction": "out", "body": msg.body,
-        "status": msg.status, "created_at": msg.created_at.isoformat()
+        "status": msg.status, "msg_type": msg.msg_type,
+        "used_template": used_template,
+        "within_24h": within,
+        "created_at": msg.created_at.isoformat(),
     }
+    if err_detail:
+        out["error"] = err_detail
+    return out
+
+
+@router.post("/chat/start")
+async def start_conversation(
+    data: ChatStartIn,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Inicia (o reabre) una conversación con un contacto enviando una
+    plantilla HSM de Meta. Obligatorio cuando el contacto nunca ha
+    escrito o lleva más de 24h sin escribir.
+
+    Caso típico: plantilla marketing 'mensaje_inicial' (Spanish HND → es_HN).
+    """
+    if not has_permission(user, "chat_support"):
+        raise HTTPException(403, "Tu cuenta de agente no puede iniciar chats")
+    if not user.whatsapp_token or not user.whatsapp_phone_id:
+        raise HTTPException(400, "Tu línea de WhatsApp aún no está conectada. Contacta al administrador.")
+    if not data.template_name or not data.template_name.strip():
+        raise HTTPException(400, "template_name es obligatorio (nombre exacto en Meta, ej. mensaje_inicial)")
+
+    phone = None
+    name = (data.contact_name or "").strip() or "Desconocido"
+
+    if data.contact_id:
+        cres = await db.execute(
+            select(Contact).where(Contact.id == data.contact_id, Contact.owner_id == user.id)
+        )
+        contact = cres.scalar_one_or_none()
+        if not contact:
+            raise HTTPException(404, "Contacto no encontrado")
+        phone = normalize_phone(contact.phone or "")
+        name = contact.name or name
+    elif data.phone:
+        phone = normalize_phone(data.phone)
+    else:
+        raise HTTPException(400, "Indica contact_id o phone")
+
+    if not phone:
+        raise HTTPException(400, "Teléfono inválido. Usa solo dígitos con código de país (ej. 50495855720)")
+
+    # Buscar conversación existente o crear una nueva
+    cres = await db.execute(
+        select(Conversation).where(
+            Conversation.owner_id == user.id,
+            Conversation.contact_phone == phone,
+        )
+    )
+    conv = cres.scalar_one_or_none()
+    if not conv:
+        conv = Conversation(
+            owner_id=user.id,
+            contact_phone=phone,
+            contact_name=name,
+            status=ConversationStatus.open,
+            unread=0,
+        )
+        db.add(conv)
+        await db.flush()
+    else:
+        conv.contact_name = name or conv.contact_name
+        conv.status = ConversationStatus.open
+
+    vars_ = data.template_variables or []
+    lang = (data.template_language or "es").strip()
+    # Meta a veces registra Spanish (HND) como es_HN
+    resp = await send_whatsapp_template(
+        user.whatsapp_phone_id, user.whatsapp_token,
+        phone,
+        data.template_name.strip(),
+        lang,
+        vars_,
+    )
+
+    body_preview = f"[Plantilla: {data.template_name}]" + (
+        f" ({', '.join(vars_)})" if vars_ else ""
+    )
+    wamid = None
+    err_detail = None
+    if "messages" in resp:
+        wamid = resp["messages"][0]["id"]
+        status = "sent"
+    else:
+        status = "failed"
+        err_detail = (resp.get("error") or {}).get("message") if isinstance(resp, dict) else str(resp)
+
+    msg = ChatMessage(
+        conversation_id=conv.id,
+        direction="out",
+        body=body_preview,
+        msg_type="template",
+        wamid=wamid,
+        status=status,
+    )
+    db.add(msg)
+    conv.last_msg = body_preview
+    conv.last_msg_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(msg)
+    await db.refresh(conv)
+
+    out = {
+        "ok": status == "sent",
+        "conversation_id": conv.id,
+        "contact_phone": phone,
+        "contact_name": conv.contact_name,
+        "message": {
+            "id": msg.id, "body": msg.body, "status": msg.status,
+            "msg_type": "template", "created_at": msg.created_at.isoformat(),
+        },
+        "template_name": data.template_name,
+        "template_language": lang,
+    }
+    if err_detail:
+        out["error"] = err_detail
+        raise HTTPException(400, f"Meta rechazó el envío: {err_detail}")
+    return out
+
+
+@router.get("/chat/meta-templates")
+async def list_chat_meta_templates(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Plantillas HSM sincronizadas de esta empresa, para el selector
+    de 'Iniciar conversación' en el chat. Solo APPROVED.
+    """
+    if not has_permission(user, "chat_support"):
+        raise HTTPException(403, "Sin permiso de chat")
+    rows = (await db.execute(
+        select(MetaTemplate).where(
+            MetaTemplate.client_id == user.id,
+            MetaTemplate.status == "APPROVED",
+        ).order_by(MetaTemplate.name)
+    )).scalars().all()
+    return [{
+        "id": t.id,
+        "name": t.name,
+        "language": t.language,
+        "category": t.category,
+        "body_text": t.body_text,
+        "variable_count": t.variable_count or 0,
+    } for t in rows]
 
 
 @router.patch("/chat/conversations/{conv_id}/status")

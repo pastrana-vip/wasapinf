@@ -7,55 +7,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════════════
-   DESIGN TOKENS - MEJORADOS PARA MÁXIMO CONTRASTE
+   DESIGN TOKENS
 ══════════════════════════════════════════════════ */
 :root{
   color-scheme: dark;
-  --bg:       #0b1929;
-  --bg2:      #0f1d2e;
-  --bg3:      #162a3d;
-  --bg4:      #1c3347;
-  --card:     #132433;
-  --card2:    #1a2e40;
-  --card3:    #1f364b;
-  --border:   #1e3a4f;
-  --border2:  #2a4a62;
+  --bg:       #0b1117;
+  --bg2:      #111920;
+  --bg3:      #161f28;
+  --card:     #192330;
+  --card2:    #1e2a38;
+  --border:   #243040;
+  --border2:  #2d3f52;
 
-  --green:    #00e676;
-  --green2:   #00c853;
-  --green3:   #009624;
-  --green-bg: rgba(0,230,118,.12);
-  --green-glow: rgba(0,230,118,.20);
+  --green:    #22d3a0;
+  --green2:   #16b88a;
+  --green3:   #0e8f6c;
+  --green-bg: rgba(34,211,160,.10);
+  --green-glow: rgba(34,211,160,.18);
 
-  --blue:     #4fc3f7;
-  --blue-bg:  rgba(79,195,247,.10);
-  --yellow:   #ffd54f;
-  --yellow-bg:rgba(255,213,79,.10);
-  --red:      #ef5350;
-  --red-bg:   rgba(239,83,80,.10);
-  --purple:   #b39ddb;
+  --blue:     #4ab3f4;
+  --blue-bg:  rgba(74,179,244,.10);
+  --yellow:   #f5c518;
+  --yellow-bg:rgba(245,197,24,.10);
+  --red:      #f43f5e;
+  --red-bg:   rgba(244,63,94,.10);
+  --purple:   #a78bfa;
 
-  --text:     #f0f4f8;
-  --text2:    #b0c8d8;
-  --text3:    #7a9bb0;
+  --text:     #e2eaf2;
+  --text2:    #7a9ab5;
+  --text3:    #4e6a82;
 
   --font-ui:  'Plus Jakarta Sans', sans-serif;
   --font-hd:  'Space Grotesk', sans-serif;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 2px 4px rgba(0,0,0,.3);
-  --shadow-md: 0 4px 20px rgba(0,0,0,.5);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,.6);
-  --shadow-glow: 0 0 30px rgba(0,230,118,.08);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.5);
 
-  --sidebar-w: 250px;
-  --topbar-h:  64px;
-  --transition: .2s cubic-bezier(.4,0,.2,1);
+  --sidebar-w: 240px;
+  --topbar-h:  60px;
+  --transition: .18s cubic-bezier(.4,0,.2,1);
 }
 
 /* ══════════════════════════════════════════════════
@@ -76,11 +73,9 @@ body{
 a{color:inherit;text-decoration:none;}
 button{font-family:var(--font-ui);cursor:pointer;}
 input,textarea,select{font-family:var(--font-ui);}
-
-/* Scrollbar personalizada */
-::-webkit-scrollbar{width:6px;height:6px;}
-::-webkit-scrollbar-track{background:var(--bg2);}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3);}
 
 /* ══════════════════════════════════════════════════
@@ -91,44 +86,44 @@ input,textarea,select{font-family:var(--font-ui);}
   align-items:center;
   justify-content:center;
   min-height:100vh;
-  padding:24px;
+  padding:20px;
   background:
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(0,230,118,.10), transparent),
-    radial-gradient(ellipse 50% 30% at 5% 90%, rgba(79,195,247,.06), transparent),
+    radial-gradient(ellipse 70% 50% at 80% -5%, rgba(34,211,160,.12), transparent),
+    radial-gradient(ellipse 50% 40% at 5% 95%, rgba(34,211,160,.07), transparent),
     var(--bg);
 }
 .auth-wrap{
   display:flex;
-  gap:60px;
+  gap:64px;
   align-items:center;
-  max-width:1000px;
+  max-width:960px;
   width:100%;
 }
 .auth-hero{flex:1;display:none;}
 @media(min-width:860px){.auth-hero{display:block;}}
 .auth-hero h1{
   font-family:var(--font-hd);
-  font-size:clamp(34px,4.5vw,52px);
+  font-size:clamp(32px,4vw,48px);
   font-weight:700;
-  line-height:1.1;
-  margin-bottom:18px;
+  line-height:1.15;
+  margin-bottom:16px;
   letter-spacing:-.02em;
 }
-.auth-hero h1 em{color:var(--green);font-style:normal;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.auth-hero h1 em{color:var(--green);font-style:normal;}
 .auth-hero p{
   color:var(--text2);
   font-size:15px;
   line-height:1.7;
-  max-width:400px;
+  max-width:380px;
   margin-bottom:28px;
 }
-.feat-list{display:flex;flex-direction:column;gap:12px;}
+.feat-list{display:flex;flex-direction:column;gap:10px;}
 .feat{
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;gap:10px;
   font-size:13px;color:var(--text2);
 }
 .feat-dot{
-  width:20px;height:20px;border-radius:50%;
+  width:18px;height:18px;border-radius:50%;
   background:var(--green-bg);
   border:1.5px solid var(--green);
   display:flex;align-items:center;justify-content:center;
@@ -136,37 +131,34 @@ input,textarea,select{font-family:var(--font-ui);}
   font-size:10px;color:var(--green);
 }
 
-/* Auth box - Glassmorphism */
+/* Auth box */
 .auth-box{
   width:100%;max-width:420px;flex-shrink:0;
-  background:rgba(19,36,51,.8);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(30,58,79,.5);
+  background:var(--card);
+  border:1px solid var(--border);
   border-radius:var(--radius-xl);
-  padding:40px 36px;
-  box-shadow:var(--shadow-lg), var(--shadow-glow);
+  padding:36px 32px;
+  box-shadow:var(--shadow-lg);
   position:relative;overflow:hidden;
 }
 .auth-box::before{
   content:'';position:absolute;
-  top:-120px;right:-120px;
-  width:300px;height:300px;border-radius:50%;
-  background:radial-gradient(circle,rgba(0,230,118,.06),transparent 70%);
+  top:-100px;right:-100px;
+  width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle,rgba(34,211,160,.08),transparent 70%);
   pointer-events:none;
 }
 @media(max-width:480px){.auth-box{padding:28px 20px;}}
 
-.logo-mark{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.logo-mark{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
 .logo-mark .ico{
-  width:40px;height:40px;border-radius:10px;
-  background:linear-gradient(135deg,var(--green),var(--green2));
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--green),var(--green3));
   display:flex;align-items:center;justify-content:center;
-  font-size:20px;box-shadow:0 4px 16px rgba(0,230,118,.3);
+  font-size:18px;box-shadow:0 4px 12px rgba(34,211,160,.3);
 }
 .logo-mark span{
   font-family:var(--font-hd);font-weight:700;font-size:22px;color:var(--text);
-  letter-spacing:-.01em;
 }
 
 /* Auth tabs */
@@ -174,53 +166,45 @@ input,textarea,select{font-family:var(--font-ui);}
   display:flex;background:var(--bg3);
   border:1px solid var(--border);
   border-radius:var(--radius-md);
-  padding:4px;gap:4px;margin-bottom:24px;
+  padding:3px;gap:3px;margin-bottom:22px;
 }
 .tab{
-  flex:1;padding:10px;border:none;background:transparent;
+  flex:1;padding:9px;border:none;background:transparent;
   color:var(--text2);font-size:13px;font-weight:600;
   border-radius:var(--radius-sm);transition:var(--transition);
 }
-.tab.active{
-  background:linear-gradient(135deg,var(--green),var(--green2));
-  color:#071410;font-weight:700;
-  box-shadow:0 4px 12px rgba(0,230,118,.3);
-}
+.tab.active{background:var(--green);color:#071410;font-weight:700;}
 .tab:not(.active):hover{color:var(--text);background:var(--card2);}
 
 /* Form elements */
-.form{display:flex;flex-direction:column;gap:16px;}
+.form{display:flex;flex-direction:column;gap:14px;}
 .fld label{
   display:block;font-size:11px;font-weight:700;
   color:var(--text3);text-transform:uppercase;
-  letter-spacing:.06em;margin-bottom:6px;
+  letter-spacing:.06em;margin-bottom:5px;
 }
 .fld input{
-  width:100%;padding:12px 16px;
+  width:100%;padding:11px 14px;
   background:var(--bg3);border:1.5px solid var(--border);
   border-radius:var(--radius-md);
   color:var(--text);font-size:14px;outline:none;
-  transition:border-color var(--transition),box-shadow var(--transition);
+  transition:border-color var(--transition),background var(--transition);
 }
-.fld input:focus{
-  border-color:var(--green);
-  box-shadow:0 0 0 3px rgba(0,230,118,.15);
-}
+.fld input:focus{border-color:var(--green);background:rgba(34,211,160,.04);}
 .fld input::placeholder{color:var(--text3);}
-
 .btn-main{
-  width:100%;padding:14px;
+  width:100%;padding:13px;
   background:linear-gradient(135deg,var(--green),var(--green2));
   border:none;border-radius:var(--radius-md);
   color:#071410;font-family:var(--font-hd);
   font-weight:700;font-size:15px;
-  cursor:pointer;transition:var(--transition);margin-top:6px;
+  cursor:pointer;transition:var(--transition);margin-top:4px;
   display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 4px 20px rgba(0,230,118,.3);
+  box-shadow:0 4px 16px rgba(34,211,160,.3);
 }
-.btn-main:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,230,118,.4);}
-.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-.err-msg{min-height:20px;font-size:12px;color:var(--red);text-align:center;}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(34,211,160,.4);}
+.btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.err-msg{min-height:18px;font-size:12px;color:var(--red);text-align:center;}
 
 /* ══════════════════════════════════════════════════
    APP SHELL
@@ -229,15 +213,13 @@ input,textarea,select{font-family:var(--font-ui);}
 .layout{display:flex;min-height:100vh;}
 
 /* ══════════════════════════════════════════════════
-   SIDEBAR - Glassmorphism mejorado
+   SIDEBAR
 ══════════════════════════════════════════════════ */
 .sidebar{
   width:var(--sidebar-w);
   min-height:100vh;
-  background:rgba(15,29,46,.92);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
-  border-right:1px solid rgba(30,58,79,.5);
+  background:var(--bg2);
+  border-right:1px solid var(--border);
   display:flex;flex-direction:column;
   position:fixed;top:0;left:0;
   z-index:200;
@@ -248,7 +230,7 @@ input,textarea,select{font-family:var(--font-ui);}
   position:fixed;inset:0;
   background:rgba(0,0,0,.6);
   z-index:199;
-  backdrop-filter:blur(4px);
+  backdrop-filter:blur(2px);
 }
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);}
@@ -260,20 +242,19 @@ input,textarea,select{font-family:var(--font-ui);}
 /* Sidebar header */
 .sb-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:20px 18px 16px;
+  padding:18px 16px 14px;
   border-bottom:1px solid var(--border);
 }
-.sb-logo{display:flex;align-items:center;gap:10px;}
+.sb-logo{display:flex;align-items:center;gap:9px;}
 .sb-logo .ico{
-  width:34px;height:34px;border-radius:8px;
-  background:linear-gradient(135deg,var(--green),var(--green2));
-  display:flex;align-items:center;justify-content:center;font-size:17px;
-  box-shadow:0 2px 12px rgba(0,230,118,.25);
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green),var(--green3));
+  display:flex;align-items:center;justify-content:center;font-size:16px;
 }
-.sb-logo span{font-family:var(--font-hd);font-weight:700;font-size:17px;letter-spacing:-.01em;}
+.sb-logo span{font-family:var(--font-hd);font-weight:700;font-size:17px;}
 .sb-close{
   display:none;background:none;border:none;
-  color:var(--text2);padding:4px 8px;border-radius:6px;font-size:18px;
+  color:var(--text2);padding:4px;border-radius:6px;font-size:18px;
   transition:var(--transition);
 }
 .sb-close:hover{color:var(--text);background:var(--card2);}
@@ -281,37 +262,32 @@ input,textarea,select{font-family:var(--font-ui);}
 
 /* WA badge */
 .sb-badge{
-  margin:12px 14px;
+  margin:10px 12px;
   background:var(--green-bg);
-  border:1px solid rgba(0,230,118,.25);
+  border:1px solid rgba(34,211,160,.3);
   border-radius:var(--radius-md);
-  padding:8px 14px;
-  display:flex;align-items:center;gap:8px;
+  padding:7px 12px;
+  display:flex;align-items:center;gap:7px;
   font-size:12px;font-weight:600;color:var(--green);
 }
 .sb-badge .dot{
-  width:8px;height:8px;border-radius:50%;
+  width:7px;height:7px;border-radius:50%;
   background:var(--green);
-  box-shadow:0 0 8px var(--green);
+  box-shadow:0 0 6px var(--green);
   animation:pulse 2s infinite;
 }
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 
-/* Nav - con scroll */
-nav{
-  padding:8px 0;
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
-}
+/* Nav */
+nav{padding:6px 0;flex:1;overflow-y:auto;}
 .nav-section{
-  padding:14px 18px 6px;
+  padding:12px 16px 4px;
   font-size:10px;font-weight:700;
   color:var(--text3);text-transform:uppercase;letter-spacing:.08em;
 }
 .ni{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 18px;
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;
   color:var(--text2);cursor:pointer;
   transition:var(--transition);
   font-size:13px;font-weight:500;
@@ -320,11 +296,7 @@ nav{
   border-radius:0;margin:1px 0;
 }
 .ni:hover{background:var(--green-bg);color:var(--text);}
-.ni.active{
-  background:var(--green-bg);
-  color:var(--green);
-  border-left-color:var(--green);
-}
+.ni.active{background:var(--green-bg);color:var(--green);border-left-color:var(--green);}
 .ni-ico{
   width:32px;height:32px;border-radius:var(--radius-sm);
   display:flex;align-items:center;justify-content:center;
@@ -332,10 +304,12 @@ nav{
   background:var(--bg3);border:1px solid var(--border);
   transition:var(--transition);
 }
-.ni.active .ni-ico{background:var(--green-bg);border-color:rgba(0,230,118,.3);}
+.ni.active .ni-ico{background:var(--green-bg);border-color:rgba(34,211,160,.3);}
 .ni:hover .ni-ico{background:var(--card2);}
 
-/* Nav - grupos colapsables */
+/* ══════════════════════════════════════════════════
+   NAV — grupos colapsables (Contactos > Administrar/Etiquetas)
+══════════════════════════════════════════════════ */
 .ni-chevron{
   margin-left:auto;font-size:10px;color:var(--text3);
   transition:transform var(--transition);
@@ -347,34 +321,115 @@ nav{
 }
 .ni-group.open .ni-sub{max-height:120px;}
 .ni-child{
-  padding-left:54px;font-size:12.5px;
+  padding-left:52px;font-size:12.5px;
 }
 .ni-child.active{background:var(--green-bg);color:var(--green);border-left-color:var(--green);}
 
+/* ══════════════════════════════════════════════════
+   INTEGRACIONES — tarjetas de presentación (API/Webhooks)
+══════════════════════════════════════════════════ */
+.int-cards-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;margin-bottom:18px;
+}
+.int-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:20px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+  transition:border-color var(--transition), box-shadow var(--transition);
+}
+.int-card:hover{border-color:var(--border2);box-shadow:var(--shadow-sm);}
+.int-card-ico{
+  width:44px;height:44px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.int-card-title{font-family:var(--font-hd);font-weight:700;font-size:15px;}
+.int-card-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px;}
+
+/* ══════════════════════════════════════════════════
+   MODAL genérico — reemplaza los prompt()/confirm() feos
+══════════════════════════════════════════════════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(5,9,14,.72);backdrop-filter:blur(2px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);width:100%;max-width:460px;max-height:88vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  animation:modal-in .18s ease-out;
+}
+@keyframes modal-in{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:none;}}
+.modal-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.modal-hd h3{font-family:var(--font-hd);font-size:15px;font-weight:700;}
+.modal-close{
+  background:var(--bg3);border:none;color:var(--text2);width:28px;height:28px;
+  border-radius:50%;cursor:pointer;font-size:13px;transition:var(--transition);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.modal-close:hover{background:var(--red-bg);color:var(--red);}
+.modal-body{padding:20px;overflow-y:auto;}
+.modal-ft{
+  padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;
+  justify-content:flex-end;flex-shrink:0;flex-wrap:wrap;
+}
+
+/* ══════════════════════════════════════════════════
+   PERMISSION CHIPS — reemplaza los checkboxes nativos
+   (mucho más claro cuál está marcado)
+══════════════════════════════════════════════════ */
+.chip-selector{display:flex;flex-direction:column;gap:8px;}
+.chip{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-radius:var(--radius-md);
+  border:1.5px solid var(--border);background:var(--bg3);
+  cursor:pointer;transition:var(--transition);user-select:none;
+  font-size:13px;color:var(--text2);
+}
+.chip:hover{border-color:var(--border2);}
+.chip .chip-check{
+  width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:11px;color:transparent;transition:var(--transition);
+  background:var(--bg2);
+}
+.chip.checked{
+  border-color:rgba(34,211,160,.5);background:var(--green-bg);color:var(--text);
+}
+.chip.checked .chip-check{
+  background:linear-gradient(135deg,var(--green),var(--green2));
+  border-color:transparent;color:#071410;
+}
+.ni-label{flex:1;}
+
 /* Sidebar footer */
 .sb-bot{
-  padding:14px 16px;
+  padding:12px 14px;
   border-top:1px solid var(--border);
 }
 .user-row{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 12px;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;
   border-radius:var(--radius-md);
   background:var(--bg3);
   border:1px solid var(--border);
 }
 .av{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,var(--green),var(--green2));
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--green3));
   color:#071410;display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-hd);font-weight:700;font-size:14px;flex-shrink:0;
+  font-family:var(--font-hd);font-weight:700;font-size:13px;flex-shrink:0;
 }
 .user-info{flex:1;min-width:0;}
 .user-info .un{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .user-info .ue{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .logout{
   background:none;border:none;color:var(--text3);
-  padding:5px;border-radius:6px;font-size:16px;
+  padding:5px;border-radius:6px;font-size:15px;
   transition:var(--transition);
 }
 .logout:hover{color:var(--red);background:var(--red-bg);}
@@ -386,25 +441,23 @@ nav{
   display:none;
   position:fixed;top:0;left:0;right:0;
   height:var(--topbar-h);z-index:198;
-  background:rgba(15,29,46,.92);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
+  background:var(--bg2);
   border-bottom:1px solid var(--border);
   align-items:center;justify-content:space-between;
-  padding:0 18px;
+  padding:0 16px;
 }
 @media(max-width:768px){.topbar{display:flex;}}
-.topbar-logo{display:flex;align-items:center;gap:10px;}
+.topbar-logo{display:flex;align-items:center;gap:8px;}
 .topbar-logo .ico{
-  width:30px;height:30px;border-radius:7px;
-  background:linear-gradient(135deg,var(--green),var(--green2));
-  display:flex;align-items:center;justify-content:center;font-size:15px;
+  width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,var(--green),var(--green3));
+  display:flex;align-items:center;justify-content:center;font-size:14px;
 }
-.topbar-logo span{font-family:var(--font-hd);font-weight:700;font-size:16px;letter-spacing:-.01em;}
+.topbar-logo span{font-family:var(--font-hd);font-weight:700;font-size:16px;}
 .menu-btn{
   background:var(--card2);border:1px solid var(--border);
-  color:var(--text);padding:7px 12px;border-radius:var(--radius-sm);
-  font-size:18px;transition:var(--transition);
+  color:var(--text);padding:6px 10px;border-radius:var(--radius-sm);
+  font-size:16px;transition:var(--transition);
 }
 .menu-btn:hover{border-color:var(--green);color:var(--green);}
 
@@ -414,76 +467,63 @@ nav{
 .main{
   margin-left:var(--sidebar-w);
   flex:1;
-  padding:32px 32px 48px;
+  padding:28px 28px 40px;
   max-width:calc(100vw - var(--sidebar-w));
-  background:var(--bg);
 }
 @media(max-width:768px){
   .main{
     margin-left:0;max-width:100vw;
-    padding:calc(var(--topbar-h) + 24px) 16px 32px;
+    padding:calc(var(--topbar-h) + 20px) 16px 32px;
   }
 }
 @media(max-width:480px){.main{padding:calc(var(--topbar-h)+16px) 12px 28px;}}
 
 /* Page header */
-.ph{margin-bottom:24px;}
+.ph{margin-bottom:22px;}
 .ph h1{
   font-family:var(--font-hd);font-weight:700;
-  font-size:clamp(20px,3vw,28px);letter-spacing:-.02em;
-  display:flex;align-items:center;gap:10px;
+  font-size:clamp(18px,3vw,24px);letter-spacing:-.01em;
 }
-.ph p{color:var(--text2);font-size:13px;margin-top:4px;}
+.ph p{color:var(--text2);font-size:13px;margin-top:3px;}
 
 /* Pages */
-.page{display:none;animation:fadeIn .3s ease;}
+.page{display:none;}
 .page.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
 /* ══════════════════════════════════════════════════
-   CARDS - Glassmorphism
+   CARDS
 ══════════════════════════════════════════════════ */
 .card{
-  background:rgba(19,36,51,.6);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
+  background:var(--card);
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
-  padding:24px;
-  margin-bottom:20px;
-  transition:border-color var(--transition),box-shadow var(--transition);
+  padding:22px;margin-bottom:18px;
+  transition:border-color var(--transition), box-shadow var(--transition);
 }
-.card:hover{border-color:var(--border2);box-shadow:var(--shadow-sm),var(--shadow-glow);}
+.card:hover{border-color:var(--border2);box-shadow:var(--shadow-sm);}
 .card:last-child{margin-bottom:0;}
 .card-hd{
   display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:20px;flex-wrap:wrap;gap:10px;
+  margin-bottom:18px;flex-wrap:wrap;gap:8px;
 }
 .card-hd h2{
   font-family:var(--font-hd);font-size:15px;font-weight:700;
-  display:flex;align-items:center;gap:8px;
 }
 
 /* ══════════════════════════════════════════════════
    ADMIN SUB-TABS
 ══════════════════════════════════════════════════ */
 .admin-tabs{
-  display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;
-  background:var(--bg3);padding:4px;border-radius:var(--radius-md);
-  border:1px solid var(--border);
+  display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;
+  border-bottom:1.5px solid var(--border);padding-bottom:0;
 }
 .admin-tab{
-  background:transparent;border:none;
-  color:var(--text2);font-family:var(--font-hd);font-weight:700;font-size:12px;
-  padding:10px 18px;cursor:pointer;transition:var(--transition);
-  border-radius:var(--radius-sm);
+  background:transparent;border:none;border-bottom:2.5px solid transparent;
+  color:var(--text2);font-family:var(--font-hd);font-weight:700;font-size:13px;
+  padding:10px 14px;cursor:pointer;transition:color var(--transition),border-color var(--transition);
 }
-.admin-tab:hover{color:var(--text);background:var(--card2);}
-.admin-tab.active{
-  background:linear-gradient(135deg,var(--green),var(--green2));
-  color:#071410;box-shadow:0 2px 12px rgba(0,230,118,.25);
-}
-.admin-subtab{animation:fadeIn .25s ease;}
+.admin-tab:hover{color:var(--text);}
+.admin-tab.active{color:var(--green);border-bottom-color:var(--green);}
 
 /* ══════════════════════════════════════════════════
    STATS GRID
@@ -491,22 +531,20 @@ nav{
 .stats4{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:14px;margin-bottom:20px;
+  gap:12px;margin-bottom:18px;
 }
 @media(max-width:1100px){.stats4{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px){.stats4{grid-template-columns:1fr 1fr;gap:10px;}}
+@media(max-width:480px){.stats4{grid-template-columns:repeat(2,1fr);gap:8px;}}
 .scard{
   background:var(--card2);
   border:1px solid var(--border);
   border-radius:var(--radius-md);
-  padding:18px 20px;
+  padding:16px 18px;
   position:relative;overflow:hidden;
-  transition:var(--transition);
 }
-.scard:hover{border-color:var(--border2);}
 .scard::after{
-  content:'';position:absolute;top:-30px;right:-30px;
-  width:80px;height:80px;border-radius:50%;
+  content:'';position:absolute;top:-20px;right:-20px;
+  width:60px;height:60px;border-radius:50%;
   background:var(--green-bg);pointer-events:none;
 }
 .scard .slb{
@@ -514,9 +552,9 @@ nav{
   color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;
 }
 .scard .sv{
-  font-family:var(--font-hd);font-size:clamp(24px,3vw,30px);font-weight:700;
+  font-family:var(--font-hd);font-size:clamp(22px,3vw,28px);font-weight:700;
 }
-.scard .ss{font-size:11px;color:var(--text2);margin-top:4px;}
+.scard .ss{font-size:11px;color:var(--text2);margin-top:3px;}
 
 /* ══════════════════════════════════════════════════
    COLORS
@@ -535,19 +573,19 @@ table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px;}
 th{
   color:var(--text3);font-size:10px;font-weight:700;
   text-transform:uppercase;letter-spacing:.05em;
-  padding:10px 14px;text-align:left;
+  padding:9px 14px;text-align:left;
   border-bottom:1px solid var(--border);
   white-space:nowrap;
 }
 td{
   padding:12px 14px;
-  border-bottom:1px solid rgba(30,58,79,.4);
+  border-bottom:1px solid rgba(36,48,64,.6);
   vertical-align:middle;
 }
 tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(0,230,118,.03);}
+tr:hover td{background:rgba(34,211,160,.025);}
 .empty{text-align:center;padding:48px 0;color:var(--text2);}
-.empty .ei{font-size:40px;margin-bottom:12px;opacity:.5;}
+.empty .ei{font-size:40px;margin-bottom:10px;opacity:.6;}
 .empty p{font-size:13px;}
 
 /* ══════════════════════════════════════════════════
@@ -555,19 +593,19 @@ tr:hover td{background:rgba(0,230,118,.03);}
 ══════════════════════════════════════════════════ */
 .bdg{
   display:inline-flex;align-items:center;
-  padding:3px 10px;border-radius:var(--radius-full);
+  padding:3px 9px;border-radius:var(--radius-full);
   font-size:11px;font-weight:700;white-space:nowrap;
 }
 .bdg-draft{background:var(--yellow-bg);color:var(--yellow);}
 .bdg-sending{background:var(--blue-bg);color:var(--blue);}
 .bdg-completed{background:var(--green-bg);color:var(--green);}
 .bdg-failed{background:var(--red-bg);color:var(--red);}
-.bdg-pending{background:rgba(120,120,140,.15);color:#8a9ab5;}
+.bdg-pending{background:rgba(120,120,140,.12);color:#8a9ab5;}
 
 /* ══════════════════════════════════════════════════
-   FORMS - Mejorados para legibilidad
+   FORMS
 ══════════════════════════════════════════════════ */
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:600px){.fgrid{grid-template-columns:1fr;}}
 .ff{display:flex;flex-direction:column;gap:5px;}
 .ff.full{grid-column:1/-1;}
@@ -576,86 +614,54 @@ tr:hover td{background:rgba(0,230,118,.03);}
   text-transform:uppercase;letter-spacing:.05em;
 }
 .ff input,.ff textarea,.ff select{
-  padding:11px 14px;
+  padding:10px 13px;
   background:var(--bg3);
   border:1.5px solid var(--border);
   border-radius:var(--radius-md);
-  color:var(--text);
-  font-size:14px;
-  outline:none;
-  transition:var(--transition);
+  color:var(--text);font-size:14px;
+  outline:none;transition:border-color var(--transition),background var(--transition);
   resize:vertical;
   -webkit-appearance:none;
 }
 .ff input:focus,.ff textarea:focus,.ff select:focus{
-  border-color:var(--green);
-  box-shadow:0 0 0 3px rgba(0,230,118,.12);
+  border-color:var(--green);background:rgba(34,211,160,.03);
 }
 .ff input::placeholder,.ff textarea::placeholder{color:var(--text3);}
 .ff textarea{min-height:90px;line-height:1.5;}
 .ff select{cursor:pointer;}
-
-/* Dark mode para selects y options - forzado */
+/* Bug conocido: los navegadores a veces ignoran el color del <select> al
+   pintar la lista de <option> desplegada y usan blanco del sistema — con
+   texto claro de este tema queda blanco sobre blanco, ilegible. Se fuerza
+   explícitamente en todos los selects de la app, no solo los de .ff. */
 select, .ff select { color-scheme: dark; }
 select option, .ff select option {
   background: var(--bg3) !important;
   color: var(--text) !important;
 }
-
-/* CHECKBOXES Y RADIOS - TAMAÑO GRANDE Y VISIBLE */
+/* Checkboxes: mismo problema de raíz (widgets nativos sin theming) —
+   se fuerza un color de acento visible sobre fondo oscuro. */
 input[type="checkbox"], input[type="radio"] {
   accent-color: var(--green);
-  width: 20px;
-  height: 20px;
+  width: 16px; height: 16px;
   cursor: pointer;
-  flex-shrink: 0;
-  background-color: var(--bg3);
-  border: 1.5px solid var(--border);
-  border-radius: 4px;
-  transition: var(--transition);
 }
-input[type="checkbox"]:checked, input[type="radio"]:checked {
-  background-color: var(--green);
-  border-color: var(--green);
-}
-input[type="radio"] { border-radius: 50%; }
-input[type="checkbox"]:hover, input[type="radio"]:hover {
-  border-color: var(--green2);
-}
-/* Para labels que contienen checkboxes, asegurar área de clic */
-.ff label:has(input[type="checkbox"]),
-.ff label:has(input[type="radio"]) {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-weight: 400;
-  text-transform: none;
-  color: var(--text2);
-  padding: 4px 0;
-}
-.ff label:has(input[type="checkbox"]):hover,
-.ff label:has(input[type="radio"]):hover {
-  color: var(--text);
-}
-
-.hint{font-size:11px;color:var(--text2);line-height:1.5;margin-top:4px;}
+.hint{font-size:11px;color:var(--text2);line-height:1.5;}
 
 /* ══════════════════════════════════════════════════
-   VISTA PREVIA DE PLANTILLA - CONTRASTE MEJORADO
+   VISTA PREVIA DE PLANTILLA — mini "chat" en vivo
 ══════════════════════════════════════════════════ */
 .tpl-editor-grid{
-  display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:start;
+  display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start;
 }
 @media (max-width:760px){ .tpl-editor-grid{grid-template-columns:1fr;} }
 .tpl-preview-col{position:sticky;top:12px;}
 .tpl-preview-label{
   font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;
-  letter-spacing:.05em;margin-bottom:10px;
+  letter-spacing:.05em;margin-bottom:8px;
 }
 .phone-mock{
-  background:#0b141a;border:6px solid #1a1a1a;border-radius:24px;
-  overflow:hidden;box-shadow:var(--shadow-lg);max-width:280px;margin:0 auto;
+  background:#0b141a;border:6px solid #1a1a1a;border-radius:22px;
+  overflow:hidden;box-shadow:var(--shadow-lg);max-width:270px;margin:0 auto;
 }
 .phone-mock-bar{
   height:14px;background:#1a1a1a;position:relative;
@@ -665,7 +671,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
   width:50px;height:6px;border-radius:4px;background:#000;
 }
 .phone-mock-screen{
-  min-height:180px;padding:16px 12px;
+  min-height:180px;padding:16px 10px;
   background-image:radial-gradient(circle at 20% 10%, rgba(255,255,255,.03) 0, transparent 40%);
   display:flex;flex-direction:column;justify-content:flex-end;
 }
@@ -696,34 +702,34 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 #tpl-preview-text span, #c-template-preview span {
   color: #ffffff !important;
 }
-
 /* ══════════════════════════════════════════════════
-   INFO TOOLTIP
+   INFO TOOLTIP — reemplaza los párrafos largos de
+   instrucciones bajo cada título de tarjeta. La ayuda
+   sigue ahí, pero solo aparece si la pides (hover/tap).
 ══════════════════════════════════════════════════ */
 .info-tip{
   position:relative;display:inline-flex;align-items:center;justify-content:center;
-  width:18px;height:18px;border-radius:50%;
+  width:16px;height:16px;border-radius:50%;
   background:var(--bg3);color:var(--text2);
   font-size:11px;font-weight:700;cursor:help;
   margin-left:6px;vertical-align:middle;
-  transition:var(--transition);
 }
-.info-tip:hover{background:var(--green-bg);color:var(--green);}
+.info-tip:hover, .info-tip:focus{background:var(--green-bg);color:var(--green);}
 .info-tip .tip-bubble{
   display:none;position:absolute;z-index:50;
-  top:calc(100% + 10px);left:0;
+  top:calc(100% + 8px);left:0;
   width:280px;max-width:60vw;
   background:var(--card2);border:1px solid var(--border2);
   border-radius:var(--radius-md);box-shadow:var(--shadow-md);
-  padding:12px 14px;font-size:12px;font-weight:400;line-height:1.6;
+  padding:10px 12px;font-size:12px;font-weight:400;line-height:1.5;
   color:var(--text2);cursor:default;text-transform:none;letter-spacing:normal;
 }
-.info-tip:hover .tip-bubble{display:block;}
+.info-tip:hover .tip-bubble, .info-tip:focus .tip-bubble, .info-tip.open .tip-bubble{display:block;}
 @media (max-width:640px){
   .info-tip .tip-bubble{left:auto;right:0;width:240px;}
 }
 .hint code{
-  background:var(--border);padding:1px 6px;
+  background:var(--border);padding:1px 5px;
   border-radius:4px;color:var(--green);font-family:monospace;font-size:11px;
 }
 
@@ -731,66 +737,46 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
    BUTTONS
 ══════════════════════════════════════════════════ */
 .btn{
-  padding:9px 18px;border-radius:var(--radius-md);
+  padding:8px 16px;border-radius:var(--radius-md);
   font-size:12px;font-weight:700;cursor:pointer;border:none;
   transition:var(--transition);font-family:var(--font-ui);
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-flex;align-items:center;gap:5px;
   white-space:nowrap;
 }
-.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
 .btn-g{
   background:linear-gradient(135deg,var(--green),var(--green2));
   color:#071410;
-  box-shadow:0 2px 12px rgba(0,230,118,.25);
+  box-shadow:0 2px 8px rgba(34,211,160,.25);
 }
-.btn-g:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,230,118,.35);}
+.btn-g:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 12px rgba(34,211,160,.35);}
 .btn-o{
   background:transparent;color:var(--green);
-  border:1.5px solid rgba(0,230,118,.3);
+  border:1.5px solid rgba(34,211,160,.4);
 }
 .btn-o:hover{background:var(--green-bg);border-color:var(--green);}
 .btn-r{
   background:var(--red-bg);color:var(--red);
-  border:1px solid rgba(239,83,80,.25);
+  border:1px solid rgba(244,63,94,.25);
 }
-.btn-r:hover{background:rgba(239,83,80,.18);}
-.btn-b{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(79,195,247,.25);}
+.btn-r:hover{background:rgba(244,63,94,.18);}
+.btn-b{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(74,179,244,.25);}
 
 /* ══════════════════════════════════════════════════
    ALERTS
 ══════════════════════════════════════════════════ */
 .alert{
-  padding:12px 16px;border-radius:var(--radius-md);
-  font-size:13px;margin-bottom:16px;display:none;line-height:1.5;
+  padding:10px 14px;border-radius:var(--radius-md);
+  font-size:13px;margin-bottom:14px;display:none;line-height:1.5;
 }
 .alert.show{display:block;}
-.al-ok{background:var(--green-bg);border:1px solid rgba(0,230,118,.25);color:var(--green);}
-.al-err{background:var(--red-bg);border:1px solid rgba(239,83,80,.25);color:var(--red);}
-.al-info{background:var(--blue-bg);border:1px solid rgba(79,195,247,.25);color:var(--blue);}
+.al-ok{background:var(--green-bg);border:1px solid rgba(34,211,160,.3);color:var(--green);}
+.al-err{background:var(--red-bg);border:1px solid rgba(244,63,94,.3);color:var(--red);}
+.al-info{background:var(--blue-bg);border:1px solid rgba(74,179,244,.3);color:var(--blue);}
 
 /* Progress */
 .prog{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
 .prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green2),var(--green));transition:.4s;}
-
-/* ══════════════════════════════════════════════════
-   INTEGRACIONES — tarjetas
-══════════════════════════════════════════════════ */
-.int-cards-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:16px;margin-bottom:20px;
-}
-.int-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:22px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;
-  transition:var(--transition);
-}
-.int-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow-md);}
-.int-card-ico{
-  width:48px;height:48px;border-radius:var(--radius-md);
-  display:flex;align-items:center;justify-content:center;font-size:22px;
-}
-.int-card-title{font-family:var(--font-hd);font-weight:700;font-size:15px;}
-.int-card-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:4px;}
 
 /* ══════════════════════════════════════════════════
    CONNECT WA STEPS
@@ -814,18 +800,18 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 .step-panel{display:none;}
 .step-panel.active{display:block;}
 .info-box{
-  background:var(--blue-bg);border:1px solid rgba(79,195,247,.2);
-  border-radius:var(--radius-md);padding:14px 18px;
+  background:var(--blue-bg);border:1px solid rgba(74,179,244,.25);
+  border-radius:var(--radius-md);padding:14px 16px;
   font-size:13px;color:var(--blue);line-height:1.6;margin-bottom:18px;
 }
 .req-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
 .req-item{
   display:flex;align-items:flex-start;gap:12px;
   background:var(--bg3);border:1px solid var(--border);
-  border-radius:var(--radius-md);padding:14px 16px;
+  border-radius:var(--radius-md);padding:13px 15px;
 }
 .req-num{
-  width:24px;height:24px;border-radius:50%;
+  width:22px;height:22px;border-radius:50%;
   background:var(--green);color:#071410;
   font-weight:700;font-size:11px;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
@@ -835,21 +821,21 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 
 .method-opt{
   background:var(--bg3);border:2px solid var(--border);
-  border-radius:var(--radius-lg);padding:20px;cursor:pointer;transition:.2s;
+  border-radius:var(--radius-lg);padding:18px;cursor:pointer;transition:.2s;
 }
-.method-opt:hover{border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.04);}
-.method-opt.selected{border-color:var(--green);background:rgba(0,230,118,.06);box-shadow:var(--shadow-glow);}
+.method-opt:hover{border-color:rgba(34,211,160,.4);background:rgba(34,211,160,.04);}
+.method-opt.selected{border-color:var(--green);background:rgba(34,211,160,.06);}
 
 /* Facebook button */
 .fb-login-btn{
   display:inline-flex;align-items:center;gap:10px;
   background:#1877f2;color:#fff;border:none;
-  border-radius:var(--radius-md);padding:12px 22px;
+  border-radius:var(--radius-md);padding:12px 20px;
   font-size:14px;font-weight:700;cursor:pointer;
   font-family:var(--font-ui);transition:var(--transition);
 }
-.fb-login-btn:hover{background:#1565d8;transform:translateY(-2px);box-shadow:0 4px 20px rgba(24,119,242,.4);}
-@keyframes popIn{0%{transform:scale(.5);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.fb-login-btn:hover{background:#1565d8;transform:translateY(-1px);box-shadow:0 4px 16px rgba(24,119,242,.4);}
+@keyframes popIn{0%{transform:scale(.5);opacity:0;}70%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
 
 /* ══════════════════════════════════════════════════
    CHAT MODULE
@@ -857,7 +843,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 .chat-layout{
   display:flex;
   height:calc(100vh - var(--topbar-h) - 140px);
-  min-height:420px;
+  min-height:400px;
   background:var(--card);
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
@@ -882,20 +868,18 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
   .chat-sidebar.show{transform:translateX(0);}
   .chat-layout{position:relative;}
 }
-.chat-search-wrap{padding:12px 14px;}
+.chat-search-wrap{padding:10px 12px;}
 .chat-search-wrap input{
-  width:100%;padding:10px 14px;
+  width:100%;padding:9px 13px;
   background:var(--bg3);border:1px solid var(--border);
   border-radius:var(--radius-md);color:var(--text);font-size:13px;outline:none;
-  transition:var(--transition);
 }
-.chat-search-wrap input:focus{border-color:var(--green);}
 .chat-filter-tabs{
-  display:flex;gap:4px;padding:0 12px 12px;
+  display:flex;gap:3px;padding:0 10px 10px;
   border-bottom:1px solid var(--border);
 }
 .cf-tab{
-  flex:1;padding:7px 4px;border:none;background:transparent;
+  flex:1;padding:6px 4px;border:none;background:transparent;
   color:var(--text2);font-size:11px;font-weight:700;
   cursor:pointer;border-radius:var(--radius-sm);transition:.2s;
 }
@@ -903,15 +887,15 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 .cf-tab:hover:not(.active){background:var(--card2);}
 .conv-list{flex:1;overflow-y:auto;}
 .conv-item{
-  padding:12px 14px;
-  border-bottom:1px solid rgba(30,58,79,.4);
+  padding:11px 13px;
+  border-bottom:1px solid rgba(36,48,64,.5);
   cursor:pointer;transition:.15s;
   display:flex;gap:10px;align-items:flex-start;
 }
-.conv-item:hover{background:rgba(0,230,118,.04);}
+.conv-item:hover{background:rgba(34,211,160,.05);}
 .conv-item.active{background:var(--green-bg);border-left:3px solid var(--green);}
 .conv-av{
-  width:38px;height:38px;border-radius:50%;
+  width:36px;height:36px;border-radius:50%;
   background:var(--card2);border:1.5px solid var(--border);
   display:flex;align-items:center;justify-content:center;
   font-weight:700;font-size:13px;flex-shrink:0;color:var(--green);
@@ -919,12 +903,12 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 .conv-body{flex:1;min-width:0;}
 .conv-name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .conv-preview{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
-.conv-meta{display:flex;align-items:center;gap:4px;margin-top:3px;}
+.conv-meta{display:flex;align-items:center;gap:4px;margin-top:2px;}
 .conv-time{font-size:10px;color:var(--text3);}
 .conv-unread{
   background:var(--green);color:#071410;
   font-size:9px;font-weight:700;border-radius:var(--radius-full);
-  padding:1px 6px;margin-left:auto;
+  padding:1px 5px;margin-left:auto;
 }
 .chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
 .chat-empty-state{
@@ -934,22 +918,22 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 }
 .chat-conv-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-bottom:1px solid var(--border);
+  padding:11px 15px;border-bottom:1px solid var(--border);
   background:var(--bg2);flex-wrap:wrap;gap:8px;
 }
 .chat-contact-info{display:flex;align-items:center;gap:10px;}
 .chat-av{
-  width:40px;height:40px;border-radius:50%;
-  background:linear-gradient(135deg,var(--green),var(--green2));
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--green3));
   color:#071410;font-weight:700;font-size:15px;
   display:flex;align-items:center;justify-content:center;
 }
 .chat-messages{
-  flex:1;overflow-y:auto;padding:16px;
+  flex:1;overflow-y:auto;padding:14px;
   display:flex;flex-direction:column;gap:8px;
 }
 .bubble{
-  max-width:72%;padding:10px 14px;
+  max-width:72%;padding:9px 13px;
   border-radius:14px;font-size:13px;line-height:1.55;word-break:break-word;
 }
 .bubble-in{
@@ -960,30 +944,29 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
   background:linear-gradient(135deg,var(--green),var(--green2));
   color:#071410;align-self:flex-end;border-bottom-right-radius:3px;
 }
-.bubble-time{font-size:10px;margin-top:4px;color:rgba(0,0,0,0.4);}
+.bubble-time{font-size:10px;margin-top:4px;color:rgba(0,0,0,0.45);}
 .bubble-in .bubble-time{color:var(--text3);}
-.bubble-status{font-size:10px;color:rgba(0,0,0,0.35);}
+.bubble-status{font-size:10px;color:rgba(0,0,0,0.4);}
 .chat-input-area{
-  display:flex;gap:8px;padding:12px 16px;
+  display:flex;gap:8px;padding:11px 14px;
   border-top:1px solid var(--border);
   align-items:flex-end;background:var(--bg2);
 }
 .chat-input-area textarea{
   flex:1;background:var(--bg3);border:1px solid var(--border);
-  border-radius:var(--radius-md);padding:10px 14px;
+  border-radius:var(--radius-md);padding:9px 13px;
   color:var(--text);font-family:var(--font-ui);font-size:13px;
   resize:none;outline:none;max-height:120px;line-height:1.5;
-  transition:var(--transition);
 }
 .chat-input-area textarea:focus{border-color:var(--green);}
 .chat-send-btn{
-  width:42px;height:42px;border-radius:50%;
+  width:40px;height:40px;border-radius:50%;
   background:linear-gradient(135deg,var(--green),var(--green2));
   border:none;color:#071410;cursor:pointer;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:var(--transition);box-shadow:0 2px 12px rgba(0,230,118,.3);
+  transition:var(--transition);box-shadow:0 2px 8px rgba(34,211,160,.3);
 }
-.chat-send-btn:hover{transform:scale(1.06);box-shadow:0 4px 16px rgba(0,230,118,.4);}
+.chat-send-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(34,211,160,.4);}
 .conv-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
 .dot-open{background:var(--green);}
 .dot-waiting{background:var(--yellow);}
@@ -995,23 +978,23 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 .mo{
   display:none;position:fixed;inset:0;
   background:rgba(0,0,0,.7);z-index:500;
-  align-items:center;justify-content:center;padding:24px;
+  align-items:center;justify-content:center;padding:20px;
   backdrop-filter:blur(4px);
 }
 .mo.open{display:flex;}
 .mo-box{
   background:var(--card);border:1px solid var(--border);
-  border-radius:var(--radius-xl);padding:28px 32px;
-  width:540px;max-width:100%;max-height:90vh;overflow-y:auto;
+  border-radius:var(--radius-xl);padding:26px 28px;
+  width:520px;max-width:100%;max-height:90vh;overflow-y:auto;
   box-shadow:var(--shadow-lg);
 }
 .mo-hd{
   display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;
 }
-.mo-hd h3{font-family:var(--font-hd);font-size:17px;font-weight:700;}
+.mo-hd h3{font-family:var(--font-hd);font-size:16px;font-weight:700;}
 .mo-close{
   background:var(--bg3);border:1px solid var(--border);
-  color:var(--text2);cursor:pointer;padding:6px 12px;
+  color:var(--text2);cursor:pointer;padding:5px 10px;
   border-radius:var(--radius-sm);font-size:14px;transition:var(--transition);
 }
 .mo-close:hover{color:var(--red);border-color:var(--red);}
@@ -1025,7 +1008,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 ══════════════════════════════════════════════════ */
 .spin{
   display:inline-block;width:14px;height:14px;
-  border:2px solid rgba(7,20,16,.2);border-top-color:rgba(7,20,16,.9);
+  border:2px solid rgba(7,20,16,.3);border-top-color:rgba(7,20,16,.9);
   border-radius:50%;animation:sp .6s linear infinite;
 }
 .spin-dark{
@@ -1041,12 +1024,14 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 @media(max-width:480px){
   .card{padding:16px;}
   .mo-box{padding:20px 16px;}
-  .btn{padding:7px 14px;font-size:11px;}
+  .btn{padding:7px 13px;font-size:11px;}
   table{font-size:12px;}
   th,td{padding:8px 10px;}
 }
+
+/* Section dividers */
 .section-divider{
-  height:1px;background:var(--border);margin:22px 0;
+  height:1px;background:var(--border);margin:20px 0;
 }
 </style>
 </head>
@@ -1085,6 +1070,18 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
         <button class="btn-main" id="r-btn" onclick="doRegister()">Crear cuenta gratis →</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ══ MODAL genérico reutilizable ══════════════════════════════════════ -->
+<div id="modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <h3 id="modal-title">—</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-ft" id="modal-footer"></div>
   </div>
 </div>
 
@@ -1130,7 +1127,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
         </div>
 
         <div class="ni" onclick="go('invoices')"><div class="ni-ico">📄</div><span class="ni-label">Documentos</span></div>
-        <!--<div class="ni" onclick="go('integrations')"><div class="ni-ico">🔌</div><span class="ni-label">Integraciones</span></div>-->
+        <div class="ni" onclick="go('integrations')"><div class="ni-ico">🔌</div><span class="ni-label">Integraciones</span></div>
         <div class="nav-section">Administración</div>
         <div class="ni" onclick="go('agents')"><div class="ni-ico">👤</div><span class="ni-label">Agentes</span></div>
         <div class="ni" id="ni-connect" onclick="clearConnectTarget();go('connect')"><div class="ni-ico">🔗</div><span class="ni-label">Conectar WhatsApp</span></div>
@@ -1188,6 +1185,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
               <div class="ff full" id="c-template-wrap">
                 <label>Plantilla asignada</label>
                 <select id="c-template" onchange="onCampaignTemplateChange()"><option value="">— Elige una plantilla —</option></select>
+                <div id="c-template-window-badge" class="alert" style="display:none;margin-top:8px;"></div>
               </div>
               <div class="ff full" id="c-msg-wrap" style="display:none;">
                 <label>Mensaje <span style="font-weight:400;text-transform:none">(solo administrador — texto libre)</span></label>
@@ -1201,7 +1199,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
                 <div class="phone-mock-bar"></div>
                 <div class="phone-mock-screen">
                   <div class="chat-bubble-preview" id="c-preview-bubble">
-                    <span id="c-template-preview" style="color:#ffffff;">Elige una plantilla para ver la vista previa…</span>
+                    <span id="c-template-preview" style="color:var(--text3);">Elige una plantilla para ver la vista previa…</span>
                     <div class="chat-bubble-preview-time">12:34 ✓✓</div>
                   </div>
                 </div>
@@ -1229,19 +1227,23 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
             <div class="ff">
               <label>Teléfono</label>
               <div style="display:flex;gap:8px;">
-                <select id="co-prefix" style="width:110px;padding:10px 8px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-md);color:var(--text);outline:none;font-size:13px;">
-                  <option value="504">+504 HN</option>
-                  <option value="57">+57 CO</option>
-                  <option value="48">+48 PL</option>
-                  <option value="52">+52 MX</option>
-                  <option value="1">+1 US</option>
+                <select id="co-prefix" style="width:150px;padding:10px 8px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-md);color:var(--text);outline:none;font-size:13px;">
+                  <option value="504">+504 Honduras</option>
+                  <option value="502">+502 Guatemala</option>
+                  <option value="503">+503 El Salvador</option>
+                  <option value="505">+505 Nicaragua</option>
+                  <option value="506">+506 Costa Rica</option>
+                  <option value="507">+507 Panamá</option>
+                  <option value="501">+501 Belice</option>
+                  <option value="52">+52 México</option>
+                  <option value="1">+1 USA/Canadá</option>
                 </select>
-                <input id="co-phone" placeholder="99887766" style="flex:1;">
+                <input id="co-phone" placeholder="90908080" style="flex:1;">
               </div>
             </div>
             <div class="ff"><label>Etiqueta <span style="font-weight:400;text-transform:none">(opcional)</span></label>
-              <input id="co-tag" list="contact-tags-datalist" placeholder="Elige o escribe una etiqueta">
-              <datalist id="contact-tags-datalist"></datalist>
+              <select id="co-tag"><option value="">— Sin etiqueta —</option></select>
+              <div class="hint" id="co-tag-hint" style="display:none;">Aún no tienes etiquetas creadas. <a href="#" onclick="go('tags');return false;">Crea la primera en Etiquetas →</a></div>
             </div>
             <div id="co-custom-fields-box" class="ff full" style="display:none;">
               <div style="display:flex;flex-direction:column;gap:10px;" id="co-custom-fields-inner"></div>
@@ -1253,7 +1255,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
             <input type="file" id="co-csv-file" accept=".csv" style="display:none" onchange="importContactsCsv(this)">
             <button class="btn btn-o" onclick="exportContacts()">📤 Exportar a Excel</button>
           </div>
-          <div class="hint" style="margin-top:8px;">El CSV debe tener columnas <code>name</code>, <code>phone</code>, <code>tag</code> (opcional) — y opcionalmente una columna por cada campo personalizado de tu empresa.</div>
+          <div class="hint" style="margin-top:8px;">El CSV debe tener columnas <code>name</code>, <code>phone</code>, <code>tag</code> (opcional) — y opcionalmente una columna por cada campo personalizado de tu empresa. <strong>phone</strong> debe incluir código de país (con o sin '+', se normaliza solo). Ej: <code>+504 9990-9099</code> o <code>50499909099</code> → se guarda como <code>50499909099</code>.</div>
         </div>
         <div class="card">
           <div class="card-hd">
@@ -1266,9 +1268,52 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
 
       <!-- ── CHAT ── -->
       <div class="page" id="pg-chat">
-        <div class="ph" style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="ph" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
           <div><h1>Chat en vivo</h1><p>Atiende mensajes entrantes de tus clientes</p></div>
-          <button class="btn btn-o" id="chat-sidebar-toggle" style="display:none;" onclick="toggleChatSidebar()">☰ Chats</button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button class="btn" onclick="openStartChatModal()" title="Enviar plantilla HSM para abrir la conversación">＋ Iniciar conversación</button>
+            <button class="btn btn-o" id="chat-sidebar-toggle" style="display:none;" onclick="toggleChatSidebar()">☰ Chats</button>
+          </div>
+        </div>
+        <!-- Modal: iniciar conversación con plantilla Meta (mensaje_inicial, etc.) -->
+        <div id="start-chat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+          <div style="background:var(--card);border-radius:var(--radius-lg);max-width:480px;width:100%;padding:22px;border:1px solid var(--border);box-shadow:0 20px 50px rgba(0,0,0,.4);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <h2 style="font-size:16px;margin:0;">Iniciar conversación</h2>
+              <button class="btn btn-o" style="padding:4px 10px;font-size:12px;" onclick="closeStartChatModal()">✕</button>
+            </div>
+            <p style="font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:14px;">
+              WhatsApp solo permite <strong>texto libre</strong> si el contacto escribió en las últimas 24h.
+              Para contactar por primera vez (o reabrir), usa una plantilla aprobada por Meta
+              (ej. <code>mensaje_inicial</code> · Spanish HND → idioma <code>es_HN</code>).
+            </p>
+            <div class="ff" style="margin-bottom:10px;">
+              <label>Contacto</label>
+              <select id="sc-contact" style="width:100%;">
+                <option value="">— Elige un contacto —</option>
+              </select>
+            </div>
+            <div class="ff" style="margin-bottom:10px;">
+              <label>O teléfono (solo dígitos + código país)</label>
+              <input id="sc-phone" placeholder="50495855720" style="width:100%;">
+            </div>
+            <div class="ff" style="margin-bottom:10px;">
+              <label>Plantilla Meta (HSM)</label>
+              <select id="sc-template" style="width:100%;" onchange="onStartChatTemplateChange()">
+                <option value="">— Elige plantilla aprobada —</option>
+              </select>
+              <div id="sc-template-preview" style="font-size:12px;color:var(--text2);margin-top:6px;line-height:1.4;"></div>
+            </div>
+            <div id="sc-vars-wrap" style="display:none;margin-bottom:10px;">
+              <label style="font-size:12px;color:var(--text2);">Variables de la plantilla ({{1}}, {{2}}…)</label>
+              <div id="sc-vars"></div>
+            </div>
+            <div id="sc-alert" style="display:none;margin-bottom:10px;" class="alert"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+              <button class="btn btn-o" onclick="closeStartChatModal()">Cancelar</button>
+              <button class="btn" onclick="submitStartChat()">Enviar plantilla</button>
+            </div>
+          </div>
         </div>
         <div class="chat-layout">
           <!-- Lista de conversaciones -->
@@ -1306,7 +1351,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
             </div>
             <div class="chat-messages" id="chat-messages"></div>
             <div class="chat-input-area" id="chat-input-area" style="display:none;">
-              <button class="btn-o" style="border-radius:50%;width:38px;height:38px;padding:0;border:1.5px solid rgba(0,230,118,.3);color:var(--green);flex-shrink:0;" title="Enviar un documento (PDF/imagen) puntual" onclick="document.getElementById('chat-file').click()">📎</button>
+              <button class="btn-o" style="border-radius:50%;width:38px;height:38px;padding:0;border:1.5px solid rgba(34,211,160,.4);color:var(--green);flex-shrink:0;" title="Enviar un documento (PDF/imagen) puntual" onclick="document.getElementById('chat-file').click()">📎</button>
               <input type="file" id="chat-file" accept="application/pdf,image/jpeg,image/png" style="display:none" onchange="sendChatFile(this)">
               <textarea id="chat-reply-input" placeholder="Escribe tu respuesta…" rows="1"
                 onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendReply();}"></textarea>
@@ -1321,7 +1366,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
       <!-- ── CONECTAR WA ── -->
       <div class="page" id="pg-connect">
         <div class="ph"><h1>Conectar WhatsApp Business</h1><p>Conecta tu línea oficial de Meta en minutos</p></div>
-        <div id="connect-target-banner" style="display:none;margin-bottom:14px;padding:12px 16px;background:var(--green-bg);border:1px solid rgba(0,230,118,.25);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div id="connect-target-banner" style="display:none;margin-bottom:14px;padding:12px 16px;background:var(--green-bg);border:1px solid rgba(34,211,160,.3);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
           <div style="font-size:13px;">Conectando WhatsApp para: <strong id="connect-target-name" style="color:var(--green)">–</strong></div>
           <button class="btn btn-o" style="font-size:11px;padding:5px 10px;" onclick="clearConnectTarget()">Cambiar de empresa</button>
         </div>
@@ -1412,7 +1457,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
               </div>
             </div>
             <div id="signup-step-2" style="display:none;">
-              <div class="info-box" style="margin-bottom:18px;background:var(--green-bg);border-color:rgba(0,230,118,.25);">
+              <div class="info-box" style="margin-bottom:18px;background:var(--green-bg);border-color:rgba(34,211,160,.3);">
                 ✅ <strong>¡Autorización recibida!</strong> Completa los datos de tu línea para finalizar.
               </div>
               <div id="signup-step2-alert" class="alert"></div>
@@ -1480,7 +1525,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
           <div id="tag-alert" class="alert"></div>
           <div class="fgrid">
             <div class="ff"><label>Nombre</label><input id="tag-name" placeholder="VIP, Leads, Cliente frecuente…"></div>
-            <div class="ff"><label>Color</label><input id="tag-color" type="color" value="#00e676" style="height:42px;padding:4px;cursor:pointer;"></div>
+            <div class="ff"><label>Color</label><input id="tag-color" type="color" value="#22d3a0" style="height:42px;padding:4px;cursor:pointer;"></div>
             <div class="ff full"><label>Descripción <span style="font-weight:400;text-transform:none">(opcional)</span></label><input id="tag-desc" placeholder="Para qué usas esta etiqueta"></div>
           </div>
           <button class="btn btn-g" onclick="createTag()" style="margin-top:14px;">+ Crear etiqueta</button>
@@ -1499,7 +1544,8 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
           <div id="inv-alert" class="alert"></div>
           <div class="fgrid" style="margin-bottom:18px;">
             <div class="ff"><label>Nombre del lote</label><input id="inv-name" placeholder="Facturas Junio 2025" value="Documentos"></div>
-            <div class="ff"><label>Tipo de documento (para todo el lote, editable por archivo)</label>
+            <div class="ff">
+              <label>Tipo de documento<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Es solo una ETIQUETA para organizar y reportar — NO filtra ni elige archivos. Se aplica por defecto a TODOS los que subas aquí, y puedes corregirla archivo por archivo después de subir el lote (ej. si mezclaste facturas y recibos).</span></span></label>
               <select id="inv-doc-type"></select>
             </div>
             <div class="ff">
@@ -1511,8 +1557,20 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
             </div>
             <div class="ff full"><label>Mensaje acompañante <span style="font-weight:400;text-transform:none">(opcional, para todos)</span></label><textarea id="inv-caption" rows="2" placeholder="Adjuntamos tu documento correspondiente..."></textarea></div>
           </div>
+
+          <div class="info-box" style="margin-bottom:16px;">
+            <strong>Cómo se decide a quién le llega cada archivo:</strong> se toma lo que va DESPUÉS del último guion bajo <code>_</code> en el nombre (antes de la extensión). La palabra antes del guion bajo (factura/recibo/planilla...) es solo para que TÚ reconozcas el archivo — no afecta nada.<br><br>
+            <strong>TODOS los archivos que subas se incluyen en el lote</strong>, sin importar cómo se llamen — nada se filtra por nombre. Ejemplos:
+            <ul style="margin:8px 0 0 18px;padding:0;">
+              <li>Emparejando por <strong>Teléfono</strong>: <code>factura_9585-5720.pdf</code> → destinatario <code>9585-5720</code></li>
+              <li>Emparejando por <strong>RTN</strong>: <code>recibo_08011990012345.pdf</code> → busca el contacto con RTN <code>08011990012345</code></li>
+              <li>Emparejando por <strong>código de empleado</strong>: <code>planilla_EMP-045.xlsx</code> → busca el contacto con código <code>EMP-045</code></li>
+            </ul>
+            Si un archivo no trae el valor en el nombre (o no coincide con ningún contacto), queda pendiente — lo corriges después de subir, en la lista de cada lote, sin tener que resubir nada.
+          </div>
+
           <div style="margin-bottom:14px;">
-            <label style="display:block;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Subir archivos <span id="inv-files-hint" style="font-weight:400;text-transform:none">(PDF, Excel, Word o CSV — nombra el archivo con el valor de emparejamiento, ej. factura_50499112233.pdf, o corrígelo después)</span></label>
+            <label style="display:block;margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;">Subir archivos <span style="font-weight:400;text-transform:none">(PDF, Excel, Word o CSV)</span></label>
             <input type="file" id="inv-files" multiple accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" style="margin-bottom:6px;">
             <div id="selected-files" style="font-size:12px;color:var(--text2);min-height:16px;"></div>
           </div>
@@ -1533,7 +1591,8 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
             <div class="int-card-ico" style="background:var(--green-bg);color:var(--green);">🔌</div>
             <div class="int-card-title">API REST</div>
             <div class="int-card-desc">Integra tus sistemas usando nuestra API REST — contactos, campañas, plantillas y envío de mensajes.</div>
-            <a class="btn btn-o" href="/docs" target="_blank" style="font-size:12px;">📘 Ver documentación</a>
+            <button class="btn btn-o" id="btn-view-api-docs" onclick="openApiDocs()" style="font-size:12px;">📘 Ver documentación</button>
+            <div id="api-docs-noperm" class="hint" style="display:none;">No tienes permiso para ver la documentación de la API. Pide al administrador que te lo otorgue.</div>
           </div>
           <div class="int-card">
             <div class="int-card-ico" style="background:var(--blue-bg);color:var(--blue);">🪝</div>
@@ -1548,7 +1607,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
             <button class="btn btn-g" onclick="openCreateApiKey()" style="font-size:12px;">+ Crear llave API</button>
           </div>
           <div id="apikey-alert" class="alert"></div>
-          <div id="apikey-created-box" style="display:none;margin-bottom:16px;padding:14px;background:var(--green-bg);border:1px solid rgba(0,230,118,.25);border-radius:var(--radius-md);">
+          <div id="apikey-created-box" style="display:none;margin-bottom:16px;padding:14px;background:var(--green-bg);border:1px solid rgba(34,211,160,.3);border-radius:var(--radius-md);">
             <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">✅ Llave creada — cópiala ahora, no se vuelve a mostrar completa:</div>
             <code id="apikey-raw-value" style="display:block;background:var(--bg3);padding:10px;border-radius:var(--radius-sm);font-size:12px;word-break:break-all;margin-bottom:8px;"></code>
             <button class="btn btn-o" style="font-size:11px;" onclick="copyApiKeyValue()">📋 Copiar</button>
@@ -1688,19 +1747,20 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
           </div>
 
           <div class="card" id="admin-fields-card">
-            <div class="card-hd"><h2>Campos personalizados por empresa<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Define qué datos aplican a cada empresa (medicamento, identidad, RTN...) — quedan disponibles como {{variable}} en las plantillas, como columnas al importar contactos, y como criterio para enviar documentos a la persona correcta.</span></span></h2></div>
+            <div class="card-hd"><h2>Campos personalizados por empresa<span class="info-tip" onclick="toggleTip(this)" tabindex="0">ⓘ<span class="tip-bubble">Define qué datos aplican a cada empresa (medicamento, identidad, RTN...). La CLAVE es un nombre corto que TÚ inventas (no viene del documento ni de ningún archivo) — se usa para guardar el dato y para escribir {{esa_clave}} en las plantillas. Quedan disponibles también como columnas al importar contactos, y como criterio para enviar documentos a la persona correcta.</span></span></h2></div>
             <div id="admin-fields-alert" class="alert"></div>
             <div class="fgrid" style="margin-bottom:12px;">
               <div class="ff"><label>Empresa</label>
-                <select id="field-client" onchange="loadClientFields()"><option value="">— Elige una empresa —</option></select>
+                <select id="field-client" onchange="loadClientFields()"><option value="">— Todas las empresas —</option></select>
               </div>
-              <div class="ff"><label>Clave <span style="font-weight:400;text-transform:none">(sin espacios, ej. rtn)</span></label><input id="field-key" placeholder="rtn"></div>
+              <div class="ff"><label>Clave <span style="font-weight:400;text-transform:none">(nombre corto, tú lo inventas)</span></label><input id="field-key" placeholder="rtn"></div>
               <div class="ff"><label>Etiqueta visible</label><input id="field-label" placeholder="RTN"></div>
               <div class="ff"><label>Tipo</label>
-                <select id="field-type"><option value="text">Texto</option><option value="date">Fecha</option><option value="number">Número</option></select>
+                <select id="field-type"><option value="text">Texto</option><option value="date">Fecha</option><option value="number">Número</option><option value="phone">Teléfono</option></select>
               </div>
             </div>
-            <button class="btn btn-g" onclick="createClientField()">+ Agregar campo</button>
+            <div class="hint" style="margin-bottom:12px;">Ej: para identificar por RTN, crea clave <code>rtn</code>, etiqueta "RTN", tipo Texto — no tiene que coincidir con nada del documento, es solo el nombre que TÚ le das a ese dato.</div>
+            <button class="btn btn-g" onclick="createClientField()">+ Agregar campo (a la empresa elegida)</button>
             <div class="tbl-wrap" id="admin-fields-table" style="margin-top:14px;"></div>
           </div>
         </div>
@@ -1729,8 +1789,18 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
                 <div class="ff"><label>Asignar a</label>
                   <select id="tpl-client"><option value="">— Global (todas las empresas) —</option></select>
                 </div>
-                <div class="ff"><label>Plantilla Meta (HSM) <span style="font-weight:400;text-transform:none">(opcional, para fuera de 24h)</span></label>
-                  <input id="tpl-meta-name" placeholder="nombre_exacto_en_meta">
+                <div class="ff"><label>Plantilla Meta de inicio (HSM) <span style="font-weight:400;text-transform:none">(para iniciar conversación fuera de 24h)</span></label>
+                  <div style="display:flex;gap:8px;">
+                    <input id="tpl-meta-name" placeholder="nombre_exacto_en_meta" style="flex:1;">
+                    <select id="tpl-meta-lang" style="width:120px;padding:10px 8px;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-md);color:var(--text);outline:none;font-size:13px;">
+                      <option value="es">Español (es)</option>
+                      <option value="es_MX">Español MX</option>
+                      <option value="es_HN">Español HN</option>
+                      <option value="en_US">English (US)</option>
+                      <option value="pt_BR">Português (BR)</option>
+                    </select>
+                  </div>
+                  <div class="hint">Sin esto, la campaña <strong>no podrá iniciar</strong> conversación con contactos fuera de la ventana de 24h — Meta lo exige.</div>
                 </div>
                 <div class="ff full">
                   <label>Mensaje</label>
@@ -1744,7 +1814,7 @@ input[type="checkbox"]:hover, input[type="radio"]:hover {
                   <div class="phone-mock-bar"></div>
                   <div class="phone-mock-screen">
                     <div class="chat-bubble-preview" id="tpl-preview-bubble">
-                      <span id="tpl-preview-text" style="color:#ffffff;">Escribe el mensaje para ver la vista previa…</span>
+                      <span id="tpl-preview-text" style="color:var(--text3);">Escribe el mensaje para ver la vista previa…</span>
                       <div class="chat-bubble-preview-time">12:34 ✓✓</div>
                     </div>
                   </div>
@@ -1829,6 +1899,7 @@ function toggleChatSidebar() {
   panel.classList.toggle('show');
 }
 
+// Mostrar toggle de chat sidebar en móvil
 function updateChatSidebarButton() {
   const btn = document.getElementById('chat-sidebar-toggle');
   if (window.innerWidth <= 700) {
@@ -1839,6 +1910,7 @@ function updateChatSidebarButton() {
 }
 window.addEventListener('resize', updateChatSidebarButton);
 
+// Cerrar sidebar al hacer clic en nav item (móvil)
 document.querySelectorAll('.ni').forEach(ni => {
   ni.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
@@ -1870,6 +1942,8 @@ document.querySelectorAll('.ni').forEach(ni => {
 
 function showAuth() { document.getElementById('auth-screen').style.display = 'flex'; }
 
+// Permisos: dueños de empresa y superadmin tienen acceso total (null =
+// sin restricción); solo los agentes están limitados a su lista.
 function iHavePermission(perm) {
   if (ME.type !== 'agent') return true;
   return (ME.permissions || []).includes(perm);
@@ -1887,7 +1961,7 @@ function showApp() {
   if (ME.has_whatsapp) document.getElementById('wa-badge').style.display = 'flex';
 
   const isSuperAdmin = !!ME.is_superadmin;
-  const isOwner = ME.type === 'owner';
+  const isOwner = ME.type === 'owner';   // dueño de empresa (incluye superadmin)
   const isAgent = ME.type === 'agent';
 
   document.querySelectorAll('.ni').forEach(item => {
@@ -1899,9 +1973,12 @@ function showApp() {
     if (text.includes('Integraciones'))      item.style.display = isOwner ? 'flex' : 'none';
     if (text.includes('Chat en vivo'))       item.style.display = (isOwner || iHavePermission('chat_support')) ? 'flex' : 'none';
   });
+  // El grupo de Contactos se muestra/oculta como bloque completo (encabezado + submenú).
   document.getElementById('ni-group-contacts').style.display =
     (isOwner || iHavePermission('manage_contacts') || iHavePermission('view_reports')) ? 'block' : 'none';
 
+  // Conectar WhatsApp: SOLO el superadmin de la plataforma. Las empresas
+  // (clientes) ya no pueden auto-conectar su línea.
   document.getElementById('ni-connect').style.display = isSuperAdmin ? 'flex' : 'none';
   document.getElementById('ni-admin').style.display = isSuperAdmin ? 'flex' : 'none';
 
@@ -2042,10 +2119,16 @@ function go(name) {
   if (name === 'invoices') loadInvoiceBatches();
   if (name === 'contacts') loadCustomFieldDefs();
   if (name === 'tags') loadTagsPage();
-  if (name === 'integrations') { loadApiKeys(); loadWebhooks(); loadWebhookEventCatalog(); }
+  if (name === 'integrations') {
+    loadApiKeys(); loadWebhooks(); loadWebhookEventCatalog();
+    const hasDocsPerm = iHavePermission('view_api_docs');
+    document.getElementById('btn-view-api-docs').style.display = hasDocsPerm ? 'inline-block' : 'none';
+    document.getElementById('api-docs-noperm').style.display = hasDocsPerm ? 'none' : 'block';
+  }
   if (name === 'admin' && isSuperAdmin) {
     showAdminTab('resumen');
     loadAdminOverview(); loadAdminClients(); loadAdminTemplates(); loadAdminAgents(); loadAdminRecurring();
+    loadClientFields();
     renderOnboardingChecklist();
   }
 }
@@ -2121,6 +2204,7 @@ async function loadMyTemplates() {
     const sel = document.getElementById('c-template');
     sel.innerHTML = '<option value="">— Elige una plantilla —</option>' +
       MY_TEMPLATES.map(t => `<option value="${t.id}">${esc(t.name)}${t.category?` (${esc(t.category)})`:''}</option>`).join('');
+    // Solo el superadmin puede escribir texto libre; el resto elige plantilla.
     document.getElementById('c-msg-wrap').style.display = (ME && ME.is_superadmin) ? 'flex' : 'none';
   } catch(e){ console.error(e); }
 }
@@ -2130,6 +2214,20 @@ function onCampaignTemplateChange() {
   const t = MY_TEMPLATES.find(x => String(x.id) === String(id));
   const freeText = document.getElementById('c-msg') ? document.getElementById('c-msg').value : '';
   document.getElementById('c-template-preview').innerHTML = renderMessagePreview(t ? t.message_template : freeText);
+  const badge = document.getElementById('c-template-window-badge');
+  if (badge) {
+    if (t && t.meta_template_name) {
+      badge.style.display = 'block';
+      badge.className = 'alert ok';
+      badge.innerHTML = `✅ Esta plantilla también puede <strong>iniciar</strong> conversación con contactos fuera de la ventana de 24h (usa "${esc(t.meta_template_name)}" en Meta).`;
+    } else if (t) {
+      badge.style.display = 'block';
+      badge.className = 'alert err';
+      badge.innerHTML = `⚠ Esta plantilla no tiene una plantilla Meta de inicio enlazada — los contactos fuera de la ventana de 24h <strong>no recibirán</strong> el mensaje. Pide al administrador que enlace una.`;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
 }
 
 async function createCampaign() {
@@ -2218,7 +2316,7 @@ async function loadCustomFieldDefs() {
     inner.innerHTML = CUSTOM_FIELD_DEFS.map(f => `
       <div class="ff">
         <label>${esc(f.label)}</label>
-        <input class="co-cf-input" data-key="${esc(f.key)}" type="${f.field_type === 'date' ? 'date' : f.field_type === 'number' ? 'number' : 'text'}">
+        <input class="co-cf-input" data-key="${esc(f.key)}" type="${f.field_type === 'date' ? 'date' : f.field_type === 'number' ? 'number' : f.field_type === 'phone' ? 'tel' : 'text'}">
       </div>
     `).join('');
   } catch(e) { console.error(e); }
@@ -2239,7 +2337,7 @@ async function loadContacts() {
       return `<tr${c.opted_out?' style="opacity:.55"':''}>
       <td><strong>${esc(c.name)}</strong></td>
       <td><code style="color:var(--green);background:var(--bg3);padding:2px 7px;border-radius:4px;font-size:12px">${c.phone}</code></td>
-      <td>${c.tag?`<span class="bdg bdg-draft">${esc(c.tag)}</span>`:'–'}</td>
+      <td>${c.tag ? tagBadgeHtml(c.tag, (TAGS_CACHE.find(t=>t.name===c.tag)||{}).color || '#22d3a0') : '–'}</td>
       ${extraCells}
       <td>${c.opted_out
         ? `<button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="toggleOptOut(${c.id},false)">Reactivar</button>`
@@ -2258,17 +2356,20 @@ async function toggleOptOut(id, optedOut) {
 async function addContact() {
   const name = document.getElementById('co-name').value.trim();
   const prefix = document.getElementById('co-prefix').value;
-  const phoneDigits = document.getElementById('co-phone').value.trim().replace(/\s+/g,'');
-  const phone = phoneDigits.startsWith(prefix) ? phoneDigits : (prefix + phoneDigits);
-  const tag = document.getElementById('co-tag').value.trim();
+  // Formato estándar único de la plataforma: solo dígitos, código de país
+  // pegado adelante, sin '+'. Aceptamos que el usuario pegue el número con
+  // '+', espacios o guiones (ej. "+504 9990-9099") y lo limpiamos aquí.
+  const rawDigits = document.getElementById('co-phone').value.replace(/\D+/g, '');
+  const phone = rawDigits.startsWith(prefix) ? rawDigits : (prefix + rawDigits);
+  const tag = document.getElementById('co-tag').value;
   const custom_fields = {};
   document.querySelectorAll('.co-cf-input').forEach(inp => {
     if (inp.value.trim()) custom_fields[inp.dataset.key] = inp.value.trim();
   });
   setAlert('co-alert','','');
   if (!name) { setAlert('co-alert','err','⚠ Escribe el nombre del contacto'); return; }
-  if (!phoneDigits) { setAlert('co-alert','err','⚠ Escribe el número de teléfono'); return; }
-  if (!/^\d{7,15}$/.test(phone)) { setAlert('co-alert','err','⚠ Solo números, con código de país. Ej: 50499887766'); return; }
+  if (!rawDigits) { setAlert('co-alert','err','⚠ Escribe el número de teléfono'); return; }
+  if (!/^\d{8,15}$/.test(phone)) { setAlert('co-alert','err','⚠ Número inválido. Elige el país y escribe solo el número local. Ej: Honduras + 90908080 → 50490908080'); return; }
   try {
     await req('POST','/contacts',{name, phone, tag:tag||null, custom_fields});
     document.getElementById('co-name').value='';
@@ -2292,7 +2393,7 @@ async function importContactsCsv(input) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Error al importar');
-    setAlert('co-alert','ok',`✅ Importación completa: ${data.created} agregado(s), ${data.skipped} omitido(s) (duplicados o filas inválidas).`);
+    setAlert('co-alert','ok',`✅ Importación completa: ${data.created} agregado(s), ${data.skipped} omitido(s) por duplicado, ${data.invalid||0} con teléfono/nombre inválido.`);
     loadContacts();
   } catch(e) { setAlert('co-alert','err','✕ '+e.message); }
   finally { input.value = ''; }
@@ -2325,7 +2426,7 @@ const META_CONFIG_ID = '2192998534770589';
 let embeddedSignupToken = null;
 let embeddedPhones      = [];
 let embeddedWabaId      = null;
-let signupMode          = 'new';
+let signupMode          = 'new'; // 'new' = crear WABA/número desde cero | 'migrate' = migrar número existente de la app de WhatsApp Business
 
 function selectMethod(method) {
   document.getElementById('mopt-signup').classList.toggle('selected', method==='signup');
@@ -2342,6 +2443,7 @@ function launchEmbeddedSignup() {
   FB.login(function(response) {
     if (response.authResponse) {
       const code = response.authResponse.code;
+      // Enviamos el code a nuestro backend para intercambiarlo
       handleFBCode(code);
     } else {
       document.getElementById('signup-waiting').style.display = 'none';
@@ -2353,6 +2455,11 @@ function launchEmbeddedSignup() {
     response_type: 'code',
     override_default_response_type: true,
     extras: {
+      // '' (vacío) = crear WABA + número nuevos desde cero.
+      // 'whatsapp_business_app_onboarding' = SOLO cuando el cliente ya
+      // tiene un número corriendo en la app normal de WhatsApp Business
+      // y lo va a migrar a Cloud API. Usar el valor equivocado aquí es
+      // la causa más común de que Meta no devuelva phone_number_id.
       featureType: signupMode === 'migrate' ? 'whatsapp_business_app_onboarding' : '',
       sessionInfoVersion: '3',
       version: 'v4'
@@ -2360,6 +2467,8 @@ function launchEmbeddedSignup() {
   });
 }
 
+// Listener para capturar el evento WA_EMBEDDED_SIGNUP (phone_number_id, waba_id)
+// Listener para capturar el evento WA_EMBEDDED_SIGNUP (phone_number_id, waba_id)
 window._waEmbeddedData = null;
 window._waEmbeddedDataResolvers = [];
 
@@ -2367,10 +2476,12 @@ window.addEventListener('message', (event) => {
   if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
   try {
     const data = JSON.parse(event.data);
+    // Log de diagnóstico: deja ver en la consola EXACTAMENTE qué evento
+    // manda Meta (FINISH, CANCEL, cualquier error) y con qué datos.
     console.log('[WA_EMBEDDED_SIGNUP raw event]', data);
     if (data.type === 'WA_EMBEDDED_SIGNUP') {
       if (data.event === 'FINISH' || data.event === 'FINISH_ONLY_WABA') {
-        window._waEmbeddedData = data.data;
+        window._waEmbeddedData = data.data; // { phone_number_id, waba_id }
         window._waEmbeddedDataResolvers.forEach(resolve => resolve(data.data));
         window._waEmbeddedDataResolvers = [];
       } else if (data.event === 'CANCEL') {
@@ -2666,6 +2777,7 @@ async function openConv(convId) {
   document.getElementById('chat-empty').style.display = 'none';
   document.getElementById('chat-header').style.display = 'flex';
   document.getElementById('chat-input-area').style.display = 'flex';
+  // En móvil, cerrar el sidebar de chat al abrir conversación
   if (window.innerWidth <= 700) {
     document.getElementById('chat-sidebar-panel').classList.remove('show');
   }
@@ -2720,10 +2832,121 @@ async function sendReply() {
   } catch(e) {
     const b = document.getElementById('bubble-sending');
     if (b) b.style.opacity = '0.5';
-    alert('Error al enviar: ' + e.message);
+    alert('Error al enviar: ' + e.message + '\n\nSi el contacto está fuera de la ventana de 24h, usa «Iniciar conversación» con una plantilla Meta (ej. mensaje_inicial).');
   } finally {
     input.disabled = false;
     input.focus();
+  }
+}
+
+// ── Iniciar conversación con plantilla HSM (mensaje_inicial, etc.) ──
+let START_CHAT_TEMPLATES = [];
+
+async function openStartChatModal() {
+  const modal = document.getElementById('start-chat-modal');
+  modal.style.display = 'flex';
+  document.getElementById('sc-alert').style.display = 'none';
+  document.getElementById('sc-phone').value = '';
+  document.getElementById('sc-vars-wrap').style.display = 'none';
+  document.getElementById('sc-vars').innerHTML = '';
+  document.getElementById('sc-template-preview').textContent = '';
+
+  // Contactos
+  try {
+    const contacts = await req('GET', '/contacts');
+    const sel = document.getElementById('sc-contact');
+    sel.innerHTML = '<option value="">— Elige un contacto —</option>' +
+      (contacts || []).map(c =>
+        `<option value="${c.id}" data-phone="${esc(c.phone||'')}">${esc(c.name||c.phone)} (${esc(c.phone||'')})</option>`
+      ).join('');
+  } catch(e) { console.error(e); }
+
+  // Plantillas Meta sincronizadas (APPROVED)
+  try {
+    START_CHAT_TEMPLATES = await req('GET', '/chat/meta-templates');
+    const tsel = document.getElementById('sc-template');
+    if (!START_CHAT_TEMPLATES.length) {
+      tsel.innerHTML = '<option value="">— No hay plantillas sincronizadas —</option>';
+      document.getElementById('sc-template-preview').innerHTML =
+        'Sincroniza las plantillas Meta desde el Panel Admin → empresa → «Plantillas Meta».';
+    } else {
+      tsel.innerHTML = '<option value="">— Elige plantilla aprobada —</option>' +
+        START_CHAT_TEMPLATES.map((t, i) =>
+          `<option value="${i}">${esc(t.name)} · ${esc(t.language)} · ${esc(t.category||'')}</option>`
+        ).join('');
+    }
+  } catch(e) {
+    document.getElementById('sc-template').innerHTML =
+      '<option value="">Error al cargar plantillas</option>';
+  }
+}
+
+function closeStartChatModal() {
+  document.getElementById('start-chat-modal').style.display = 'none';
+}
+
+function onStartChatTemplateChange() {
+  const idx = document.getElementById('sc-template').value;
+  const wrap = document.getElementById('sc-vars-wrap');
+  const varsEl = document.getElementById('sc-vars');
+  const prev = document.getElementById('sc-template-preview');
+  if (idx === '' || !START_CHAT_TEMPLATES[idx]) {
+    wrap.style.display = 'none';
+    varsEl.innerHTML = '';
+    prev.textContent = '';
+    return;
+  }
+  const t = START_CHAT_TEMPLATES[idx];
+  prev.textContent = t.body_text || '(sin texto de cuerpo)';
+  const n = t.variable_count || 0;
+  if (n > 0) {
+    wrap.style.display = 'block';
+    varsEl.innerHTML = Array.from({length: n}, (_, i) =>
+      `<input class="sc-var-input" data-i="${i}" placeholder="Valor de {{${i+1}}}" style="width:100%;margin-top:6px;">`
+    ).join('');
+  } else {
+    wrap.style.display = 'none';
+    varsEl.innerHTML = '';
+  }
+}
+
+async function submitStartChat() {
+  const alertEl = document.getElementById('sc-alert');
+  alertEl.style.display = 'none';
+  const contactId = document.getElementById('sc-contact').value;
+  const phone = document.getElementById('sc-phone').value.trim();
+  const idx = document.getElementById('sc-template').value;
+  if (!contactId && !phone) {
+    alertEl.className = 'alert err';
+    alertEl.style.display = 'block';
+    alertEl.textContent = 'Elige un contacto o escribe un teléfono.';
+    return;
+  }
+  if (idx === '' || !START_CHAT_TEMPLATES[idx]) {
+    alertEl.className = 'alert err';
+    alertEl.style.display = 'block';
+    alertEl.textContent = 'Elige una plantilla Meta aprobada (ej. mensaje_inicial).';
+    return;
+  }
+  const t = START_CHAT_TEMPLATES[idx];
+  const vars = Array.from(document.querySelectorAll('.sc-var-input')).map(i => i.value.trim());
+  const body = {
+    template_name: t.name,
+    template_language: t.language || 'es',
+    template_variables: vars.filter(v => v !== undefined),
+  };
+  if (contactId) body.contact_id = parseInt(contactId, 10);
+  else body.phone = phone;
+
+  try {
+    const res = await req('POST', '/chat/start', body);
+    closeStartChatModal();
+    await loadConversations();
+    if (res.conversation_id) await openConv(res.conversation_id);
+  } catch(e) {
+    alertEl.className = 'alert err';
+    alertEl.style.display = 'block';
+    alertEl.textContent = e.message || String(e);
   }
 }
 
@@ -2771,24 +2994,21 @@ async function setConvStatus(status) {
 }
 
 async function updateChatBadge() {
-  const token = localStorage.getItem('wb_tok');
+  // 1. Guardia: Si no hay token, no hagas nada y vuelve a intentarlo más tarde
+  const token = localStorage.getItem('token'); // O donde guardes tu token
   if (!token) {
-    setTimeout(updateChatBadge, 60000);
+    setTimeout(updateChatBadge, 60000); // Espera 1 minuto antes de volver a verificar
     return;
   }
+
   try {
-    const data = await req('GET', '/chat/unread_count');
-    const badge = document.getElementById('chat-badge');
-    if (data.unread > 0) {
-      badge.style.display = 'inline';
-      badge.textContent = data.unread;
-    } else {
-      badge.style.display = 'none';
-    }
+    const data = await req('GET', '/api/chat/unread_count');
+    // ... procesar el contador ...
   } catch(e) {
     console.error("Error al obtener contador:", e);
   } finally {
-    setTimeout(updateChatBadge, 30000);
+    // 2. Solo programa la siguiente ejecución después de terminar la actual
+    setTimeout(updateChatBadge, 30000); 
   }
 }
 
@@ -2907,25 +3127,47 @@ async function viewInvoiceStats(batchId) {
     const items = await req('GET', `/documents/batches/${batchId}/items`);
     const rows = items.map(i => `
       <tr>
-        <td>${esc(i.original_name)}</td>
-        <td>${esc(i.doc_type || '—')}</td>
-        <td>${i.has_valid_phone ? esc(i.contact_phone) : `<span class="c-red">sin resolver</span>`}${i.match_value && !i.has_valid_phone ? `<div class="hint" style="margin:2px 0 0;">buscando: ${esc(i.match_value)}</div>` : ''}</td>
-        <td>${esc(i.contact_name || '—')}</td>
+        <td style="font-size:12px;">${esc(i.original_name)}</td>
+        <td><input class="doc-item-doctype" data-id="${i.id}" value="${esc(i.doc_type||'')}" style="width:110px;padding:6px 8px;font-size:12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);"></td>
+        <td>
+          <input class="doc-item-matchval" data-id="${i.id}" value="${esc(i.has_valid_phone ? i.contact_phone : (i.match_value||''))}" placeholder="ej. 50499112233" style="width:140px;padding:6px 8px;font-size:12px;background:${i.has_valid_phone?'var(--bg3)':'rgba(239,68,68,.08)'};border:1px solid ${i.has_valid_phone?'var(--border)':'var(--red)'};border-radius:6px;color:var(--text);">
+          ${!i.has_valid_phone ? `<div class="hint" style="margin:2px 0 0;color:var(--red)">sin resolver todavía</div>` : ''}
+        </td>
+        <td><input class="doc-item-name" data-id="${i.id}" value="${esc(i.contact_name||'')}" style="width:120px;padding:6px 8px;font-size:12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);"></td>
         <td><span class="bdg ${i.status==='sent'?'bdg-completed':i.status==='failed'?'bdg-failed':'bdg-draft'}">${i.status}</span></td>
+        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="saveDocItem(${i.id})">💾</button></td>
       </tr>`).join('');
     const pending = items.filter(i => !i.has_valid_phone).length;
     const html = `
-      <table><thead><tr><th>Archivo</th><th>Tipo</th><th>Destinatario</th><th>Contacto</th><th>Estado</th></tr></thead>
+      <div class="hint" style="margin-bottom:10px;">Edita el destinatario o el tipo directamente aquí y dale 💾 por fila — no hace falta volver a subir el archivo.</div>
+      <table><thead><tr><th>Archivo</th><th>Tipo</th><th>Destinatario (teléfono o valor de emparejamiento)</th><th>Nombre contacto</th><th>Estado</th><th></th></tr></thead>
       <tbody>${rows}</tbody></table>`;
     setAlert('inv-alert', '', '');
     const retryBtn = pending
       ? `<button class="btn btn-o" style="font-size:11px" onclick="resolveInvoiceBatch(${batchId})">🔄 Reintentar emparejamiento (${pending} pendiente${pending>1?'s':''})</button>`
       : '';
+    document.getElementById('inv-detail-card')?.remove();
     document.getElementById('inv-table').insertAdjacentHTML('afterend', `<div class="card" id="inv-detail-card"><div class="card-hd"><h2>Documentos del lote ${batchId}</h2><div style="display:flex;gap:8px;">${retryBtn}<button class="btn btn-o" style="font-size:11px" onclick="document.getElementById('inv-detail-card').remove()">✕ Cerrar</button></div></div><div class="tbl-wrap">${html}</div></div>`);
     document.getElementById('inv-detail-card').scrollIntoView({behavior:'smooth'});
   } catch(e) {
     alert('Error al cargar el detalle: ' + e.message);
   }
+}
+
+async function saveDocItem(itemId) {
+  const doc_type = document.querySelector(`.doc-item-doctype[data-id="${itemId}"]`).value.trim();
+  const matchVal = document.querySelector(`.doc-item-matchval[data-id="${itemId}"]`).value.trim();
+  const contact_name = document.querySelector(`.doc-item-name[data-id="${itemId}"]`).value.trim();
+  const payload = { doc_type, contact_name };
+  // Si parece un teléfono (solo dígitos/guiones, 7+ caracteres), lo mandamos como "phone"
+  // para que se normalice; si no, como "match_value" crudo (RTN, código, etc.).
+  if (/^[\d\-\s]{7,}$/.test(matchVal)) payload.phone = matchVal;
+  else payload.match_value = matchVal;
+  try {
+    await req('PATCH', `/documents/items/${itemId}`, payload);
+    const btn = document.querySelector(`button[onclick="saveDocItem(${itemId})"]`);
+    if (btn) { btn.textContent = '✅'; setTimeout(() => btn.textContent = '💾', 1200); }
+  } catch(e) { alert('Error al guardar: ' + e.message); }
 }
 
 async function resolveInvoiceBatch(batchId) {
@@ -2940,8 +3182,8 @@ async function resolveInvoiceBatch(batchId) {
 // ════════════════════════════════════════════════════════════════
 // AGENTES
 // ════════════════════════════════════════════════════════════════
-let AGENT_PERM_CATALOG = [];
-let AGENT_ROLE_DEFAULTS = {};
+let AGENT_PERM_CATALOG = [];      // [{key,label}]
+let AGENT_ROLE_DEFAULTS = {};     // {role: [perm,...]}
 
 async function loadPermissionCatalog() {
   if (AGENT_PERM_CATALOG.length) return;
@@ -2953,13 +3195,7 @@ async function loadPermissionCatalog() {
 }
 
 function renderPermissionCheckboxes(selected) {
-  const box = document.getElementById('agent-permissions-box');
-  box.innerHTML = AGENT_PERM_CATALOG.map(p => `
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
-      <input type="checkbox" class="agent-perm-cb" value="${p.key}" ${selected.includes(p.key)?'checked':''}>
-      ${esc(p.label)}
-    </label>
-  `).join('');
+  renderChipSelector('agent-permissions-box', AGENT_PERM_CATALOG, selected, 'agent-perm-chip');
 }
 
 async function createAgent() {
@@ -2967,7 +3203,7 @@ async function createAgent() {
   const email    = document.getElementById('agent-email').value.trim();
   const password = document.getElementById('agent-password').value.trim();
   const phoneId  = document.getElementById('agent-phone-id').value.trim();
-  const permissions = Array.from(document.querySelectorAll('.agent-perm-cb:checked')).map(cb => cb.value);
+  const permissions = getCheckedChipKeys('agent-permissions-box');
   setAlert('agent-alert', '', '');
   if (!name)                         return setAlert('agent-alert', 'err', '⚠ Ingresa el nombre del agente');
   if (!email)                        return setAlert('agent-alert', 'err', '⚠ Ingresa un email');
@@ -3039,6 +3275,7 @@ async function renderOnboardingChecklist() {
       { done: agents.length > 0, label: 'Agrega un agente a una empresa (opcional)', action: "showAdminTab('agentes')", cta: 'Ir a Agentes' },
     ];
     const card = document.getElementById('admin-onboarding-card');
+    // El paso de agentes es opcional — no bloquea que la tarjeta desaparezca.
     const essential = steps.filter(s => !s.label.includes('opcional'));
     const allDone = essential.every(s => s.done);
     if (allDone) { card.style.display = 'none'; return; }
@@ -3141,6 +3378,7 @@ async function loadAdminClients() {
         </tr>`).join('')}
       </tbody></table>`;
     }
+    // Refrescar los selectores de clientes en los demás formularios del panel
     const opts = ADMIN_CLIENTS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
     document.getElementById('tpl-client').innerHTML = '<option value="">— Global (todas las empresas) —</option>' + opts;
     document.getElementById('field-client').innerHTML = '<option value="">— Elige una empresa —</option>' + opts;
@@ -3195,6 +3433,9 @@ async function deleteClientConfirm() {
   } catch(e) { alert('Error: ' + e.message); }
 }
 
+// ── Conectar WhatsApp de un cliente: reutiliza la página de conexión
+// normal (rápida por Facebook + manual), solo que "apuntada" a ese
+// cliente en vez de a la propia cuenta del superadmin. ──────────────
 let ADMIN_TARGET_CLIENT_ID = null;
 
 function connectClientWA(clientId) {
@@ -3212,22 +3453,85 @@ function clearConnectTarget() {
   loadWAStatus();
 }
 
+// ── Campos personalizados por empresa ──────────────────────────────
 async function loadClientFields() {
   const clientId = document.getElementById('field-client').value;
   const el = document.getElementById('admin-fields-table');
-  if (!clientId) { el.innerHTML = ''; return; }
   try {
-    const fields = await req('GET', `/admin/clients/${clientId}/fields`);
-    if (!fields.length) { el.innerHTML = `<div class="empty"><div class="ei">🏷️</div><p>Esta empresa aún no tiene campos personalizados</p></div>`; return; }
-    el.innerHTML = `<table><thead><tr><th>Clave</th><th>Etiqueta</th><th>Tipo</th><th></th></tr></thead><tbody>
-      ${fields.map(f => `<tr>
-        <td><code>${esc(f.key)}</code></td>
-        <td>${esc(f.label)}</td>
-        <td>${esc(f.field_type)}</td>
-        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="deleteClientField(${f.id})">🗑</button></td>
-      </tr>`).join('')}
-    </tbody></table>`;
+    if (!clientId) {
+      const fields = await req('GET', '/admin/fields');
+      ADMIN_FIELDS_CACHE = fields;
+      if (!fields.length) { el.innerHTML = `<div class="empty"><div class="ei">🏷️</div><p>Aún no hay campos personalizados en ninguna empresa — crea el primero arriba.</p></div>`; return; }
+      el.innerHTML = `<table><thead><tr><th>Empresa</th><th>Clave</th><th>Etiqueta</th><th>Tipo</th><th></th></tr></thead><tbody>
+        ${fields.map(f => `<tr>
+          <td>${esc(f.client_name)}</td>
+          <td><code>${esc(f.key)}</code></td>
+          <td>${esc(f.label)}</td>
+          <td>${esc(FIELD_TYPE_LABELS[f.field_type] || f.field_type)}</td>
+          <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="editFieldModal(${f.id})">✏️</button></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    } else {
+      const fields = await req('GET', `/admin/clients/${clientId}/fields`);
+      ADMIN_FIELDS_CACHE = fields;
+      if (!fields.length) { el.innerHTML = `<div class="empty"><div class="ei">🏷️</div><p>Esta empresa aún no tiene campos personalizados</p></div>`; return; }
+      el.innerHTML = `<table><thead><tr><th>Clave</th><th>Etiqueta</th><th>Tipo</th><th></th></tr></thead><tbody>
+        ${fields.map(f => `<tr>
+          <td><code>${esc(f.key)}</code></td>
+          <td>${esc(f.label)}</td>
+          <td>${esc(FIELD_TYPE_LABELS[f.field_type] || f.field_type)}</td>
+          <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="editFieldModal(${f.id})">✏️</button></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    }
   } catch(e) { console.error(e); }
+}
+
+const FIELD_TYPE_LABELS = { text: 'Texto', date: 'Fecha', number: 'Número', phone: 'Teléfono' };
+let ADMIN_FIELDS_CACHE = [];
+
+function editFieldModal(id) {
+  const f = ADMIN_FIELDS_CACHE.find(x => x.id === id);
+  if (!f) return;
+  openModal(`Editar campo`, `
+    <div class="alert" id="modal-field-alert"></div>
+    <div class="fgrid" style="margin-bottom:0;">
+      <div class="ff full"><label>Clave <span style="font-weight:400;text-transform:none">(no editable — puede estar en uso en plantillas)</span></label><input value="${esc(f.key)}" disabled style="opacity:.6;"></div>
+      <div class="ff full"><label>Etiqueta visible</label><input id="modal-field-label" value="${esc(f.label)}"></div>
+      <div class="ff full"><label>Tipo</label>
+        <select id="modal-field-type">
+          <option value="text" ${f.field_type==='text'?'selected':''}>Texto</option>
+          <option value="date" ${f.field_type==='date'?'selected':''}>Fecha</option>
+          <option value="number" ${f.field_type==='number'?'selected':''}>Número</option>
+          <option value="phone" ${f.field_type==='phone'?'selected':''}>Teléfono</option>
+        </select>
+      </div>
+    </div>
+  `, `
+    <button class="btn btn-r" onclick="deleteFieldFromModal(${id})">🗑 Eliminar</button>
+    <button class="btn btn-o" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-g" onclick="saveFieldEdit(${id})">💾 Guardar</button>
+  `);
+}
+
+async function saveFieldEdit(id) {
+  const label = document.getElementById('modal-field-label').value.trim();
+  const field_type = document.getElementById('modal-field-type').value;
+  if (!label) return setAlert('modal-field-alert', 'err', '⚠ Escribe una etiqueta');
+  try {
+    await req('PATCH', `/admin/fields/${id}`, { label, field_type });
+    closeModal();
+    loadClientFields();
+  } catch(e) { setAlert('modal-field-alert', 'err', '✕ ' + e.message); }
+}
+
+async function deleteFieldFromModal(id) {
+  if (!confirm('¿Eliminar este campo? Los contactos que ya lo tenían guardado conservan el valor, solo deja de estar en el catálogo.')) return;
+  try {
+    await req('DELETE', `/admin/fields/${id}`);
+    closeModal();
+    loadClientFields();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 async function createClientField() {
@@ -3253,6 +3557,7 @@ async function deleteClientField(id) {
   catch(e) { alert('Error: ' + e.message); }
 }
 
+// ── Plantillas Meta (HSM) ───────────────────────────────────────────
 async function syncMetaTemplates() {
   const clientId = document.getElementById('meta-tpl-client').value;
   setAlert('admin-meta-tpl-alert', '', '');
@@ -3287,6 +3592,7 @@ async function loadMetaTemplatesTable(clientId) {
 }
 document.getElementById('meta-tpl-client').addEventListener('change', function() { loadMetaTemplatesTable(this.value); });
 
+// ── Tooltips de información (reemplazan párrafos largos) ───────────
 function toggleTip(el) {
   const wasOpen = el.classList.contains('open');
   document.querySelectorAll('.info-tip.open').forEach(t => t.classList.remove('open'));
@@ -3298,9 +3604,10 @@ document.addEventListener('click', function(e) {
   }
 });
 
+// ── Vista previa en vivo del mensaje de plantilla ───────────────────
 function renderMessagePreview(raw) {
   if (!raw || !raw.trim()) {
-    return '<span style="color:#ffffff;">Escribe el mensaje para ver la vista previa…</span>';
+    return '<span style="color:var(--text3);">Escribe el mensaje para ver la vista previa…</span>';
   }
   let html = esc(raw);
   html = html.replace(/\{\{\s*name\s*\}\}/gi, 'María López');
@@ -3337,6 +3644,7 @@ async function createTemplate() {
   const client_id = document.getElementById('tpl-client').value;
   const message_template = document.getElementById('tpl-msg').value.trim();
   const meta_template_name = document.getElementById('tpl-meta-name').value.trim();
+  const meta_template_language = document.getElementById('tpl-meta-lang').value;
   setAlert('admin-tpl-alert', '', '');
   if (!name)             return setAlert('admin-tpl-alert','err','⚠ Escribe un nombre para la plantilla');
   if (!message_template) return setAlert('admin-tpl-alert','err','⚠ Escribe el mensaje de la plantilla');
@@ -3344,6 +3652,7 @@ async function createTemplate() {
     name, category: category||null, message_template,
     client_id: client_id? parseInt(client_id,10): null,
     meta_template_name: meta_template_name || null,
+    meta_template_language: meta_template_name ? meta_template_language : null,
   };
   try {
     if (EDITING_TEMPLATE_ID) {
@@ -3359,6 +3668,7 @@ async function createTemplate() {
     document.getElementById('tpl-msg').value = '';
     document.getElementById('tpl-client').value = '';
     document.getElementById('tpl-meta-name').value = '';
+    document.getElementById('tpl-meta-lang').value = 'es';
     updateTplPreview();
     loadAdminTemplates();
   } catch(e) { setAlert('admin-tpl-alert', 'err', '✕ ' + e.message); }
@@ -3372,6 +3682,7 @@ function editTemplate(id) {
   document.getElementById('tpl-category').value = t.category || '';
   document.getElementById('tpl-client').value = t.client_id || '';
   document.getElementById('tpl-meta-name').value = t.meta_template_name || '';
+  document.getElementById('tpl-meta-lang').value = t.meta_template_language || 'es';
   document.getElementById('tpl-msg').value = t.message_template;
   updateTplPreview();
   document.getElementById('tpl-form-title').textContent = `Editando: ${t.name}`;
@@ -3390,6 +3701,7 @@ function cancelTemplateEdit() {
   document.getElementById('tpl-msg').value = '';
   document.getElementById('tpl-client').value = '';
   document.getElementById('tpl-meta-name').value = '';
+  document.getElementById('tpl-meta-lang').value = 'es';
   updateTplPreview();
 }
 
@@ -3422,6 +3734,7 @@ async function loadAdminTemplates() {
         </tr>`).join('')}
       </tbody></table>`;
     }
+    // Refrescar el selector de plantillas del formulario de recordatorios
     const sel = document.getElementById('rec-template');
     if (sel) sel.innerHTML = '<option value="">— Elige una plantilla —</option>' +
       templates.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join('');
@@ -3438,6 +3751,7 @@ async function deleteTemplate(id) {
   catch(e) { alert('Error: ' + e.message); }
 }
 
+// ── Recordatorios recurrentes ───────────────────────────────────────
 async function createRecurring() {
   const name = document.getElementById('rec-name').value.trim();
   const client_id = document.getElementById('rec-client').value;
@@ -3481,6 +3795,7 @@ async function loadAdminRecurring() {
         </tr>`).join('')}
       </tbody></table>`;
     }
+    // Resumen compacto para la pestaña de overview
     const sumEl = document.getElementById('admin-recurring-summary-table');
     if (sumEl) {
       const active = list.filter(r => r.is_active);
@@ -3546,17 +3861,28 @@ async function editAdminAgent(agentId) {
   const a = ADMIN_AGENTS_CACHE.find(x => x.id === agentId);
   if (!a) return;
   await loadPermissionCatalog();
-  const allKeys = AGENT_PERM_CATALOG.map(p => p.key).join(', ');
-  const input = prompt(
-    `Editar roles de ${a.name} (${a.company})\n\nClaves disponibles: ${allKeys}\n\nEscribe las claves separadas por coma que debe tener:`,
-    (a.permissions||[]).join(', ')
-  );
-  if (input === null) return;
-  const perms = input.split(',').map(s => s.trim()).filter(Boolean);
+  openModal(`Editar roles — ${a.name}`, `
+    <div class="alert" id="modal-agent-alert"></div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Empresa: <strong style="color:var(--text)">${esc(a.company)}</strong></div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button type="button" class="btn btn-o" style="font-size:11px;padding:5px 10px;" onclick="renderChipSelector('modal-agent-perms', AGENT_PERM_CATALOG, AGENT_PERM_CATALOG.map(p=>p.key))">Marcar todos</button>
+      <button type="button" class="btn btn-o" style="font-size:11px;padding:5px 10px;" onclick="renderChipSelector('modal-agent-perms', AGENT_PERM_CATALOG, [])">Ninguno</button>
+    </div>
+    <div id="modal-agent-perms"></div>
+  `, `
+    <button class="btn btn-o" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-g" onclick="saveAdminAgentPerms(${agentId})">💾 Guardar</button>
+  `);
+  renderChipSelector('modal-agent-perms', AGENT_PERM_CATALOG, a.permissions || []);
+}
+
+async function saveAdminAgentPerms(agentId) {
+  const permissions = getCheckedChipKeys('modal-agent-perms');
   try {
-    await req('PATCH', `/admin/agents/${agentId}`, { permissions: perms });
+    await req('PATCH', `/admin/agents/${agentId}`, { permissions });
+    closeModal();
     loadAdminAgents();
-  } catch(e) { setAlert('admin-agents-alert', 'err', '✕ ' + e.message); }
+  } catch(e) { setAlert('modal-agent-alert', 'err', '✕ ' + e.message); }
 }
 
 async function toggleAdminAgentActive(agentId, newState) {
@@ -3576,6 +3902,69 @@ async function deleteAdminAgent(agentId) {
 }
 
 // ════════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════════
+function setAlert(id, type, msg) {
+  const el = document.getElementById(id);
+  el.className = 'alert'+(msg?' show':'')+(type==='ok'?' al-ok':type==='err'?' al-err':' al-info');
+  el.textContent = msg;
+}
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+function fmtDate(iso){
+  try { return new Date(iso).toLocaleDateString('es-HN',{day:'2-digit',month:'short',year:'numeric'}); }
+  catch{ return iso||''; }
+}
+
+// ════════════════════════════════════════════════════════════════
+// MODAL genérico — reemplaza prompt()/confirm() feos con un
+// formulario propio del tema visual de la app.
+// ════════════════════════════════════════════════════════════════
+function openModal(title, bodyHtml, footerHtml) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = bodyHtml;
+  document.getElementById('modal-footer').innerHTML = footerHtml || '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Chips de selección (reemplaza checkboxes nativos poco visibles) ──
+function renderChipSelector(containerId, options, selectedKeys, cssClass) {
+  const box = document.getElementById(containerId);
+  box.className = 'chip-selector';
+  box.innerHTML = options.map(o => `
+    <div class="chip ${selectedKeys.includes(o.key) ? 'checked' : ''} ${cssClass||''}" data-key="${esc(o.key)}" onclick="toggleChip(this)">
+      <span class="chip-check">✓</span>
+      <span>${esc(o.label)}</span>
+    </div>
+  `).join('');
+}
+function toggleChip(el) { el.classList.toggle('checked'); }
+function getCheckedChipKeys(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} .chip.checked`)).map(c => c.dataset.key);
+}
+
+// ── Contraste de color automático (fondo oscuro→letra clara, fondo
+// claro→letra oscura) — para colores elegidos libremente por el usuario
+// (etiquetas), donde no podemos garantizar de antemano si son claros u oscuros.
+function getContrastTextColor(hex) {
+  hex = (hex || '#22d3a0').replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+  const r = parseInt(hex.substr(0,2),16)||0, g = parseInt(hex.substr(2,2),16)||0, b = parseInt(hex.substr(4,2),16)||0;
+  const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return luminance > 0.6 ? '#0b1117' : '#ffffff';
+}
+function tagBadgeHtml(name, color) {
+  const textColor = getContrastTextColor(color);
+  return `<span class="bdg" style="background:${color};color:${textColor};border:1px solid ${color};">${esc(name)}</span>`;
+}
+</script>
+
+<script async defer src="https://connect.facebook.net/es_LA/sdk.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════════
 // ETIQUETAS
 // ════════════════════════════════════════════════════════════════
 let TAGS_CACHE = [];
@@ -3583,8 +3972,11 @@ let TAGS_CACHE = [];
 async function loadContactTagsDatalist() {
   try {
     TAGS_CACHE = await req('GET', '/tags');
-    document.getElementById('contact-tags-datalist').innerHTML =
-      TAGS_CACHE.map(t => `<option value="${esc(t.name)}">`).join('');
+    const sel = document.getElementById('co-tag');
+    const hint = document.getElementById('co-tag-hint');
+    sel.innerHTML = '<option value="">— Sin etiqueta —</option>' +
+      TAGS_CACHE.map(t => `<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('');
+    hint.style.display = TAGS_CACHE.length ? 'none' : 'block';
   } catch(e) { console.error(e); }
 }
 
@@ -3593,15 +3985,45 @@ async function loadTagsPage() {
     TAGS_CACHE = await req('GET', '/tags');
     const el = document.getElementById('tags-table');
     if (!TAGS_CACHE.length) { el.innerHTML = `<div class="empty"><div class="ei">🏷️</div><p>Aún no tienes etiquetas — crea la primera arriba.</p></div>`; return; }
-    el.innerHTML = `<table><thead><tr><th>Etiqueta</th><th>Descripción</th><th>Color</th><th></th></tr></thead><tbody>
+    el.innerHTML = `<table><thead><tr><th>Etiqueta</th><th>Descripción</th><th></th></tr></thead><tbody>
       ${TAGS_CACHE.map(t => `<tr>
-        <td><span class="bdg" style="background:${t.color}22;color:${t.color};border:1px solid ${t.color}55;">${esc(t.name)}</span></td>
+        <td>${tagBadgeHtml(t.name, t.color)}</td>
         <td style="font-size:12px;color:var(--text2)">${esc(t.description || '—')}</td>
-        <td><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:${t.color};vertical-align:middle;"></span></td>
-        <td><button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="deleteTag(${t.id})">🗑</button></td>
+        <td style="display:flex;gap:6px;">
+          <button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="editTagModal(${t.id})">✏️</button>
+          <button class="btn btn-o" style="padding:4px 9px;font-size:11px" onclick="deleteTag(${t.id})">🗑</button>
+        </td>
       </tr>`).join('')}
     </tbody></table>`;
   } catch(e) { console.error(e); }
+}
+
+function editTagModal(id) {
+  const t = TAGS_CACHE.find(x => x.id === id);
+  if (!t) return;
+  openModal(`Editar etiqueta`, `
+    <div class="alert" id="modal-tag-alert"></div>
+    <div class="fgrid" style="margin-bottom:0;">
+      <div class="ff full"><label>Nombre</label><input id="modal-tag-name" value="${esc(t.name)}"></div>
+      <div class="ff"><label>Color</label><input id="modal-tag-color" type="color" value="${t.color}" style="height:42px;padding:4px;cursor:pointer;width:100%;"></div>
+      <div class="ff full"><label>Descripción</label><input id="modal-tag-desc" value="${esc(t.description||'')}"></div>
+    </div>
+  `, `
+    <button class="btn btn-o" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-g" onclick="saveTagEdit(${id})">💾 Guardar</button>
+  `);
+}
+
+async function saveTagEdit(id) {
+  const name = document.getElementById('modal-tag-name').value.trim();
+  const color = document.getElementById('modal-tag-color').value;
+  const description = document.getElementById('modal-tag-desc').value.trim();
+  if (!name) return setAlert('modal-tag-alert', 'err', '⚠ Escribe un nombre');
+  try {
+    await req('PATCH', `/tags/${id}`, { name, color, description: description || null });
+    closeModal();
+    loadTagsPage();
+  } catch(e) { setAlert('modal-tag-alert', 'err', '✕ ' + e.message); }
 }
 
 async function createTag() {
@@ -3629,8 +4051,19 @@ async function deleteTag(id) {
 // INTEGRACIONES — API Keys
 // ════════════════════════════════════════════════════════════════
 function openCreateApiKey() {
-  const name = prompt('Nombre para identificar esta llave (ej. "Integración con mi ERP"):');
-  if (!name) return;
+  openModal('Nueva llave API', `
+    <div class="alert" id="modal-apikey-alert"></div>
+    <div class="ff full"><label>Nombre para identificar esta llave</label><input id="modal-apikey-name" placeholder='Ej: "Integración con mi ERP"'></div>
+  `, `
+    <button class="btn btn-o" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-g" onclick="submitCreateApiKey()">+ Crear llave</button>
+  `);
+}
+
+function submitCreateApiKey() {
+  const name = document.getElementById('modal-apikey-name').value.trim();
+  if (!name) return setAlert('modal-apikey-alert', 'err', '⚠ Escribe un nombre');
+  closeModal();
   createApiKey(name);
 }
 
@@ -3649,6 +4082,13 @@ function copyApiKeyValue() {
   const val = document.getElementById('apikey-raw-value').textContent;
   navigator.clipboard?.writeText(val);
   setAlert('apikey-alert', 'ok', '📋 Copiada al portapapeles');
+}
+
+async function openApiDocs() {
+  try {
+    const d = await req('GET', '/integrations/docs-token');
+    window.open(d.url, '_blank');
+  } catch(e) { alert('No se pudo abrir la documentación: ' + e.message); }
 }
 
 async function loadApiKeys() {
@@ -3682,18 +4122,20 @@ let WEBHOOK_EVENTS_CACHE = [];
 async function loadWebhookEventCatalog() {
   try {
     WEBHOOK_EVENTS_CACHE = await req('GET', '/integrations/webhook-events');
-    document.getElementById('wh-events-box').innerHTML = WEBHOOK_EVENTS_CACHE.map(e => `
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
-        <input type="checkbox" class="wh-event-cb" value="${e.key}">
-        ${esc(e.label)}
-      </label>
-    `).join('');
+    // Mismo componente de "chips" que usamos para permisos de agente —
+    // los checkboxes nativos aquí quedaban rotos porque heredaban el
+    // estilo de los inputs de texto (.ff input), que les quita la
+    // apariencia nativa sin darles una propia. Los chips sí se ven y
+    // se pueden marcar/desmarcar con un click.
+    renderChipSelector('wh-events-box',
+      WEBHOOK_EVENTS_CACHE.map(e => ({ key: e.key, label: e.label })),
+      [], 'wh-event-chip');
   } catch(e) { console.error(e); }
 }
 
 async function createWebhook() {
   const url = document.getElementById('wh-url').value.trim();
-  const events = Array.from(document.querySelectorAll('.wh-event-cb:checked')).map(cb => cb.value);
+  const events = getCheckedChipKeys('wh-events-box');
   setAlert('webhook-alert', '', '');
   if (!url) return setAlert('webhook-alert', 'err', '⚠ Escribe la URL de tu sistema');
   if (!events.length) return setAlert('webhook-alert', 'err', '⚠ Marca al menos un evento');
@@ -3701,7 +4143,8 @@ async function createWebhook() {
     const d = await req('POST', '/integrations/webhooks', { url, events, is_active: true });
     setAlert('webhook-alert', 'ok', `✅ Webhook creado. Secreto para verificar la firma (guárdalo, no se vuelve a mostrar): ${d.secret}`);
     document.getElementById('wh-url').value = '';
-    document.querySelectorAll('.wh-event-cb').forEach(cb => cb.checked = false);
+    renderChipSelector('wh-events-box',
+      WEBHOOK_EVENTS_CACHE.map(e => ({ key: e.key, label: e.label })), [], 'wh-event-chip');
     loadWebhooks();
   } catch(e) { setAlert('webhook-alert', 'err', '✕ ' + e.message); }
 }
@@ -3729,24 +4172,11 @@ async function deleteWebhook(id) {
   catch(e) { alert('Error: ' + e.message); }
 }
 
-// ════════════════════════════════════════════════════════════════
-// UTILS
-// ════════════════════════════════════════════════════════════════
-function setAlert(id, type, msg) {
-  const el = document.getElementById(id);
-  el.className = 'alert'+(msg?' show':'')+(type==='ok'?' al-ok':type==='err'?' al-err':' al-info');
-  el.textContent = msg;
-}
-function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
-function fmtDate(iso){
-  try { return new Date(iso).toLocaleDateString('es-HN',{day:'2-digit',month:'short',year:'numeric'}); }
-  catch{ return iso||''; }
-}
-</script>
-
-<script async defer src="https://connect.facebook.net/es_LA/sdk.js"></script>
-<script>
 window.fbAsyncInit = function() {
+  // El App ID se resuelve del backend (variable de entorno META_APP_ID
+  // en producción) en vez de quedar fijo en el código — así puedes
+  // cambiarlo sin tocar el frontend. Si el fetch falla, usa el mismo
+  // valor que ya tenías funcionando.
   fetch(API + '/config/public')
     .then(r => r.json())
     .then(cfg => FB.init({ appId: cfg.meta_app_id || '1423948069499384', cookie: true, xfbml: true, version: 'v22.0' }))

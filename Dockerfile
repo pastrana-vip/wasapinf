@@ -8,21 +8,16 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
         ca-certificates \
-        gnupg \
         unixodbc \
         unixodbc-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar repositorio de Microsoft
-RUN curl -fSL https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb \
-    -o /tmp/packages-microsoft-prod.deb \
-    && dpkg -i /tmp/packages-microsoft-prod.deb \
-    && rm /tmp/packages-microsoft-prod.deb
-
-# Instalar Microsoft ODBC Driver 18
-RUN apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
-    && rm -rf /var/lib/apt/lists/*
+# Descargar e instalar Microsoft ODBC Driver 18 directamente
+RUN curl -fSL \
+    https://packages.microsoft.com/debian/12/prod/pool/main/m/msodbcsql18/msodbcsql18_18.5.1.1-1_amd64.deb \
+    -o /tmp/msodbcsql18.deb \
+    && ACCEPT_EULA=Y dpkg -i /tmp/msodbcsql18.deb || apt-get update && apt-get install -f -y \
+    && rm -f /tmp/msodbcsql18.deb
 
 WORKDIR /app
 
